@@ -1,0 +1,15 @@
+第一步:確認檔案位於C:
+第二步:打開終端機輸入cd C:\question_bank_system，到達檔案位置
+第三步:輸入pip install -r requirements.txt，下載所需資源
+第四步:輸入uvicorn main:app --reload --host 0.0.0.0 --port 8000，開啟伺服器
+第五步:再開一個終端機輸入ipconfig，找到IPv4 位址 xxx.xxx.xxx.xxx
+第六步:打開網頁輸入http://xxx.xxx.xxx.xxx:8000/static/index.html，前往網頁。
+
+
+
+
+注意:
+如果你用記事本看，部分空格為底線。
+如果你不想放C槽，請寫完防止DDoS的程式再來抱怨。
+目前只能局域網連線，簡單來說，必須同一個WIFI。
+以上步驟，除了第六步，皆為伺服器視角。

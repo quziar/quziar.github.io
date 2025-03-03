@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理員專用頁面</title>
+    
+    <!-- 加入 CSS 檔案 -->
+    <link rel="stylesheet" href="/static/styles.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            background-color: #3498db;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #response {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #e74c3c;
+        }
+
+        #questionList {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            text-align: left;
+        }
+
+        .question-item {
+            margin-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+
+        .answer-options {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+
+        .answer-options span {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>題庫管理員面板</h1>
+
+    <div class="button-container">
+        <button id="importBtn">📄 匯入 Excel 題目</button>
+        <button id="viewAllBtn">🔍 查看所有題目</button>
+        <button id="clearBtn">🗑️ 清空所有題目</button>
+        <button id="cleanDuplicatesBtn">🧹 整理重複題目</button>
+    </div>
+
+    <div id="response"></div>
+
+    <div id="questionList"></div>  <!-- 顯示題目的區域 -->
+
+    <!-- 加入 JS 檔案 -->
+    <script src="/static/script2.js"></script>
+
+</body>
+
+</html>
