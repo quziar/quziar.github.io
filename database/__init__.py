@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-DB_PATH = r"C:\question_bank_system\database\question_bank.db"
+DB_PATH = r"database\question_bank.db"
 
 class DatabaseConnection:
     def __enter__(self):
