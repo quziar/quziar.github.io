@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 # 使用相對路徑來引用資料庫文件
-DB_PATH = os.path.join(os.path.dirname(__file__), 'database', 'question_bank.db')
+DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'question_bank.db')
 
 class DatabaseConnection:
     def __enter__(self):
