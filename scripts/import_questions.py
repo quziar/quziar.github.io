@@ -4,7 +4,7 @@ from database import get_db_connection
 
 def import_questions_from_excel():
     try:
-        excel_path = r"datebase\questions.xlsx"
+        excel_path = os.path.join(os.path.dirname(__file__), 'database', 'questions.xlsx')
 
         # 檢查 Excel 檔案是否存在
         if not os.path.exists(excel_path):
