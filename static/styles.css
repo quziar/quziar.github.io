@@ -405,7 +405,7 @@ button#confirm-answer:hover {
     border: 1px solid #aaa;
     border-radius: 5px;
 }
-#back-link, #register-link, #login-link {
+#back-link,#book-link, #register-link, #login-link {
     position: absolute;
     top: 20px;
     text-decoration: none;
@@ -416,7 +416,9 @@ button#confirm-answer:hover {
 #back-link {
     left: 20px;
 }
-
+#book-link {
+    left: 100px;
+}
 #register-link {
     right: 100px;
 }
@@ -427,4 +429,8 @@ button#confirm-answer:hover {
 
 #back-link:hover, #register-link:hover, #login-link:hover {
     text-decoration: underline;
+}
+#popup-window {
+    max-height: 80vh; /* 設定最大高度為視窗高度的 80% */
+    overflow-y: auto; /* 啟用垂直滾動條 */
 }
