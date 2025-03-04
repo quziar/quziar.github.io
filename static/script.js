@@ -3223,6 +3223,25 @@ function endQuiz() {
     document.getElementById('start-quiz').style.display = 'none'; 
     document.getElementById('question-container').style.display = 'none';
     document.querySelector('.button-container').style.display = 'none';
+        // 儲存測驗結果
+        if (currentUser) {
+            const history = JSON.parse(localStorage.getItem('quizHistory')) || [];
+            const quizResult = {
+                username: currentUser,
+                score: scorePercentage.toFixed(2),
+                incorrectCount: incorrectCount,
+                date: new Date().toLocaleString(),
+                details: questions.map((question) => ({
+                    questionNumber: question.questionNumber,
+                    selectedAnswer: question.selectedAnswer,
+                    correctAnswer: question.gh,
+                    isCorrect: question.selectedAnswer === question.gh,
+                    explanation: question.explanation || '無詳解',
+                }))
+            };
+            history.push(quizResult);
+            localStorage.setItem('quizHistory', JSON.stringify(history));
+        }
 }
 
 // 返回主畫面函數
@@ -3616,6 +3635,11 @@ function loginFunction() {
                     delete users[deleteUser];
                     saveUsers();
                     alert("帳號 " + deleteUser + " 已被刪除。");
+                    // 刪除該帳號的測驗歷史
+                    const quizHistory = JSON.parse(localStorage.getItem('quizHistory')) || [];
+                    const updatedHistory = quizHistory.filter(result => result.username !== deleteUser);
+                    localStorage.setItem('quizHistory', JSON.stringify(updatedHistory));
+                    alert("帳號 " + deleteUser + " 已被刪除，並且歷史紀錄已重製。");                    
                 }
             }
 
@@ -3644,4 +3668,66 @@ updateLoginButton();
 document.getElementById("close-popup").addEventListener("click", function() {
     document.getElementById("popup-window").style.display = "none";
 });
+// 歷史紀錄顯示功能
+document.getElementById("book-link").addEventListener("click", function() {
+    if (!currentUser) {
+        alert("請先登入查看歷史紀錄！");
+        return;
+    }
+
+    // 顯示該用戶的測驗歷史
+    const quizHistory = JSON.parse(localStorage.getItem('quizHistory')) || [];
+    const userHistory = quizHistory.filter(result => result.username === currentUser);
+
+    if (userHistory.length === 0) {
+        alert("您目前沒有測驗歷史紀錄！");
+        return;
+    }
+
+    let historyHtml = `<h3>${currentUser} 的歷史紀錄：</h3>`;
+    userHistory.forEach((result, index) => {
+        historyHtml += `
+        <div>
+            <h4>測驗日期：${result.date}</h4>
+            <p>總分：${result.score}%</p>
+            <p>錯誤題數：${result.incorrectCount}</p>
+            <button onclick="toggleDetails(${index})">顯示詳情</button>
+            <div id="details-${index}" style="display:none;">
+                <table border="1">
+                    <tr style="color: black;">
+                        <th>題號</th>
+                        <th>您的答案</th>
+                        <th>正確答案</th>
+                        <th>詳解</th>
+                    </tr>
+        `;
+
+        result.details.forEach((detail) => {
+            historyHtml += `
+            <tr>
+                <td>${detail.questionNumber}</td>
+                <td>${detail.selectedAnswer || '未作答'}</td>
+                <td>${detail.correctAnswer}</td>
+                <td>${detail.explanation}</td>
+            </tr>
+            `;
+        });
+        
+        historyHtml += `</table><br></div></div>`;
+    });
+
+    document.getElementById("popup-window").style.display = "block";
+    document.getElementById("popup-title").textContent = "歷史紀錄";
+    document.getElementById("popup-body").innerHTML = historyHtml;
+});
+
+// 切換顯示/隱藏詳情的函數
+function toggleDetails(index) {
+    const detailsDiv = document.getElementById(`details-${index}`);
+    if (detailsDiv.style.display === "none") {
+        detailsDiv.style.display = "block";
+    } else {
+        detailsDiv.style.display = "none";
+    }
+}
 
