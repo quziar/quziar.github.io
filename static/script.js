@@ -3615,6 +3615,7 @@ document.getElementById("register-link").addEventListener("click", function() {
         // 更新 users 並上傳
         users[newUsername] = newPassword;
         uploadUsers(users);
+        updateLoginButton();
 
         alert("註冊成功！");
         document.getElementById("popup-window").style.display = "none";
@@ -3680,9 +3681,6 @@ function logoutFunction() {
         alert("已成功登出！");
     }
 }
-
-// 初始化登入按鈕狀態
-updateLoginButton();
 
 // 關閉視窗
 document.getElementById("close-popup").addEventListener("click", function() {
