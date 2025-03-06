@@ -3569,7 +3569,7 @@ async function uploadUsers(users) {
 
 // 更新登入/登出按鈕
 function updateLoginButton() {
-    const loginButton = document.getElementById("login-link");
+    let loginButton = document.getElementById("login-link");
     if (currentUser) {
         loginButton.textContent = "登出";
         loginButton.removeEventListener("click", loginFunction);
