@@ -3623,7 +3623,7 @@ document.getElementById("register-link").addEventListener("click", function() {
 });
 
 // 登入功能
-function loginFunction() {
+document.getElementById("login-link").addEventListener("click", function() {
     showPopup("登入", `
         <label for="username">帳號：</label>
         <input type="text" id="username" required><br>
