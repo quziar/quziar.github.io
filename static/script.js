@@ -3541,12 +3541,30 @@ document.getElementById('add-question-form').addEventListener('submit', function
 // 檢查是否已經有存儲的用戶資料，沒有則初始化
 // 取得 localStorage 的用戶資料，確保是物件
 
-const users = JSON.parse(localStorage.getItem("users")) || { "a": "123456" };
-let currentUser = localStorage.getItem("currentUser") || null; // 取得當前登入的用戶
+let users = { "a": "123456" };
 
-// 儲存用戶資料到 localStorage
-function saveUsers() {
-    localStorage.setItem("users", JSON.stringify(users));
+// 直接上傳使用者資料到 FastAPI
+async function uploadUsers(users) {
+    try {
+        const userList = Object.entries(users).map(([username, password]) => ({ username, password }));
+
+        const response = await fetch("/api/save_users/", {  // 確保路徑正確，應以斜線結尾
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ users: userList })
+        });
+
+        if (response.ok) {
+            console.log("使用者資料已成功上傳");
+        } else {
+            const errorText = await response.text();
+            console.error("上傳失敗：", errorText);
+        }
+    } catch (error) {
+        console.error("發生錯誤：", error);
+    }
 }
 
 // 更新登入/登出按鈕
@@ -3579,23 +3597,25 @@ document.getElementById("register-link").addEventListener("click", function() {
         <input type="password" id="newPassword" required><br>
         <button id="registerBtn">註冊</button>
     `);
-    
+
     document.getElementById("registerBtn").addEventListener("click", function() {
-        let newUsername = document.getElementById("newUsername").value;
-        let newPassword = document.getElementById("newPassword").value;
-        
+        const newUsername = document.getElementById("newUsername").value.trim();
+        const newPassword = document.getElementById("newPassword").value.trim();
+
         if (!newUsername || !newPassword) {
             alert("帳號與密碼不能為空");
             return;
         }
-        
-        if (users[newUsername]) {
+
+        if (users.hasOwnProperty(newUsername)) {
             alert("該帳號已存在，請重新輸入。");
             return;
         }
-        
+
+        // 更新 users 並上傳
         users[newUsername] = newPassword;
-        saveUsers();
+        uploadUsers(users);
+
         alert("註冊成功！");
         document.getElementById("popup-window").style.display = "none";
     });
@@ -3633,7 +3653,7 @@ function loginFunction() {
                 let deleteUser = prompt("請輸入要刪除的帳號 (取消則不刪除):");
                 if (deleteUser && users[deleteUser] && deleteUser !== "a") {
                     delete users[deleteUser];
-                    saveUsers();
+                    uploadUsers(users);  // 更新資料庫
                     alert("帳號 " + deleteUser + " 已被刪除。");
                     // 刪除該帳號的測驗歷史
                     const quizHistory = JSON.parse(localStorage.getItem('quizHistory')) || [];
@@ -3668,6 +3688,7 @@ updateLoginButton();
 document.getElementById("close-popup").addEventListener("click", function() {
     document.getElementById("popup-window").style.display = "none";
 });
+
 // 歷史紀錄顯示功能
 document.getElementById("book-link").addEventListener("click", function() {
     if (!currentUser) {
@@ -3730,4 +3751,3 @@ function toggleDetails(index) {
         detailsDiv.style.display = "none";
     }
 }
-
