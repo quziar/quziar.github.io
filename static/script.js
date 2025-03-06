@@ -3615,6 +3615,7 @@ document.getElementById("register-link").addEventListener("click", function() {
         // 更新 users 並上傳
         users[newUsername] = newPassword;
         uploadUsers(users);
+        updateLoginButton();
 
         alert("註冊成功！");
         document.getElementById("popup-window").style.display = "none";
