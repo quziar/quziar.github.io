@@ -3599,8 +3599,8 @@ document.getElementById("register-link").addEventListener("click", function() {
     `);
 
     document.getElementById("registerBtn").addEventListener("click", function() {
-        const newUsername = document.getElementById("newUsername").value.trim();
-        const newPassword = document.getElementById("newPassword").value.trim();
+        let newUsername = document.getElementById("newUsername").value.trim();
+        let newPassword = document.getElementById("newPassword").value.trim();
 
         if (!newUsername || !newPassword) {
             alert("帳號與密碼不能為空");
@@ -3615,7 +3615,6 @@ document.getElementById("register-link").addEventListener("click", function() {
         // 更新 users 並上傳
         users[newUsername] = newPassword;
         uploadUsers(users);
-        updateLoginButton();
 
         alert("註冊成功！");
         document.getElementById("popup-window").style.display = "none";
