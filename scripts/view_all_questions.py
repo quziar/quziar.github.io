@@ -1,10 +1,10 @@
 import sqlite3
-from database import get_db_connection
+from database import get_question_db
 
 def view_all_questions():
     try:
         # 使用資料庫連線
-        with get_db_connection() as conn:
+        with get_question_db() as conn:
             cursor = conn.cursor()
             cursor.execute('SELECT * FROM questions')
             rows = cursor.fetchall()

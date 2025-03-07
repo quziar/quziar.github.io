@@ -1,7 +1,7 @@
-from database import get_db_connection
+from database import get_question_db
 
 def fetch_all_questions():
-    conn = get_db_connection()
+    conn = get_question_db()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM questions")
     rows = cursor.fetchall()
@@ -9,7 +9,7 @@ def fetch_all_questions():
     return [dict(row) for row in rows]
 
 def add_new_question(question):
-    conn = get_db_connection()
+    conn = get_question_db()
     cursor = conn.cursor()
     # 這裡以簡單方式儲存選項，將 list 用逗號分隔存入資料庫
     cursor.execute(

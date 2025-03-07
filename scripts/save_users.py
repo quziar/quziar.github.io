@@ -1,5 +1,6 @@
+import os
 import sqlite3
-from database import get_db_connection
+from database import get_user_db
 
 def upload_users(users):
     # 使用者資料會是字典格式

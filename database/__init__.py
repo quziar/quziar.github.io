@@ -2,34 +2,34 @@ import sqlite3
 import os
 
 # 使用相對路徑來引用資料庫文件
-DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'question_bank.db')
-USER_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'user_account.db')  # 新增使用者資料庫路徑
+DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'question_bank.db')    # 題庫資料庫
+USER_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'user_account.db')  # 使用者資料庫
 
 class DatabaseConnection:
+    def __init__(self, db_path):
+        self.db_path = db_path
+
     def __enter__(self):
-        # 檢查資料庫是否存在，如果不存在則創建
-        self._ensure_database_exists(DB_PATH, USER_DB_PATH)
-        
-        self.conn = sqlite3.connect(DB_PATH)  # 用於題庫資料
-        self.conn.row_factory = sqlite3.Row  # 讓查詢結果以字典形式返回
+        self._ensure_database_exists()
+        self.conn = sqlite3.connect(self.db_path)
+        self.conn.row_factory = sqlite3.Row
         return self.conn
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.conn:
             self.conn.close()
 
-    def _ensure_database_exists(self, db_path, user_db_path):
-        # 確保題庫資料庫存在
-        if not os.path.exists(db_path):
-            self._create_database(db_path)
+    def _ensure_database_exists(self):
+        # 如果資料庫不存在，則創建
+        if not os.path.exists(self.db_path):
+            if self.db_path == DB_PATH:
+                self._create_question_db()
+            elif self.db_path == USER_DB_PATH:
+                self._create_user_db()
 
-        # 確保使用者帳號資料庫存在
-        if not os.path.exists(user_db_path):
-            self._create_user_database(user_db_path)
-
-    def _create_database(self, db_path):
-        # 創建資料庫和表格
-        with sqlite3.connect(db_path) as conn:
+    def _create_question_db(self):
+        # 創建題庫資料庫結構
+        with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS questions (
@@ -44,9 +44,9 @@ class DatabaseConnection:
             ''')
             conn.commit()
 
-    def _create_user_database(self, user_db_path):
-        # 創建使用者資料庫和表格
-        with sqlite3.connect(user_db_path) as conn:
+    def _create_user_db(self):
+        # 創建使用者資料庫結構
+        with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS users (
@@ -58,5 +58,8 @@ class DatabaseConnection:
             conn.commit()
 
 
-def get_db_connection():
-    return DatabaseConnection()
+def get_question_db():
+    return DatabaseConnection(DB_PATH)
+
+def get_user_db():
+    return DatabaseConnection(USER_DB_PATH)

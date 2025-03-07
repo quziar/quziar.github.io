@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from database import get_db_connection
+from database import get_question_db
 
 def import_questions_from_excel():
     try:
@@ -11,7 +11,7 @@ def import_questions_from_excel():
             raise FileNotFoundError("Excel file does not exist!")
 
         # 取得資料庫連線
-        conn = get_db_connection()
+        conn = get_question_db()
         cursor = conn.cursor()
 
         # 讀取 Excel 檔案

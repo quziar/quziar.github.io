@@ -1,9 +1,9 @@
-from database import get_db_connection
+from database import get_question_db
 
 def clean_duplicate_questions():
     try:
         # 連接到資料庫
-        conn = get_db_connection()
+        conn = get_question_db()
         cursor = conn.cursor()
         print("正在連接到資料庫...")
 
