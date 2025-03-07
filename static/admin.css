@@ -1,0 +1,113 @@
+/* 全域樣式 */
+body {
+    font-family: 'Noto Sans TC', Arial, sans-serif; /* 支援繁體中文字型 */
+    text-align: center;
+    margin: 20px;
+    background-color: #ecf0f1; /* 柔和背景 */
+    color: #2c3e50; /* 主要文字顏色 */
+    line-height: 1.6; /* 提升文字閱讀性 */
+}
+
+/* 標題樣式 */
+h1 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+/* 按鈕區塊 */
+.button-container {
+    margin: 20px 0;
+    display: flex;
+    flex-wrap: wrap; /* 自適應換行 */
+    justify-content: center; /* 置中 */
+    gap: 15px; /* 按鈕間距 */
+}
+
+/* 按鈕樣式 */
+button {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px; /* 更圓滑的邊角 */
+    background: linear-gradient(135deg, #3498db, #2980b9); /* 漸變色 */
+    color: white;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 輕微陰影效果 */
+}
+
+/* 按鈕懸停效果 */
+button:hover {
+    background: linear-gradient(135deg, #2980b9, #1f6696);
+    transform: translateY(-2px); /* 輕微上移 */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 反饋訊息區 */
+#response {
+    margin-top: 30px;
+    font-size: 14px;
+    color: #e74c3c; /* 錯誤或提示顏色 */
+    font-weight: bold;
+}
+
+/* 題目與使用者列表容器 */
+#questionList {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background-color: white;
+    text-align: left;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 卡片效果 */
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-x: auto; /* 避免溢出 */
+}
+
+/* 單個題目/使用者項目 */
+.question-item, .user-item {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #bdc3c7;
+    padding-bottom: 10px;
+    padding-left: 10px;
+}
+
+/* 項目最後一個無底線 */
+.question-item:last-child, .user-item:last-child {
+    border-bottom: none;
+}
+
+/* 答案選項區 */
+.answer-options {
+    margin-top: 10px;
+    padding-left: 20px;
+}
+
+/* 選項樣式 */
+.answer-options span {
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* 響應式設計，適配小螢幕 */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.5rem; /* 小螢幕縮小標題 */
+    }
+
+    .button-container {
+        flex-direction: column; /* 按鈕垂直排列 */
+    }
+
+    #questionList {
+        padding: 10px; /* 小螢幕減少間距 */
+    }
+
+    button {
+        width: 100%; /* 按鈕填滿寬度 */
+    }
+}

@@ -2704,10 +2704,7 @@ let questions = [
         eliminatedOptions: []
 },
 
-
-
 ];
-
 
 // 全域變數
 let currentQuestionIndex = 0;
@@ -2720,6 +2717,7 @@ let timer; // 將 timer 變數設置為全域範圍
 let markedQuestionIndex = null; // 新增標記題目索引
 let completedQuestions = new Set(); // 新增已完成題目集合
 let totalQuestions = questions.length;
+let currentUser = null;
 
 document.getElementById("eliminate-option").addEventListener("click", function() {
     const eliminateContainer = document.getElementById('eliminate-container');
@@ -3548,7 +3546,7 @@ async function uploadUsers(users) {
     try {
         const userList = Object.entries(users).map(([username, password]) => ({ username, password }));
 
-        const response = await fetch("/api/save_users/", {  // 確保路徑正確，應以斜線結尾
+        const response = await fetch("/api/save_users/save_users/", {  // 確保路徑正確，應以斜線結尾
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -3568,16 +3566,25 @@ async function uploadUsers(users) {
 }
 
 // 更新登入/登出按鈕
+// 更新註冊按鈕/使用者名稱
 function updateLoginButton() {
     let loginButton = document.getElementById("login-link");
+    let registerButton = document.getElementById("register-link");
+
+    // 確保先移除舊的事件處理程序
+    loginButton.removeEventListener("click", loginFunction);
+    loginButton.removeEventListener("click", logoutFunction);
+    registerButton.removeEventListener("click", registerFunction);
+
     if (currentUser) {
         loginButton.textContent = "登出";
-        loginButton.removeEventListener("click", loginFunction);
         loginButton.addEventListener("click", logoutFunction);
+        registerButton.textContent = currentUser;  // 顯示當前使用者名稱
     } else {
         loginButton.textContent = "登入";
-        loginButton.removeEventListener("click", logoutFunction);
         loginButton.addEventListener("click", loginFunction);
+        registerButton.textContent = "註冊";
+        registerButton.addEventListener("click", registerFunction);
     }
 }
 
@@ -3589,7 +3596,7 @@ function showPopup(title, content) {
 }
 
 // 註冊按鈕
-document.getElementById("register-link").addEventListener("click", function() {
+function registerFunction() {
     showPopup("註冊", `
         <label for="newUsername">帳號：</label>
         <input type="text" id="newUsername" required><br>
@@ -3615,15 +3622,16 @@ document.getElementById("register-link").addEventListener("click", function() {
         // 更新 users 並上傳
         users[newUsername] = newPassword;
         uploadUsers(users);
+        currentUser = newUsername;
         updateLoginButton();
 
         alert("註冊成功！");
         document.getElementById("popup-window").style.display = "none";
     });
-});
+}
 
 // 登入功能
-document.getElementById("login-link").addEventListener("click", function() {
+function loginFunction() {
     showPopup("登入", `
         <label for="username">帳號：</label>
         <input type="text" id="username" required><br>
@@ -3632,44 +3640,50 @@ document.getElementById("login-link").addEventListener("click", function() {
         <button id="loginBtn">登入</button>
     `);
     
-    document.getElementById("loginBtn").addEventListener("click", function() {
-        let username = document.getElementById("username").value;
-        let password = document.getElementById("password").value;
+    document.getElementById("loginBtn").addEventListener("click", async function() {
+        let username = document.getElementById("username").value.trim();
+        let password = document.getElementById("password").value.trim();
 
-        if (!users[username]) {
-            alert("無此帳號，請重試！");
+        if (!username || !password) {
+            alert("帳號與密碼不能為空");
             return;
         }
 
-        if (users[username] === password) {
-            alert("登入成功！");
-            currentUser = username;
-            localStorage.setItem("currentUser", currentUser);
-            updateLoginButton();
+        try {
+            // 向 FastAPI 發送登入請求
+            const response = await fetch("/api/save_users/userlogin/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username: username, password: password })
+            });
 
-            if (username === "a") { // 管理員帳號
-                let allUsers = Object.keys(users).join(", ");
-                alert("目前所有帳號: " + allUsers);
-                
-                let deleteUser = prompt("請輸入要刪除的帳號 (取消則不刪除):");
-                if (deleteUser && users[deleteUser] && deleteUser !== "a") {
-                    delete users[deleteUser];
-                    uploadUsers(users);  // 更新資料庫
-                    alert("帳號 " + deleteUser + " 已被刪除。");
-                    // 刪除該帳號的測驗歷史
-                    const quizHistory = JSON.parse(localStorage.getItem('quizHistory')) || [];
-                    const updatedHistory = quizHistory.filter(result => result.username !== deleteUser);
-                    localStorage.setItem('quizHistory', JSON.stringify(updatedHistory));
-                    alert("帳號 " + deleteUser + " 已被刪除，並且歷史紀錄已重製。");                    
+            if (response.ok) {
+                // 如果是管理員，執行額外操作
+                if (username === "a") {  //  "a" 是管理員
+                    window.location.href = "/static/admin_dashboard.html/";
                 }
-            }
+                else{
+                const data = await response.json();
+                alert(data.message);  // 顯示登入成功訊息
+                currentUser = username;
+                localStorage.setItem("currentUser", currentUser);
+                updateLoginButton();
+                }
 
-            document.getElementById("popup-window").style.display = "none";
-        } else {
-            alert("密碼錯誤，請重試！");
+                document.getElementById("popup-window").style.display = "none";
+            } else {
+                const errorData = await response.json();
+                alert(errorData.detail || "登入失敗");
+            }
+        } catch (error) {
+            alert("發生錯誤，請稍後再試！");
+            console.error(error);
         }
     });
 }
+
 
 // 登出功能
 function logoutFunction() {
@@ -3680,7 +3694,10 @@ function logoutFunction() {
         updateLoginButton();
         alert("已成功登出！");
     }
-}
+};
+
+// 初始化登入按鈕狀態
+updateLoginButton();
 
 // 關閉視窗
 document.getElementById("close-popup").addEventListener("click", function() {

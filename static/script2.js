@@ -91,3 +91,36 @@ document.getElementById("cleanDuplicatesBtn").addEventListener("click", async ()
         alert("Error: " + error);
     }
 });
+
+// 查看所有使用者
+document.getElementById('viewUsersBtn').addEventListener('click', function() {
+    document.getElementById('response').textContent = '正在載入使用者列表...';
+
+    fetch('/api/save_users/view_all_users/')
+        .then(response => response.json())
+        .then(data => {
+            const questionList = document.getElementById('questionList');
+            questionList.innerHTML = ''; // 清空現有資料
+
+            if (data.users && data.users.length === 0) {
+                questionList.innerHTML = '<p>目前沒有使用者。</p>';
+            } else {
+                // 生成使用者列表
+                data.users.forEach(user => {
+                    const div = document.createElement('div');
+                    div.classList.add('user-item');
+                    div.innerHTML = `
+                        <strong>ID:</strong> ${user.id} <br>
+                        <strong>帳號:</strong> ${user.username} <br>
+                        <hr>
+                    `;
+                    questionList.appendChild(div);
+                });
+            }
+            document.getElementById('response').textContent = ''; // 清除提示
+        })
+        .catch(error => {
+            document.getElementById('response').textContent = '無法載入使用者，請稍後再試。';
+            console.error('Error:', error);
+        });
+});
