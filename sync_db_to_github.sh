@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # 變數設定
-DB1=/opt/render/project/src/database/question_bank.db
-DB2=/opt/render/project/src/database/user_account.db
-GITHUB_REPO="https://github.com/quziar/quziar.github.io/database
-BRANCH=main
+DB1="$DB1_PATH"
+DB2="$DB2_PATH"
+GITHUB_REPO="$GITHUB_REPO"
+BRANCH="${GITHUB_BRANCH:-main}"
 TMP_DIR="/tmp/sqlite_backup"
 
 # 檢查資料庫是否存在
@@ -21,12 +21,12 @@ cp "$DB1" "$TMP_DIR/question_bank.db"
 cp "$DB2" "$TMP_DIR/user_data.db"
 
 # 設定 Git 身份
-git config --global user.name NKiinimy
+git config --global user.name "$GITHUB_USER"
 git config --global user.email "NKiinimy@gmail.com"
 
 # Clone GitHub 儲存庫
 cd $TMP_DIR
-git clone "https://NKiinimy:${GITHUB_TOKEN}@${GITHUB_REPO}" repo
+git clone "https://${GITHUB_USER}:${GITHUB_TOKEN}@${GITHUB_REPO}" repo
 cd repo
 
 # 更新資料庫檔案
