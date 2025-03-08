@@ -26,12 +26,8 @@ git config --global user.email "NKiinimy@gmail.com"
 
 # Clone GitHub 儲存庫
 cd $TMP_DIR
-git clone "https://${GITHUB_USER}:${GITHUB_TOKEN}@${GITHUB_REPO}" repo
+git clone "${GITHUB_USER}:${GITHUB_TOKEN}@${GITHUB_REPO}" repo
 cd repo
-
-# 更新資料庫檔案
-cp "$TMP_DIR/question_bank.db" .
-cp "$TMP_DIR/user_data.db" .
 
 # 提交更改並推送
 if [ -n "$(git status --porcelain)" ]; then
