@@ -10,8 +10,6 @@ TMP_DIR="/tmp/sqlite_backup"
 # 檢查資料庫是否存在
 if [ ! -f "$DB1" ] || [ ! -f "$DB2" ]; then
     echo "❌ 找不到資料庫，請檢查 DB1_PATH 和 DB2_PATH"
-    echo "DB1 路徑：$DB1"
-    echo "DB2 路徑：$DB2"
     exit 1
 fi
 
@@ -26,15 +24,16 @@ git config --global user.email "NKiinimy@gmail.com"
 
 # Clone GitHub 儲存庫
 cd $TMP_DIR
-git clone "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git" repo
+git clone "https://${GITHUB_USER}:${GITHUB_TOKEN}@${GITHUB_REPO}" repo
 cd repo
 
-cp "$TMP_DIR/question_bank.db" database/
-cp "$TMP_DIR/user_data.db" database/
+# 更新資料庫檔案
+cp "$TMP_DIR/question_bank.db" ./database/
+cp "$TMP_DIR/user_data.db" ./database/
 
 # 提交更改並推送
 if [ -n "$(git status --porcelain)" ]; then
-    git add question_bank.db user_data.db
+    git add database/question_bank.db database/user_data.db
     git commit -m "🗂️ 更新 SQLite 資料庫 $(date)"
     git push origin $BRANCH
     echo "✅ 資料庫更新完成，已推送到 GitHub。"
