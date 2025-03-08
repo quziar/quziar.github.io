@@ -43,3 +43,4 @@ fi
 
 # 清理暫存
 rm -rf $TMP_DIR
+echo "✅ 資料庫已成功同步至 GitHub。"
