@@ -1,3 +1,6 @@
+import asyncio
+import time
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
@@ -31,6 +34,18 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/test/")
 async def test_route():
     return {"message": "測試路由正常工作"}
+
+# 持續執行的任務
+async def sync_databases_periodically():
+    while True:
+        subprocess.run(["bash", "sync_databases.sh"], check=True)
+        print("正在同步資料庫...")
+        await asyncio.sleep(60)  # 每小時同步一次，這裡使用異步 sleep
+
+@app.on_event("startup")
+async def startup_event():
+    # 在啟動時啟動異步的資料庫同步任務
+    asyncio.create_task(sync_databases_periodically())  # 創建異步任務並啟動
 
 if __name__ == "__main__":
     import uvicorn
