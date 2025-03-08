@@ -29,6 +29,9 @@ cd $TMP_DIR
 git clone "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git" repo
 cd repo
 
+cp "$TMP_DIR/question_bank.db" database/
+cp "$TMP_DIR/user_data.db" database/
+
 # 提交更改並推送
 if [ -n "$(git status --porcelain)" ]; then
     git add question_bank.db user_data.db
