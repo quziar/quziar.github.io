@@ -33,7 +33,7 @@ cp "$TMP_DIR/user_account.db" ./database/
 
 # 提交更改並推送
 if [ -n "$(git status --porcelain)" ]; then
-    git add database/question_bank.db database/user_data.db
+    git add database/question_bank.db database/user_account.db
     git commit -m "🗂️ 更新 SQLite 資料庫 $(date)"
     git push origin $BRANCH
     echo "✅ 資料庫更新完成，已推送到 GitHub。"
