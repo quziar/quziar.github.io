@@ -26,7 +26,7 @@ git config --global user.email "NKiinimy@gmail.com"
 
 # Clone GitHub 儲存庫
 cd $TMP_DIR
-git clone "${GITHUB_USER}:${GITHUB_TOKEN}@${GITHUB_REPO}" repo
+git clone "https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_REPO}.git" repo
 cd repo
 
 # 提交更改並推送
