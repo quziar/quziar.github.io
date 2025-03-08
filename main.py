@@ -38,7 +38,7 @@ async def test_route():
 # 持續執行的任務
 async def sync_databases_periodically():
     while True:
-        subprocess.run(["bash", "sync_databases.sh"], check=True)
+        subprocess.run(["bash", "sync_db_to_github.sh"], check=True)
         print("正在同步資料庫...")
         await asyncio.sleep(60)  # 每小時同步一次，這裡使用異步 sleep
 
