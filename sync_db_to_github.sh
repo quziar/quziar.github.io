@@ -1,9 +1,8 @@
 #!/bin/bash
 
 # 變數設定
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"  # 獲取腳本所在目錄的絕對路徑
-DB1="$SCRIPT_DIR/$DB1_PATH"
-DB2="$SCRIPT_DIR/$DB2_PATH"
+DB1="$DB1_PATH"
+DB2="$DB2_PATH"
 GITHUB_REPO="$GITHUB_REPO"
 BRANCH="${GITHUB_BRANCH:-main}"
 TMP_DIR="/tmp/sqlite_backup"
