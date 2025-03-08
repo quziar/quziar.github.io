@@ -11,6 +11,8 @@ TMP_DIR="/tmp/sqlite_backup"
 # 檢查資料庫是否存在
 if [ ! -f "$DB1" ] || [ ! -f "$DB2" ]; then
     echo "❌ 找不到資料庫，請檢查 DB1_PATH 和 DB2_PATH"
+    echo "DB1 路徑：$DB1"
+    echo "DB2 路徑：$DB2"
     exit 1
 fi
 
