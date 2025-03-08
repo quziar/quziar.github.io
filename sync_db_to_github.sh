@@ -20,7 +20,7 @@ cp "$DB2" "$TMP_DIR/user_data.db"
 
 # 設定 Git 身份
 git config --global user.name "$GITHUB_USER"
-git config --global user.email "your-email@example.com"
+git config --global user.email "NKiinimy@gmail.com"
 
 # Clone GitHub 儲存庫
 cd $TMP_DIR
