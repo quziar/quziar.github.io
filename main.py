@@ -41,7 +41,7 @@ async def sync_databases_periodically():
     while True:
         print("正在同步資料庫...")
         subprocess.run(["bash", "sync_db_to_github.sh"], check=True)
-        await asyncio.sleep(60)  # 每小時同步一次，這裡使用異步 sleep
+        await asyncio.sleep(36000)  # 每十小時同步一次，這裡使用異步 sleep
 
 @app.on_event("startup")
 async def startup_event():
