@@ -16,7 +16,7 @@ fi
 # 建立暫存目錄
 mkdir -p $TMP_DIR
 cp "$DB1" "$TMP_DIR/question_bank.db"
-cp "$DB2" "$TMP_DIR/user_data.db"
+cp "$DB2" "$TMP_DIR/user_account.db"
 
 # 設定 Git 身份
 git config --global user.name "$GITHUB_USER"
@@ -29,7 +29,7 @@ cd repo
 
 # 更新資料庫檔案
 cp "$TMP_DIR/question_bank.db" ./database/
-cp "$TMP_DIR/user_data.db" ./database/
+cp "$TMP_DIR/user_account.db" ./database/
 
 # 提交更改並推送
 if [ -n "$(git status --porcelain)" ]; then
