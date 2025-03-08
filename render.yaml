@@ -1,12 +1,17 @@
-# Exported from Render on 2025-03-03T07:46:27Z
 services:
-- type: web
-  name: quziar.github.io
-  runtime: python
-  repo: https://github.com/quziar/quziar.github.io
-  plan: free
-  region: singapore
-  buildCommand: pip install -r requirements.txt
-  startCommand: uvicorn main:app --reload --host 0.0.0.0 --port 8000
-  postDeployCommand: bash sync_db_to_github.sh
-version: "1"
+  - type: web
+    name: quziar.github.io
+    runtime: python
+    repo: https://github.com/quziar/quziar.github.io
+    plan: free
+    region: singapore
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+  - type: worker
+    name: quziar.github.io-worker
+    runtime: python
+    repo: https://github.com/quziar/quziar.github.io
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python worker.py
