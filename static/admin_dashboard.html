@@ -25,6 +25,20 @@
 
     <div id="questionList"></div> <!-- 顯示題目或使用者的區域 -->
 
+    <!-- 公私有選擇視窗 -->
+    <div id="publicPrivateModal" style="display: none;">
+        <h3>請選擇題目為公有或私有：</h3>
+        <form>
+            <input type="radio" id="public" name="public_private" value="public" checked> 公有
+            <input type="radio" id="private" name="public_private" value="private"> 私有
+        </form>
+        <button id="confirmPublicPrivate">確認</button>
+        <button id="cancelModal">取消</button>
+    </div>
+
+    <!-- Excel 檔案選擇框 -->
+    <input type="file" id="excelFile" style="display: none;" accept=".xlsx, .xls" />
+
     <!-- 引入外部 JS -->
     <script src="/static/script2.js"></script>
 </body>
