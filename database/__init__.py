@@ -8,12 +8,13 @@ USER_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'user_a
 class DatabaseConnection:
     def __init__(self, db_path):
         self.db_path = db_path
+        self.conn = None  # 定義連線物件
 
     def __enter__(self):
         self._ensure_database_exists()
         self.conn = sqlite3.connect(self.db_path)
         self.conn.row_factory = sqlite3.Row
-        return self.conn
+        return self.conn  # 返回連線物件
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.conn:
@@ -34,12 +35,16 @@ class DatabaseConnection:
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS questions (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    subject TEXT NOT NULL,
+                    year INTEGER NOT NULL,
+                    category TEXT NOT NULL,
                     question_text TEXT NOT NULL,
                     option_a TEXT,
                     option_b TEXT,
                     option_c TEXT,
                     option_d TEXT,
-                    correct_answer TEXT
+                    correct_answer TEXT,
+                    public_private TEXT
                 )
             ''')
             conn.commit()
@@ -56,6 +61,13 @@ class DatabaseConnection:
                 )
             ''')
             conn.commit()
+
+    def get_cursor(self):
+        """取得一個資料庫游標"""
+        if not self.conn:
+            self.conn = sqlite3.connect(self.db_path)
+        return self.conn.cursor()
+
 
 
 def get_question_db():
