@@ -127,17 +127,47 @@ document.getElementById("clearBtn").addEventListener("click", async () => {
 
 // 整理重複題目
 document.getElementById("cleanDuplicatesBtn").addEventListener("click", async () => {
+    document.getElementById('response').textContent = '正在整理重複題目...';
+
+    // 取得所有題目資料
     try {
-        const response = await fetch("/clean-duplicate-questions/", {
+        const viewAllResponse = await fetch('/api/questions/view_all_questions/');
+        const viewAllData = await viewAllResponse.json();
+        const questions = viewAllData.questions;
+
+        // 呼叫整理重複題目的 API
+        const response = await fetch("/api/questions/organize_duplicate_questions/", {
             method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ questions }),
         });
 
         const result = await response.json();
-        alert(result.message);
+        const duplicates = result.duplicates;
+        
+        if (duplicates.length > 0) {
+            const duplicateList = duplicates.map(pair => `
+                <div class="duplicate-pair">
+                    <strong>題目 1:</strong> ${pair[0].question_text}<br>
+                    <strong>選項 1:</strong> ${pair[0].options.join(", ")}<br>
+                    <strong>題目 2:</strong> ${pair[1].question_text}<br>
+                    <strong>選項 2:</strong> ${pair[1].options.join(", ")}
+                </div>
+                <hr>
+            `).join("");
+
+            document.getElementById('response').innerHTML = `<p>發現重複題目：</p>${duplicateList}`;
+        } else {
+            document.getElementById('response').textContent = '未發現重複題目。';
+        }
     } catch (error) {
-        alert("Error: " + error);
+        document.getElementById('response').textContent = '無法整理重複題目，請稍後再試。';
+        console.error('Error:', error);
     }
 });
+
 
 // 查看所有使用者
 document.getElementById('viewUsersBtn').addEventListener('click', function() {
