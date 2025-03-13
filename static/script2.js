@@ -124,3 +124,17 @@ document.getElementById('viewUsersBtn').addEventListener('click', function() {
             console.error('Error:', error);
         });
 });
+
+// 整理重複題目
+document.getElementById("cleanDuplicatesBtn").addEventListener("click", async () => {
+    try {
+        const response = await fetch("/clean-duplicate-questions/", {
+            method: "POST",
+        });
+
+        const result = await response.json();
+        alert(result.message);
+    } catch (error) {
+        alert("Error: " + error);
+    }
+});
