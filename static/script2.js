@@ -62,6 +62,9 @@ document.getElementById('viewAllBtn').addEventListener('click', function() {
 
 
 document.getElementById("importBtn").addEventListener("click", () => {
+
+    questionList.innerHTML = '';
+    
     // 顯示選擇公私有的視窗
     document.getElementById("publicPrivateModal").style.display = "block";
 
