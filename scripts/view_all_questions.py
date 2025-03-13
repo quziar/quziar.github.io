@@ -5,19 +5,15 @@ def view_all_questions():
     try:
         # 使用資料庫連線
         with get_question_db() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM questions')
-            rows = cursor.fetchall()
+            # 直接使用 conn.execute()，不需要手動創建 cursor
+            rows = conn.execute('SELECT * FROM questions').fetchall()
 
-            # 獲取欄位名稱
-            columns = [column[0] for column in cursor.description]
-
-            # 將資料轉換為字典
-            result = [dict(zip(columns, row)) for row in rows]
+            # 透過 sqlite3.Row 直接返回字典格式
+            result = [dict(row) for row in rows]
 
         # 顯示抓取的結果
         print(f"Found {len(result)} questions in the database.")
-        
+
         return result
 
     except sqlite3.DatabaseError as db_error:
