@@ -1,3 +1,5 @@
+// ===================== 查看所有題目 =====================
+
 // 當點擊查看所有題目按鈕時，發送 GET 請求
 document.getElementById('viewAllBtn').addEventListener('click', function() {
     // 顯示載入中的提示
@@ -6,7 +8,6 @@ document.getElementById('viewAllBtn').addEventListener('click', function() {
     fetch('/api/questions/view_all_questions/')  // 注意：這裡需要與 FastAPI 路由一致
         .then(response => response.json())
         .then(data => {
-            // 清空現有的問題列表
             const questionList = document.getElementById('questionList');
             questionList.innerHTML = '';  // 清空現有題目
 
@@ -57,64 +58,61 @@ document.getElementById('viewAllBtn').addEventListener('click', function() {
 });
 
 
+// ===================== 匯入題目 =====================
 
 
-
-
-
-// 匯入題目
 document.getElementById("importBtn").addEventListener("click", () => {
     // 顯示選擇公私有的視窗
     document.getElementById("publicPrivateModal").style.display = "block";
+
+    // 處理公私有選擇確認
+    document.getElementById("confirmPublicPrivate").addEventListener("click", () => {
+        document.getElementById("publicPrivateModal").style.display = "none";
+        document.getElementById("excelFile").style.display = "block";
+    });
+
+    // 取消匯入
+    document.getElementById("cancelModal").addEventListener("click", () => {
+        document.getElementById("publicPrivateModal").style.display = "none";
+    });
+
+    // 當選擇檔案後開始上傳
+    document.getElementById("excelFile").addEventListener("change", async () => {
+        const fileInput = document.getElementById("excelFile");
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("請選擇 Excel 檔案！");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("public_private", document.querySelector('input[name="public_private"]:checked').value);
+
+        try {
+            const response = await fetch("/api/questions/import-questions/", {
+                method: "POST",
+                body: formData,
+            });
+
+            const result = await response.json();
+            alert(result.message);
+
+            // 清空檔案選擇欄位
+            fileInput.value = '';
+        } catch (error) {
+            alert("匯入失敗，請稍後再試。錯誤：" + error);
+        }
+    });
 });
 
-document.getElementById("confirmPublicPrivate").addEventListener("click", async () => {
-    // 隱藏公私有選擇視窗
-    document.getElementById("publicPrivateModal").style.display = "none";
+// ===================== 清空題目 =====================
 
-    // 顯示文件選擇框
-    document.getElementById("excelFile").style.display = "block";
-});
-
-document.getElementById("cancelModal").addEventListener("click", () => {
-    // 隱藏公私有選擇視窗
-    document.getElementById("publicPrivateModal").style.display = "none";
-});
-
-// 當選擇檔案後，開始上傳
-document.getElementById("excelFile").addEventListener("change", async () => {
-    const fileInput = document.getElementById("excelFile");
-    const file = fileInput.files[0]; // 取得檔案
-
-    if (!file) {
-        alert("請選擇 Excel 檔案！");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("public_private", document.querySelector('input[name="public_private"]:checked').value); // 取得公私有欄位
-
-    try {
-        const response = await fetch("/import-questions/", {
-            method: "POST",
-            body: formData,
-        });
-
-        const result = await response.json();
-        alert(result.message);
-
-        // 重設表單
-        document.getElementById("excelFile").value = ''; // 清空選擇的文件
-    } catch (error) {
-        alert("Error: " + error);
-    }
-});
-
-// 清空題目
+// 清空所有題目
 document.getElementById("clearBtn").addEventListener("click", async () => {
     try {
-        const response = await fetch("/clear-all-questions/", {
+        const response = await fetch("/api/questions/clear-all-questions/", {
             method: "POST",
         });
 
@@ -125,49 +123,23 @@ document.getElementById("clearBtn").addEventListener("click", async () => {
     }
 });
 
-// 整理重複題目
+// ===================== 整理重複題目 =====================
+
+// 清理重複題目
 document.getElementById("cleanDuplicatesBtn").addEventListener("click", async () => {
-    document.getElementById('response').textContent = '正在整理重複題目...';
-
-    // 取得所有題目資料
     try {
-        const viewAllResponse = await fetch('/api/questions/view_all_questions/');
-        const viewAllData = await viewAllResponse.json();
-        const questions = viewAllData.questions;
-
-        // 呼叫整理重複題目的 API
-        const response = await fetch("/api/questions/organize_duplicate_questions/", {
+        const response = await fetch("/api/questions/clean-duplicate-questions/", {
             method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ questions }),
         });
 
         const result = await response.json();
-        const duplicates = result.duplicates;
-        
-        if (duplicates.length > 0) {
-            const duplicateList = duplicates.map(pair => `
-                <div class="duplicate-pair">
-                    <strong>題目 1:</strong> ${pair[0].question_text}<br>
-                    <strong>選項 1:</strong> ${pair[0].options.join(", ")}<br>
-                    <strong>題目 2:</strong> ${pair[1].question_text}<br>
-                    <strong>選項 2:</strong> ${pair[1].options.join(", ")}
-                </div>
-                <hr>
-            `).join("");
-
-            document.getElementById('response').innerHTML = `<p>發現重複題目：</p>${duplicateList}`;
-        } else {
-            document.getElementById('response').textContent = '未發現重複題目。';
-        }
+        alert(result.message);
     } catch (error) {
-        document.getElementById('response').textContent = '無法整理重複題目，請稍後再試。';
-        console.error('Error:', error);
+        alert("Error: " + error);
     }
 });
 
+// ===================== 查看所有使用者 =====================
 
 // 查看所有使用者
 document.getElementById('viewUsersBtn').addEventListener('click', function() {
