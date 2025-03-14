@@ -176,3 +176,36 @@ document.getElementById('viewUsersBtn').addEventListener('click', function() {
             console.error('Error:', error);
         });
 });
+
+// ===================== 下載題庫Excel =====================
+// 下載 Excel 按鈕
+document.getElementById('exportExcelBtn').addEventListener('click', async function() {
+    try {
+        // 呼叫 API 取得 Excel 檔案
+        const response = await fetch('/api/questions/export');
+
+        // 確保請求成功
+        if (!response.ok) {
+            throw new Error('無法下載題庫，請稍後再試。');
+        }
+
+        // 轉換為 Blob 對象 (二進制數據)
+        const blob = await response.blob();
+
+        // 建立下載連結
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'questions_export.xlsx'; // 下載的檔案名稱
+        document.body.appendChild(a);
+        a.click();
+
+        // 清理臨時 URL
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } catch (error) {
+        console.error('下載 Excel 失敗:', error);
+        alert('下載 Excel 失敗，請稍後再試。');
+    }
+});
+
