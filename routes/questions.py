@@ -3,9 +3,14 @@ from scripts.view_all_questions import view_all_questions
 from scripts.import_questions import import_questions_from_excel
 from scripts.clean_duplicate_questions import clean_duplicate_questions
 from scripts.clear_all_questions import clear_all_questions
-from fastapi.responses import JSONResponse
+from scripts.export_questions import export_all_questions
+from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
+from io import BytesIO
+import pandas as pd
+from fastapi.responses import FileResponse
 import logging
+from openpyxl import load_workbook
 
 router = APIRouter()
 
@@ -59,3 +64,15 @@ async def clean_duplicates():
         return JSONResponse(content={"message": "重複題目已清理！"}, status_code=200)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"整理重複題目時發生錯誤，請稍後再試。錯誤詳情: {str(e)}")
+
+# 匯出所有題目
+@router.get("/export")
+async def export_questions():
+    try:
+        # 直接呼叫在 scripts 中的函數來處理匯出
+        updated_excel_file = export_all_questions()
+
+        return StreamingResponse(updated_excel_file, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=questions_export.xlsx"})
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"匯出題目時發生錯誤: {str(e)}")
