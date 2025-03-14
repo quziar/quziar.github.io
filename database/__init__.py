@@ -8,7 +8,17 @@ USER_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'user_a
 class DatabaseConnection:
     def __init__(self, db_path):
         self.db_path = db_path
-        self.conn = None  # 定義連線物件
+        self.connection = None
+
+    def get_connection(self):
+        if self.connection is None:
+            self.connection = sqlite3.connect(self.db_path)
+        return self.connection
+
+    def close(self):
+        if self.connection:
+            self.connection.close()
+            self.connection = None
 
     def __enter__(self):
         self._ensure_database_exists()
