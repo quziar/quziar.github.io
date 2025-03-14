@@ -2,41 +2,59 @@ from database import get_question_db
 
 def clean_duplicate_questions():
     try:
-        # 連接到資料庫
-        conn = get_question_db()
-        cursor = conn.cursor()
+        # 取得資料庫連線
+        db_connection = get_question_db()
+        conn = db_connection.get_connection()  # 使用 get_connection 取得資料庫連線
+        cursor = conn.cursor()  # 取得游標
         print("正在連接到資料庫...")
 
         # 查詢資料庫中的所有題目
-        cursor.execute('SELECT * FROM questions')
+        cursor.execute('SELECT id, subject, year, category, question_text, option_a, option_b, option_c, option_d, correct_answer, public_private FROM questions')
         rows = cursor.fetchall()
 
         # 使用字典來跟蹤已出現的題目內容和對應的ID
         unique_questions = {}
         for row in rows:
-            id, question_text, option_a, option_b, option_c, option_d, correct_answer = row
+            id, subject, year, category, question_text, option_a, option_b, option_c, option_d, correct_answer, public_private = row
 
-            # 如果題目已存在於字典中，記錄當前ID以便刪除
+            # 如果題目已存在於字典中，刪除重複的題目
             if question_text in unique_questions:
                 cursor.execute('DELETE FROM questions WHERE id = ?', (id,))
                 print(f"刪除重複的題目，ID: {id}，內容：{row}")
             else:
-                unique_questions[question_text] = id
+                # 記錄完整的題目資料 (包括選項等)
+                unique_questions[question_text] = {
+                    'subject': subject,
+                    'year': year,
+                    'category': category,
+                    'question_text': question_text,
+                    'option_a': option_a,
+                    'option_b': option_b,
+                    'option_c': option_c,
+                    'option_d': option_d,
+                    'correct_answer': correct_answer,
+                    'public_private': public_private
+                }
 
         # 提交改動
         conn.commit()
 
-        # 刪除所有資料並重設自動增量ID
+        # 刪除所有資料
         cursor.execute('DELETE FROM questions')
+        print("刪除所有資料完成。")
+
+        # 重設自動增量ID
         cursor.execute('DELETE FROM sqlite_sequence WHERE name="questions"')
-        print("刪除所有資料並重設自動增量ID完成。")
+        print("重設自動增量ID完成。")
 
         # 將資料重新插入表中
         cursor.executemany('''
-        INSERT INTO questions (question_text, option_a, option_b, option_c, option_d, correct_answer)
-        VALUES (?, ?, ?, ?, ?, ?)
-        ''', [(key, row['option_a'], row['option_b'], row['option_c'], row['option_d'], row['correct_answer']) 
-              for key, row in unique_questions.items()])
+        INSERT INTO questions (subject, year, category, question_text, option_a, option_b, option_c, option_d, correct_answer, public_private)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', [
+            (value['subject'], value['year'], value['category'], value['question_text'], value['option_a'], value['option_b'], value['option_c'], value['option_d'], value['correct_answer'], value['public_private'])
+            for value in unique_questions.values()
+        ])
         print("重新插入資料到原表中完成。")
 
         # 提交改動
