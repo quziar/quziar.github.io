@@ -104,11 +104,15 @@ document.getElementById("importBtn").addEventListener("click", () => {
 
             // 清空檔案選擇欄位
             fileInput.value = '';
+
+            // 隱藏 excelFile 元素
+            document.getElementById("excelFile").style.display = "none";
         } catch (error) {
             alert("匯入失敗，請稍後再試。錯誤：" + error);
         }
     });
 });
+
 
 // ===================== 清空題目 =====================
 
@@ -136,6 +140,7 @@ document.getElementById("cleanDuplicatesBtn").addEventListener("click", async ()
         });
 
         const result = await response.json();
+        questionList.innerHTML = '';
         alert(result.message);
     } catch (error) {
         alert("Error: " + error);
