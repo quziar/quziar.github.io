@@ -17,13 +17,15 @@ def clean_duplicate_questions():
         for row in rows:
             id, subject, year, category, question_text, option_a, option_b, option_c, option_d, correct_answer, public_private = row
 
-            # 如果題目已存在於字典中，刪除重複的題目
-            if question_text in unique_questions:
+            # 檢查是否已有相同的題目（對照所有欄位）
+            question_key = (subject, year, category, question_text, option_a, option_b, option_c, option_d, correct_answer)
+            if question_key in unique_questions:
+                # 如果題目已存在於字典中，刪除重複的題目
                 cursor.execute('DELETE FROM questions WHERE id = ?', (id,))
                 print(f"刪除重複的題目，ID: {id}，內容：{row}")
             else:
                 # 記錄完整的題目資料 (包括選項等)
-                unique_questions[question_text] = {
+                unique_questions[question_key] = {
                     'subject': subject,
                     'year': year,
                     'category': category,
@@ -59,12 +61,6 @@ def clean_duplicate_questions():
 
         # 提交改動
         conn.commit()
-
-        # 重新查詢資料庫中的所有題目，並顯示結果
-        cursor.execute('SELECT * FROM questions ORDER BY id')
-        rows = cursor.fetchall()
-        for row in rows:
-            print(row)
 
     except Exception as e:
         print(f"發生錯誤：{e}")
