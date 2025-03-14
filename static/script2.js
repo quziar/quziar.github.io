@@ -214,3 +214,96 @@ document.getElementById('exportExcelBtn').addEventListener('click', async functi
     }
 });
 
+// ===================== 刪除特定題目 =====================
+// 當點擊刪除題目按鈕時，發送 POST 請求
+document.getElementById('deleteBtn').addEventListener('click', function() {
+    const questionId = document.getElementById('questionId').value;
+
+    // 檢查ID是否為數字
+    if (!questionId || isNaN(questionId)) {
+        document.getElementById('response').textContent = '請輸入有效的數字ID！';
+        return;
+    }
+
+    // 顯示載入中的提示
+    document.getElementById('response').textContent = '正在刪除題目...';
+
+    fetch('/api/questions/delete-question/', {  // 這裡使用 POST 請求並提供 question_id
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ question_id: parseInt(questionId) })  // 轉換ID為數字
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.detail);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            questionList.innerHTML = '';
+            document.getElementById('response').textContent = data.message;  // 顯示成功訊息
+        })
+        .catch(error => {
+            document.getElementById('response').textContent = '刪除題目時發生錯誤，請稍後再試。';
+            console.error('Error:', error);
+        });
+});
+
+// ===================== 顯示特定題目 =====================
+document.getElementById('viewQuestionBtn').addEventListener('click', function() {
+    const questionId = document.getElementById('questionId').value;
+
+    // 檢查 ID 是否為數字
+    if (!questionId || isNaN(questionId)) {
+        document.getElementById('response').textContent = '請輸入有效的數字ID！';
+        return;
+    }
+
+    // 顯示載入中的提示
+    document.getElementById('response').textContent = '正在載入題目...';
+
+    fetch('/api/questions/view_all_questions/')  // 從所有題目中過濾
+        .then(response => response.json())
+        .then(data => {
+            const questionList = document.getElementById('questionList');
+            questionList.innerHTML = '';  // 清空現有題目
+
+            // 從所有題目中找到符合的 question_id
+            const question = data.questions.find(q => q.id === parseInt(questionId));
+
+            if (!question) {
+                questionList.innerHTML = '<p>找不到該題目，請確認 ID 是否正確。</p>';
+            } else {
+                // 顯示符合條件的題目
+                const div = document.createElement('div');
+                div.classList.add('question-item');
+
+                div.innerHTML = `
+                    <strong>科目：</strong> ${question.subject || '無科目'}<br>
+                    <strong>年度：</strong> ${question.year || '無年度'}<br>
+                    <strong>類別：</strong> ${question.category || '無類別'}<br><br>
+                    <strong>ID:</strong> ${question.id}<br>
+                    <strong>問題：</strong> ${question.question_text || '無題目'}<br>
+                    <div class="answer-options">
+                        <span><strong>A:</strong> ${question.option_a || '無選項'}</span><br>
+                        <span><strong>B:</strong> ${question.option_b || '無選項'}</span><br>
+                        <span><strong>C:</strong> ${question.option_c || '無選項'}</span><br>
+                        <span><strong>D:</strong> ${question.option_d || '無選項'}</span><br>
+                    </div>
+                    <br><strong>解答：</strong> ${question.correct_answer || '無解答'}
+                `;
+
+                questionList.appendChild(div);
+            }
+
+            document.getElementById('response').textContent = '';  // 清除載入提示
+        })
+        .catch(error => {
+            document.getElementById('response').textContent = '無法載入題目，請稍後再試。';
+            console.error('Error:', error);
+        });
+});
