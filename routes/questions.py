@@ -2,17 +2,22 @@ from fastapi import APIRouter, HTTPException
 from scripts.view_all_questions import view_all_questions
 from scripts.import_questions import import_questions_from_excel
 from scripts.clean_duplicate_questions import clean_duplicate_questions
-from scripts.clear_all_questions import clear_all_questions
+from scripts.clear_specific_questions import delete_question_by_id
 from scripts.export_questions import export_all_questions
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
-import pandas as pd
+from pydantic import BaseModel
 from fastapi.responses import FileResponse
-import logging
 from openpyxl import load_workbook
+import pandas as pd
+import logging
 
 router = APIRouter()
+
+# 定義一個 Pydantic 模型來驗證請求體
+class DeleteQuestionRequest(BaseModel):
+    question_id: int
 
 # 設置日誌
 logging.basicConfig(level=logging.DEBUG)
@@ -76,3 +81,12 @@ async def export_questions():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"匯出題目時發生錯誤: {str(e)}")
+
+#刪除特定題目
+@router.post("/delete-question/")
+async def delete_question(request: DeleteQuestionRequest):
+    try:
+        delete_question_by_id(request.question_id)
+        return JSONResponse(content={"message": f"題目ID {request.question_id} 已成功刪除！"}, status_code=200)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"刪除題目時發生錯誤，請稍後再試。錯誤詳情: {str(e)}")
