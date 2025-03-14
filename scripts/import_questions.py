@@ -35,12 +35,18 @@ def import_questions_from_excel(file, public_private):
                 if not row['question_text']:  # 如果題目內容為空，跳過
                     continue
 
-                # 檢查資料庫中是否已存在相同的題目
-                cursor.execute('SELECT id FROM questions WHERE question_text = ?', (row['question_text'],))
+                # 檢查資料庫中是否已存在相同的題目 (對照所有欄位)
+                cursor.execute('''
+                    SELECT id FROM questions 
+                    WHERE subject = ? AND year = ? AND category = ? 
+                    AND question_text = ? AND option_a = ? AND option_b = ? 
+                    AND option_c = ? AND option_d = ? AND correct_answer = ?
+                ''', (row['subject'], row['year'], row['category'], row['question_text'], 
+                      row['option_a'], row['option_b'], row['option_c'], row['option_d'], row['correct_answer']))
+                
                 if cursor.fetchone():
-                    # 如果題目已存在，可以選擇更新或跳過
-                    # 這裡刪除舊的題目，然後插入新的題目
-                    cursor.execute('DELETE FROM questions WHERE question_text = ?', (row['question_text'],))
+                    # 如果資料庫中已存在完全相同的題目，則跳過
+                    continue
 
                 # 插入新題目
                 cursor.execute('''
