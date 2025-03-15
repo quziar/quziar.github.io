@@ -307,3 +307,101 @@ document.getElementById('viewQuestionBtn').addEventListener('click', function() 
             console.error('Error:', error);
         });
 });
+
+// ===================== 比對相似題目 =====================
+document.getElementById('compareQuestionsBtn').addEventListener('click', function() {
+    // 顯示載入中的提示
+    document.getElementById('response').textContent = '正在比對題目...';
+
+    fetch('/api/questions/view_all_questions/')  // 取得所有題目
+        .then(response => response.json())
+        .then(data => {
+            const questions = data.questions;
+            const similarQuestions = new Set();
+
+            function normalizeText(text) {
+                return text ? text.replace(/\s+/g, '').toLowerCase().split('').sort().join('') : '';
+            }
+
+            function similarityScore(str1, str2) {
+                if (!str1 || !str2) return 0;
+
+                // 轉換為字符集合 (去除重複字元)
+                const set1 = new Set(str1);
+                const set2 = new Set(str2);
+
+                // 計算交集 (相同字元數)
+                const intersection = new Set([...set1].filter(char => set2.has(char)));
+                
+                // 計算聯集 (所有不重複的字元)
+                const union = new Set([...set1, ...set2]);
+                
+                // 計算 Jaccard 相似度
+                return intersection.size / union.size;
+            }
+
+            for (let i = 0; i < questions.length; i++) {
+                for (let j = i + 1; j < questions.length; j++) {
+                    const q1 = questions[i];
+                    const q2 = questions[j];
+
+                    const options1 = [
+                        normalizeText(q1.option_a),
+                        normalizeText(q1.option_b),
+                        normalizeText(q1.option_c),
+                        normalizeText(q1.option_d),
+                        normalizeText(q1.correct_answer)
+                    ].sort().join('|');
+
+                    const options2 = [
+                        normalizeText(q2.option_a),
+                        normalizeText(q2.option_b),
+                        normalizeText(q2.option_c),
+                        normalizeText(q2.option_d),
+                        normalizeText(q2.correct_answer)
+                    ].sort().join('|');
+
+                    if (similarityScore(options1, options2) >= 0.9) {
+                        similarQuestions.add(q1);
+                        similarQuestions.add(q2);
+                    }
+                }
+            }
+
+            const resultDiv = document.getElementById('questionList');
+            resultDiv.innerHTML = '';
+
+            if (similarQuestions.size > 0) {
+                similarQuestions.forEach(question => {
+                    const div = document.createElement('div');
+                    div.classList.add('question-item');
+
+                    div.innerHTML = `
+                        <strong>科目：</strong> ${question.subject || '無科目'}<br>
+                        <strong>年度：</strong> ${question.year || '無年度'}<br>
+                        <strong>類別：</strong> ${question.category || '無類別'}<br><br>
+                        <strong>ID:</strong> ${question.id}<br>
+                        <strong>問題：</strong> ${question.question_text || '無題目'}<br>
+                        <div class="answer-options">
+                            <span><strong>A:</strong> ${question.option_a || '無選項'}</span><br>
+                            <span><strong>B:</strong> ${question.option_b || '無選項'}</span><br>
+                            <span><strong>C:</strong> ${question.option_c || '無選項'}</span><br>
+                            <span><strong>D:</strong> ${question.option_d || '無選項'}</span><br>
+                        </div>
+                        <br><strong>解答：</strong> ${question.correct_answer || '無解答'}
+                    `;
+
+                    resultDiv.appendChild(div);
+                });
+            } else {
+                resultDiv.innerHTML = '<p>未找到相似題目。</p>';
+            }
+
+            document.getElementById('response').textContent = ''; // 清除載入提示
+        })
+        .catch(error => {
+            document.getElementById('response').textContent = '無法載入題目，請稍後再試。';
+            console.error('Error:', error);
+        });
+});
+
