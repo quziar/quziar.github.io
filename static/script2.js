@@ -405,3 +405,72 @@ document.getElementById('compareQuestionsBtn').addEventListener('click', functio
         });
 });
 
+// ===================== 顯示根據關鍵字過濾的題目 =====================
+document.getElementById('filterByCategoryBtn').addEventListener('click', function() {
+    const selectedCategory = document.getElementById('categoryInput').value.trim();
+
+    // 檢查是否有輸入關鍵字
+    if (!selectedCategory) {
+        document.getElementById('response').textContent = '請輸入一個關鍵字！';
+        return;
+    }
+
+    // 顯示載入中的提示
+    document.getElementById('response').textContent = '正在載入題目...';
+
+    fetch(`/api/questions/view_all_questions/`)  // 獲取所有題目
+        .then(response => response.json())
+        .then(data => {
+            const questionList = document.getElementById('questionList');
+            questionList.innerHTML = '';  // 清空現有題目
+
+            // 篩選出符合關鍵字的題目
+            const filteredQuestions = data.questions.filter(question => 
+                (String(question.subject).includes(selectedCategory)) ||
+                (String(question.year).includes(selectedCategory)) ||
+                (String(question.category).includes(selectedCategory)) ||
+                (String(question.id).includes(selectedCategory)) ||
+                (String(question.question_text).includes(selectedCategory)) ||
+                (String(question.option_a).includes(selectedCategory)) ||
+                (String(question.option_b).includes(selectedCategory)) ||
+                (String(question.option_c).includes(selectedCategory)) ||
+                (String(question.option_d).includes(selectedCategory)) ||
+                (String(question.correct_answer).includes(selectedCategory))
+            );
+            
+
+            if (filteredQuestions.length === 0) {
+                questionList.innerHTML = `<p>未找到符合關鍵字「${selectedCategory}」的題目。</p>`;
+            } else {
+                // 顯示符合條件的題目
+                filteredQuestions.forEach(question => {
+                    const div = document.createElement('div');
+                    div.classList.add('question-item');
+
+                    div.innerHTML = `
+                        <strong>科目：</strong> ${question.subject || '無科目'}<br>
+                        <strong>年度：</strong> ${question.year || '無年度'}<br>
+                        <strong>類別：</strong> ${question.category || '無類別'}<br><br>
+                        <strong>ID:</strong> ${question.id}<br>
+                        <strong>問題：</strong> ${question.question_text || '無題目'}<br>
+                        <div class="answer-options">
+                            <span><strong>A:</strong> ${question.option_a || '無選項'}</span><br>
+                            <span><strong>B:</strong> ${question.option_b || '無選項'}</span><br>
+                            <span><strong>C:</strong> ${question.option_c || '無選項'}</span><br>
+                            <span><strong>D:</strong> ${question.option_d || '無選項'}</span><br>
+                        </div>
+                        <br><strong>解答：</strong> ${question.correct_answer || '無解答'}
+                    `;
+
+                    questionList.appendChild(div);
+                });
+            }
+
+            document.getElementById('response').textContent = '';  // 清除載入提示
+        })
+        .catch(error => {
+            document.getElementById('response').textContent = '無法載入題目，請稍後再試。';
+            console.error('Error:', error);
+        });
+});
+
