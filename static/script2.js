@@ -113,23 +113,6 @@ document.getElementById("importBtn").addEventListener("click", () => {
     });
 });
 
-
-// ===================== 清空題目 =====================
-
-// 清空所有題目
-document.getElementById("clearBtn").addEventListener("click", async () => {
-    try {
-        const response = await fetch("/api/questions/clear-all-questions/", {
-            method: "POST",
-        });
-
-        const result = await response.json();
-        alert(result.message);
-    } catch (error) {
-        alert("Error: " + error);
-    }
-});
-
 // ===================== 整理重複題目 =====================
 
 // 清理重複題目
