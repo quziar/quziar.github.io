@@ -90,3 +90,23 @@ async def delete_question(request: DeleteQuestionRequest):
         return JSONResponse(content={"message": f"題目ID {request.question_id} 已成功刪除！"}, status_code=200)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"刪除題目時發生錯誤，請稍後再試。錯誤詳情: {str(e)}")
+
+#新增題目
+@router.post("/import-questions/")
+async def import_single_question(
+    question: QuestionData, 
+    public_private: str = Form(...)
+):
+    try:
+        # 呼叫 import_questions 函式並傳入單一題目的資料與公私有參數
+        result = import_questions([question.dict()], public_private)
+
+        # 根據 import_questions 函式的結果回應
+        if "message" in result:
+            return JSONResponse(content=result, status_code=201)
+        else:
+            raise HTTPException(status_code=500, detail=f"匯入題目時發生錯誤，請稍後再試。錯誤詳情: {result['message']}")
+
+    except Exception as e:
+        # 捕捉並處理異常
+        raise HTTPException(status_code=500, detail=f"匯入題目時發生錯誤，請稍後再試。錯誤詳情: {str(e)}")
