@@ -152,6 +152,7 @@ document.getElementById('viewUsersBtn').addEventListener('click', function() {
                     div.innerHTML = `
                         <strong>ID:</strong> ${user.id} <br>
                         <strong>帳號:</strong> ${user.username} <br>
+                        <strong>身份:</strong> ${user.identities} <br>
                         <hr>
                     `;
                     questionList.appendChild(div);

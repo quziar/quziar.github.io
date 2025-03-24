@@ -3596,7 +3596,7 @@ function showPopup(title, content) {
 }
 
 // 註冊按鈕
-function registerFunction() {
+async function registerFunction() {
     showPopup("註冊", `
         <label for="newUsername">帳號：</label>
         <input type="text" id="newUsername" required><br>
@@ -3605,7 +3605,7 @@ function registerFunction() {
         <button id="registerBtn">註冊</button>
     `);
 
-    document.getElementById("registerBtn").addEventListener("click", function() {
+    document.getElementById("registerBtn").addEventListener("click", async function() {
         let newUsername = document.getElementById("newUsername").value.trim();
         let newPassword = document.getElementById("newPassword").value.trim();
 
@@ -3614,21 +3614,34 @@ function registerFunction() {
             return;
         }
 
-        if (users.hasOwnProperty(newUsername)) {
-            alert("該帳號已存在，請重新輸入。");
-            return;
+        try {
+            // 向 FastAPI 發送註冊請求
+            const response = await fetch("/api/save_users/register/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username: newUsername, password: newPassword })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert(data.message); // 顯示註冊成功訊息
+                currentUser = newUsername;
+                localStorage.setItem("currentUser", currentUser);
+                updateLoginButton();
+                document.getElementById("popup-window").style.display = "none";
+            } else {
+                const errorData = await response.json();
+                alert(errorData.detail || "註冊失敗");
+            }
+        } catch (error) {
+            alert("發生錯誤，請稍後再試！");
+            console.error(error);
         }
-
-        // 更新 users 並上傳
-        users[newUsername] = newPassword;
-        uploadUsers(users);
-        currentUser = newUsername;
-        updateLoginButton();
-
-        alert("註冊成功！");
-        document.getElementById("popup-window").style.display = "none";
     });
 }
+
 
 // 登入功能
 function loginFunction() {
