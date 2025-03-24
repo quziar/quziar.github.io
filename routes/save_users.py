@@ -24,7 +24,7 @@ async def save_users(data: UserList, db=Depends(get_user_db)):
                     cursor.execute("UPDATE users SET password = ? WHERE username = ?", (user.password, user.username))
                 else:
                     # 插入新使用者
-                    cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (user.username, user.password))
+                    cursor.execute("INSERT INTO users (username, password, identities) VALUES (?, ?, ?)", (user.username, user.password, "學生"))
             conn.commit()
         return {"message": "使用者資料已成功保存"}
     except Exception as e:
@@ -35,11 +35,11 @@ async def view_all_users(db=Depends(get_user_db)):
     try:
         with db as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM users")
+            cursor.execute("SELECT id, username, identities FROM users")  # 明確選取欄位
             rows = cursor.fetchall()
 
             # 轉換查詢結果為字典格式
-            users = [dict(row) for row in rows]
+            users = [{"id": row[0], "username": row[1], "identities": row[2]} for row in rows]
             return {"users": users}
 
     except Exception as e:
@@ -65,3 +65,20 @@ async def user_login(user: User, db=Depends(get_user_db)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"登入過程中發生錯誤: {e}")
+
+@router.post("/register/")
+async def register_user(user: User, db=Depends(get_user_db)):
+    try:
+        with db as conn:
+            cursor = conn.cursor()
+            # 檢查使用者是否已存在
+            cursor.execute("SELECT id FROM users WHERE username = ?", (user.username,))
+            if cursor.fetchone():
+                raise HTTPException(status_code=400, detail="該帳號已存在")
+
+            # 插入新使用者，預設身份為學生
+            cursor.execute("INSERT INTO users (username, password, identities) VALUES (?, ?, ?)", (user.username, user.password, "學生"))
+            conn.commit()
+            return {"message": "註冊成功"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"註冊過程中發生錯誤: {e}")
