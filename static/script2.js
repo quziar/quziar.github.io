@@ -1,3 +1,34 @@
+// 取得當前使用者 ID
+async function getCurrentUser() {
+    const response = await fetch('/api/session/get_user/');
+    if (response.ok) {
+        const data = await response.json();
+        return(data.currentUserID);
+    } else {
+        console.log('未登入');
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", async function() { 
+    
+    // 等待 getCurrentUser 完成並取得使用者 ID
+    let currentUser = await getCurrentUser();
+
+    if (currentUser !== '未登入' && currentUser !== null) {
+        // 顯示歡迎訊息
+        alert(`🎉 歡迎回來 ${currentUser}！`);
+    } else {
+        alert(`你攻擊了我的伺服器?我的smartlearningzones伺服器?!`);
+    }
+});
+
+
+
+
+
+
+
 // ===================== 查看所有題目 =====================
 
 // 當點擊查看所有題目按鈕時，發送 GET 請求

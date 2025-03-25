@@ -3544,7 +3544,11 @@ let users = { "a": "123456" };
 // 直接上傳使用者資料到 FastAPI
 async function uploadUsers(users) {
     try {
-        const userList = Object.entries(users).map(([username, password]) => ({ username, password }));
+        const userList = Object.entries(users).map(([username, password]) => ({ 
+            username, 
+            password, 
+            identities: "學生"  // 預設身份為學生
+        }));
 
         const response = await fetch("/api/save_users/save_users/", {  // 確保路徑正確，應以斜線結尾
             method: "POST",
@@ -3564,6 +3568,19 @@ async function uploadUsers(users) {
         console.error("發生錯誤：", error);
     }
 }
+
+// 儲存ID
+async function login(userId) {
+    const response = await fetch(`/api/session/login/${userId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    const data = await response.json();
+    console.log(data.message); // 顯示登入訊息
+}
+
 
 // 更新登入/登出按鈕
 // 更新註冊按鈕/使用者名稱
@@ -3627,6 +3644,7 @@ async function registerFunction() {
             if (response.ok) {
                 const data = await response.json();
                 alert(data.message); // 顯示註冊成功訊息
+                login(newUsername);
                 currentUser = newUsername;
                 localStorage.setItem("currentUser", currentUser);
                 updateLoginButton();
@@ -3673,15 +3691,15 @@ function loginFunction() {
             });
 
             if (response.ok) {
+                login(username);
                 // 如果是管理員，執行額外操作
                 if (username === "a") {  //  "a" 是管理員
-                    window.location.href = "/static/admin_dashboard.html/";
+                window.location.href = "/static/admin_dashboard.html/";
                 }
                 else{
                 const data = await response.json();
-                alert(data.message);  // 顯示登入成功訊息
                 currentUser = username;
-                localStorage.setItem("currentUser", currentUser);
+                alert(data.message);  // 顯示登入成功訊息
                 updateLoginButton();
                 }
 
@@ -3697,12 +3715,21 @@ function loginFunction() {
     });
 }
 
+// 清除ID
+async function logout() {
+    const response = await fetch('/api/session/logout/', {
+        method: 'GET',
+    });
+    const data = await response.json();
+    console.log(data.message); // 顯示登出訊息
+}
 
 // 登出功能
 function logoutFunction() {
     let confirmLogout = confirm("確定要登出嗎？");
     if (confirmLogout) {
         currentUser = null;
+        logout()
         localStorage.removeItem("currentUser");
         updateLoginButton();
         alert("已成功登出！");
