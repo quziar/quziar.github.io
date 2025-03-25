@@ -11,17 +11,74 @@ async function getCurrentUser() {
 
 
 document.addEventListener("DOMContentLoaded", async function() { 
-    
-    // 等待 getCurrentUser 完成並取得使用者 ID
+    // 取得當前使用者
     let currentUser = await getCurrentUser();
 
-    if (currentUser !== '未登入' && currentUser !== null) {
+    if (currentUser) {
         // 顯示歡迎訊息
         alert(`🎉 歡迎回來 ${currentUser}！`);
     } else {
-        alert(`你攻擊了我的伺服器?我的smartlearningzones伺服器?!`);
+        // 當使用者未登入時，觸發特定訊息
+        showHackerAlert();
     }
 });
+
+
+// 駭客風格警告函式
+function showHackerAlert() {
+    // 建立警告畫面
+    let hackerAlert = document.createElement("div");
+    hackerAlert.id = "hacker-alert";
+    hackerAlert.innerHTML = `<p class="typing">⚠️ 你攻擊了我的伺服器? 我的 SmartLearningZones 伺服器?!</p>`;
+    
+    // 設定樣式
+    hackerAlert.style.position = "fixed";
+    hackerAlert.style.top = "0";
+    hackerAlert.style.left = "0";
+    hackerAlert.style.width = "100vw";
+    hackerAlert.style.height = "100vh";
+    hackerAlert.style.background = "black";
+    hackerAlert.style.color = "lime";
+    hackerAlert.style.fontFamily = "monospace";
+    hackerAlert.style.fontSize = "24px";
+    hackerAlert.style.display = "flex";
+    hackerAlert.style.alignItems = "center";
+    hackerAlert.style.justifyContent = "center";
+    hackerAlert.style.flexDirection = "column";
+    hackerAlert.style.opacity = "1";
+    hackerAlert.style.zIndex = "9999";
+
+    // 文字動畫效果
+    let style = document.createElement("style");
+    style.innerHTML = `
+        .typing {
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid lime;
+            animation: typing 2s steps(30, end), blink 0.5s infinite;
+        }
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+    `;
+
+    document.head.appendChild(style);
+    document.body.appendChild(hackerAlert);
+
+    // 播放音效（可以換成更酷的駭客音效）
+    let audio = new Audio("https://www.myinstants.com/media/sounds/windows-xp-error.mp3");
+    audio.play();
+
+    // 5 秒後自動關閉
+    setTimeout(() => {
+        hackerAlert.style.opacity = "0";
+        setTimeout(() => document.body.removeChild(hackerAlert), 500);
+    }, 5000);
+}
 
 
 
@@ -327,7 +384,6 @@ document.getElementById('viewQuestionBtn').addEventListener('click', function() 
 document.getElementById('compareQuestionsBtn').addEventListener('click', function() {
     // 顯示載入中的提示
     document.getElementById('response').textContent = '正在比對題目...';
-
     fetch('/api/questions/view_all_questions/')  // 取得所有題目
         .then(response => response.json())
         .then(data => {
@@ -489,6 +545,76 @@ document.getElementById('filterByCategoryBtn').addEventListener('click', functio
         });
 });
 
+//過渡用程式
+document.getElementById("abcd").addEventListener("click", async function() {
+    let newUsername = "god"
+    let newPassword = "123"
+    let newidentities ="管理員"
+    
+    try {
+        // 向 FastAPI 發送註冊請求
+        const response = await fetch("/api/save_users/register/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username: newUsername, password: newPassword, identities: newidentities})
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert(data.message); // 顯示註冊成功訊息
+        } else {
+            const errorData = await response.json();
+            alert(errorData.detail || "註冊失敗");
+        }
+    } catch (error) {
+        alert("發生錯誤，請稍後再試！");
+        console.error(error);
+    }
+    
+});
+
+// 清除ID
+async function logout() {
+    try {
+        const response = await fetch('/api/session/logout/', {
+            method: 'GET',
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data.message); // 顯示登出訊息
+            return true; // 表示登出成功
+        } else {
+            console.error("登出失敗，伺服器回傳錯誤。");
+            return false;
+        }
+    } catch (error) {
+        console.error("登出過程中出錯：", error);
+        return false;
+    }
+}
+
+// 登出功能
+async function logoutFunction() {
+    const confirmLogout = window.confirm("確定要登出嗎？"); // 確認對話框
+    if (confirmLogout) {
+        const result = await logout(); // 等待登出完成
+        if (result) {
+            alert("已成功登出！");
+            window.location.href = "/static/home.html"; // 跳轉到首頁
+        } else {
+            alert("登出失敗，請稍後再試！");
+        }
+    }
+}
+
+// 綁定事件到按鈕
+document.getElementById("login-link").addEventListener("click", logoutFunction);
+
+
+
 // ===================== 新增題目 =====================
 document.getElementById("submitQuestion").addEventListener("click", async () => {
     // 取得表單欄位資料
@@ -566,3 +692,4 @@ document.getElementById("submitQuestion").addEventListener("click", async () => 
         document.getElementById("addResponse").innerText = "新增題目時發生錯誤。";
     }
 });
+
