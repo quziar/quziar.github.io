@@ -37,17 +37,19 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
 
         if (response.ok) {
             const data = await response.json(); // 從後端獲取 JSON 資料
-            login(username)
 
             // 使用 switch 語句進行身份判斷
             switch (data.identities) {
                 case "管理員":
+                    login(username)
                     window.location.href = "/static/admin_dashboard.html";
                     break;
                 case "教授":
+                    login(username)
                     window.location.href = "/static/index.html";
                     break;
                 case "學生":
+                    login(username)
                     window.location.href = "/static/index.html";
                     break;
                 default:
