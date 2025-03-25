@@ -1,18 +1,26 @@
 import asyncio
 import time
 import subprocess
-
+import os
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
+from starlette.middleware.sessions import SessionMiddleware
 
 # 正確引入路由
 from routes.questions import router as question_router
 from routes.users import router as user_router
 from routes.save_users import router as save_users_router
 from routes.admin import router as admin_router
+from routes.session import router as session_router
 
+# 初始化 FastAPI 應用
 app = FastAPI(title="題庫系統")
+
+# 設定 Session 中介層，`secret_key` 用來加密 Session 資料
+# 確保 secret_key 是長且隨機的，這裡僅作為範例
+secret_key = os.urandom(24).hex()  # 生成一個隨機的密鑰
+app.add_middleware(SessionMiddleware, secret_key=secret_key)
 
 # 根路由重定向到靜態頁面
 @app.get("/", response_class=RedirectResponse)
@@ -27,9 +35,7 @@ app.include_router(question_router, prefix="/api/questions", tags=["Questions"])
 app.include_router(user_router, prefix="/api/users", tags=["Users"])
 app.include_router(save_users_router, prefix="/api/save_users", tags=["Save Users"])
 app.include_router(admin_router, prefix="/api/admin", tags=["Admin"])
-
-# 服務靜態檔案
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.include_router(session_router, prefix="/api/session", tags=["session"])
 
 # 新增的測試路由
 @app.get("/test/")
