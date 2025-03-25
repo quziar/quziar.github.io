@@ -7,6 +7,7 @@ router = APIRouter()
 class User(BaseModel):
     username: str
     password: str
+    identities: str ="學生"
 
 class UserList(BaseModel):
     users: list[User]
@@ -50,18 +51,21 @@ async def user_login(user: User, db=Depends(get_user_db)):
     try:
         with db as conn:
             cursor = conn.cursor()
-            # 查詢資料庫中的使用者帳號和密碼
-            cursor.execute("SELECT password FROM users WHERE username = ?", (user.username,))
-            stored_password = cursor.fetchone()
+            # 查詢資料庫中的使用者帳號、密碼和身份
+            cursor.execute("SELECT password, identities FROM users WHERE username = ?", (user.username,))
+            result = cursor.fetchone()
 
-            if stored_password is None:
+            if result is None:
                 raise HTTPException(status_code=404, detail="帳號不存在")
 
+            stored_password, identities = result  # 同時獲取密碼和身份欄位
+
             # 驗證密碼是否正確
-            if stored_password[0] != user.password:
+            if stored_password != user.password:
                 raise HTTPException(status_code=401, detail="密碼錯誤")
 
-            return {"message": "登入成功"}
+            # 返回身份信息
+            return {"message": "登入成功", "identities": identities}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"登入過程中發生錯誤: {e}")
@@ -77,7 +81,7 @@ async def register_user(user: User, db=Depends(get_user_db)):
                 raise HTTPException(status_code=400, detail="該帳號已存在")
 
             # 插入新使用者，預設身份為學生
-            cursor.execute("INSERT INTO users (username, password, identities) VALUES (?, ?, ?)", (user.username, user.password, "學生"))
+            cursor.execute("INSERT INTO users (username, password, identities) VALUES (?, ?, ?)", (user.username, user.password, user.identities))
             conn.commit()
             return {"message": "註冊成功"}
     except Exception as e:
