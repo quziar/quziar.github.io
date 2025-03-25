@@ -25,7 +25,7 @@ app.add_middleware(SessionMiddleware, secret_key=secret_key)
 # 根路由重定向到靜態頁面
 @app.get("/", response_class=RedirectResponse)
 async def redirect_to_index():
-    return RedirectResponse(url="/static/index.html")
+    return RedirectResponse(url="/static/home.html")
 
 # 更新 StaticFiles，關閉快取
 app.mount("/static", StaticFiles(directory="static"), name="static")
