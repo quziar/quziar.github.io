@@ -4,6 +4,7 @@ from scripts.import_questions import import_questions_from_excel
 from scripts.clean_duplicate_questions import clean_duplicate_questions
 from scripts.clear_specific_questions import delete_question_by_id
 from scripts.export_questions import export_all_questions
+from scripts.read_questions import fetch_questions
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
@@ -104,6 +105,13 @@ async def delete_question(request: DeleteQuestionRequest):
         return JSONResponse(content={"message": f"題目ID {request.question_id} 已成功刪除！"}, status_code=200)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"刪除題目時發生錯誤，請稍後再試。錯誤詳情: {str(e)}")
+
+#讀取題目
+@router.get("/read_questions")
+def get_questions():
+    """API 端點：取得題庫資料"""
+    questions = fetch_questions()
+    return {"questions": questions}
 
 #新增題目
 @router.post("//import-single-question//")
