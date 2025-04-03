@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>題庫系統</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- 小視窗 -->
+<div id="popup-window" style="display: none;">
+
+    <div id="popup-content">
+
+        <h3 id="popup-title">註冊 / 登入</h3>
+        <div id="popup-body">
+            <!-- 這裡會動態插入註冊或登入表單 -->
+        </div>
+        <button id="close-popup">關閉</button>
+    </div>
+</div>
+
+
+<h1>
+    題庫系統
+    <!-- 返回文字放在 h1 內部，並對齊到左邊 -->
+    <a href="#" id="back-link">返回</a>
+    <a href="#" id="book-link">歷史紀錄</a>
+    <a href="#" id="register-link">註冊</a>
+    <a href="#" id="login-link">登入</a>
+</h1>
+
+</div>
+
+<div id="keyword-search-container">
+    <input type="text" id="search-bar" placeholder="關鍵字搜尋">
+    <button id="keyword-search-button">關鍵字搜尋</button>
+    <div id="results-dropdown" style="display: none;">
+        <ul id="results-list"></ul>
+        <button id="select-all-button">選擇全部</button>
+        <button id="clear-selection-button">清除全部</button>
+        <button id="start-quiz-button">開始測驗</button>
+    </div>
+</div>
+
+<div id="container">
+    <div id="sidebar">
+        <button id="toggle-question-list">顯示/隱藏 題目列表</button>
+        <h2>題目列表</h2>
+        <select id="question-type-select" onchange="toggleQuestionList()">
+            <option value="general">一般題目列表</option>
+            <option value="advanced">進階題目列表</option>
+        </select>
+        <div id="question-list"></div>
+    </div>
+    <div id="main-content">
+        <div id="filter-search-container">
+            <select id="subject" onchange="toggleInputField('subject')">
+                <option value="">科目</option>
+                <option value="全部">全部</option>
+                <option value="自行輸入">自行輸入</option>
+                <option value="行政學">行政學</option>
+                <option value="政治學">政治學</option>
+                <option value="公共管理">公共管理</option>
+                <!-- 其他科目選項 -->
+            </select>
+            <input type="text" id="subject-input" placeholder="手動輸入科目" style="display: none;">
+
+            <input type="text" id="category-input" onkeypress="handleKeyPress(event)" placeholder="手動輸入類別" style="display: none;">
+            <select id="category" onchange="toggleInputField('category')">
+                <option value="">類別</option>
+                <option value="全部">全部</option>
+                <option value="自行輸入">自行輸入</option>
+                <option value="普考">普考</option>
+                <option value="身心三等">身心三等</option>
+                <option value="原民三等">原民三等</option>
+                <option value="地特三等">地特三等</option>
+                <option value="外特四等">外特四等</option>
+                <option value="高考三級">高考三級</option>
+                <option value="警特三等">警特三等</option>
+                <option value="調查外特">調查外特</option>
+                <option value="調查三等">調查三等</option>
+                <option value="調查四等">調查四等</option>
+                <!-- 其他類別選項 -->
+            </select>
+
+            <select id="year" onchange="toggleInputField('year')">
+                <option value="">年份</option>
+                <option value="全部">全部</option>
+                <option value="自行輸入">自行輸入</option>
+                <option value="115">115</option>
+                <option value="114">114</option>
+                <option value="113">113</option>
+                <option value="112">112</option>
+                <option value="111">111</option>
+                <option value="110">110</option>
+                <option value="90">90</option>
+            </select>
+            <input type="text" id="year-input" placeholder="手動輸入年份" style="display: none;">
+
+            <select id="question-type">
+                <option value="">題型</option>
+                <option value="選擇">選擇題</option>
+                <option value="申論">申論題</option>
+            </select>
+
+            <select id="time-limit" onchange="toggleInputField('time-limit')">
+                <option value="">時間</option>
+                <option value="0">永久</option>
+                <option value="自行輸入">自行輸入</option>
+                <option value="1800">30分鐘</option>
+                <option value="3600">60分鐘</option>
+                <option value="5400">90分鐘</option>
+                <option value="7200">120分鐘</option>
+            </select>
+            <input type="text" id="time-limit-input" placeholder="手動輸入時間" style="display: none;">
+
+            <select id="question-count" onchange="toggleInputField('question-count')">
+                <option value="">題數</option>
+                <option value="全部">全部</option>
+                <option value="自行輸入">自行輸入</option>
+                <option value="15">15題</option>
+                <option value="25">25題</option>
+                <option value="50">50題</option>
+                <option value="75">75題</option>
+                <option value="100">100題</option>
+            </select>
+            <input type="text" id="question-count-input" placeholder="手動輸入題數" style="display: none;">
+            
+
+            <button id="filter-search-button">搜尋</button>
+        </div>
+        <div id="question-container"></div>
+        <div class="button-container" style="display: none;">
+            <button id="mark-question">標記</button>
+            <button id="eliminate-option">刪去法</button>
+            <div id="eliminate-container" style="display: none;">
+                <button class="eliminate-option" data-option="A">A</button>
+                <button class="eliminate-option" data-option="B">B</button>
+                <button class="eliminate-option" data-option="C">C</button>
+                <button class="eliminate-option" data-option="D">D</button>
+            </div>
+            <button id="pause-timer">暫停</button>
+            <button id="resume-timer" style="display: none;">繼續</button>
+            <button id="next-question">跳題</button>
+            <button id="confirm-answer">送出</button>
+            <button id="end-quiz">結束測驗</button>
+            <button id="return-home" style="display: none;" onclick="returnToHome()">返回主畫面</button>
+        </div>
+        <button id="start-quiz" style="display: none;">開始測驗</button>
+        <div id="score-container" style="display: none;"></div>
+        <div id="timer" style="display: none;"></div>
+        <div id="toolbar" style="display: none;">
+            <div id="explanation-container" style="display: none;"></div>
+            <div><button onclick="formatText('bold')"><b>B</b></button></div>
+            <div><button onclick="formatText('italic')"><i>I</i></button></div>
+            <div><button onclick="formatText('underline')"><u>U</u></button></div>
+            <div><button onclick="formatText('fontSize')">A</button></div>
+            <div><button onclick="formatText('fontFamily')">F</button></div>
+            <div><button onclick="undo()">↺</button></div>
+        </div>
+    </div>
+</div>
+<form id="add-question-form" style="display: none;">
+    <input type="text" id="year" placeholder="年份">
+    <input type="text" id="category" placeholder="類別">
+    <input type="text" id="subject" placeholder="科目">
+    <input type="text" id="questionNumber" placeholder="題號">
+    <input type="text" id="question" placeholder="題目">
+    <input type="text" id="options" placeholder="選項（用逗號分隔）">
+    <input type="text" id="answer" placeholder="答案">
+    <select id="question-type">
+        <option value="選擇">選擇題</option>
+        <option value="申論">申論題</option>
+    </select>
+    <button type="submit">新增題目</button>
+</form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+<script src="script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.1.0/docx.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<div id="score-container" style="display: none;"></div>
+</body>
+</html>

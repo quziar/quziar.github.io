@@ -1,0 +1,436 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    background-color: #4c68af;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin: 0; /* 移除 h1 的外邊距 */
+
+}
+
+#container {
+    display: flex;
+    flex-direction: row;
+}
+
+#sidebar {
+    width: 15%;
+    background-color: #f4f4f4;
+    padding: 10px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+#main-content {
+    width: 85%;
+    padding: 10px;
+}
+
+
+
+#question-list {
+    display: grid; /* 使用 grid 布局 */
+    grid-template-columns: repeat(5, 1fr); /* 每行五個元素，平均分配空間 */
+    gap: 5px; /* 按鈕間距 */
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
+
+}
+
+#question-list button {
+    width: 40px; /* 調整按鈕寬度 */
+    height: 40px; /* 調整按鈕高度 */
+    text-align: center;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 50%; /* 使按鈕變成圓形 */
+    cursor: pointer;
+    color: black;
+    margin: 5px;
+    transition: background-color 0.3s ease;
+    margin: 0 auto; /* 使按鈕居中 */
+    display: flex; /* 使用 flex 布局 */
+    align-items: center; /* 垂直置中 */
+    justify-content: center; /* 水平置中 */
+    white-space: nowrap; /* 防止文字換行 */
+}
+
+#question-list button span {
+    color: red;
+    font-weight: bold;
+}#question-list button[style*="border: 2px solid red;"] {
+    background-color: #ffe6e6;
+}
+#question-list button:hover {
+    background-color: #f0f0f0;
+}
+
+
+#question-container {
+    margin: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    position: relative;
+    text-align: left;
+}
+
+.question-header {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 14px;
+    color: #333;
+}
+#question-list.general {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* 每行五個元素 */
+    gap: 5px;
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#question-list.advanced {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 每行三個元素 */
+    gap: 5px;
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+#question-list.advanced button {
+    width: 50px;  /* 增大進階模式的按鈕寬度 */
+    height: 50px; /* 增大進階模式的按鈕高度 */
+    border-radius: 50%; /* 確保按鈕仍為圓形 */
+
+}
+h2, p {
+    text-align: left;
+}
+
+button {
+    background-color: #6a4caf;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin: 10px;
+    transition: background-color 0.3s ease; /* 平滑過渡效果 */
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.option-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.option {
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #333;
+    transition: background-color 0.3s ease; /* 平滑過渡效果 */
+}
+
+.option:hover {
+    background-color: #e0e0e0;
+}
+
+.option.selected {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    margin-top: 20px;
+}
+
+#score-container {
+    font-size: 2em;
+    color: #4c63af;
+    margin-top: 40px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#start-quiz {
+    display: block;
+    margin: 0 auto;
+}
+
+.lined-textarea {
+    background: repeating-linear-gradient(
+        #f0f0f0 0px 29px,
+        #ccc 30px 59px
+    );
+    line-height: 30px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 100%;
+    height: 300px;
+    box-sizing: border-box;
+    resize: none;
+    overflow: hidden;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 16px;
+    text-align: left;
+}
+
+#toggle-question-list {
+    margin-bottom: 10px;
+}
+
+#question-list-container {
+    width: 200px;
+    height: 300px;
+    overflow-y: scroll;
+    border: 1px solid #ddd;
+}
+
+#toggle-question-list {
+    position: relative;
+    top: 20px;
+    margin-bottom: 10px;
+}
+
+#score-container table {
+    margin: 0 auto;
+}
+
+/* CSS部分 */
+#mark-question, #eliminate-option {
+    background-color: orange;
+    color: white; /* 如果需要更改文字顏色，可以加入這行 */
+    border: none; /* 去除按鈕邊框 */
+    padding: 10px 20px; /* 調整按鈕內間距 */
+    font-size: 16px; /* 調整文字大小 */
+    cursor: pointer; /* 滑鼠移過時顯示指針 */
+}
+
+#mark-question:hover, #eliminate-option:hover {
+    background-color: darkorange; /* 當滑鼠懸停時按鈕顏色變深 */
+}
+
+/* 將「結束測驗」按鈕改成紅色 */
+button#end-quiz {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease; /* 平滑過渡效果 */
+}
+
+button#end-quiz:hover {
+    background-color: darkred; /* 添加懸停效果的背景顏色 */
+}
+
+/* 將「送出」按鈕改成藍色 */
+button#confirm-answer {
+    background-color: blue;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease; /* 平滑過渡效果 */
+}
+
+button#confirm-answer:hover {
+    background-color: darkblue; /* 添加懸停效果的背景顏色 */
+}
+
+#search-container {
+    display: flex; /* 使用彈性盒子模型 */
+    justify-content: center; /* 水平置中 */
+    align-items: center; /* 垂直置中 */
+    margin: 20px 0; /* 上下邊距 */
+}
+
+#search-bar {
+    width: 300px; /* 設定寬度 */
+    padding: 10px; /* 設定內邊距 */
+    font-size: 16px; /* 設定字體大小 */
+    border: 1px solid #ccc; /* 設定邊框顏色 */
+    border-radius: 5px; /* 設定邊框圓角 */
+}
+
+#search-button {
+    background-color: #4c68af; /* 設定背景顏色 */
+    color: white; /* 設定文字顏色 */
+    border: none; /* 移除邊框 */
+    padding: 10px 20px; /* 設定內邊距 */
+    cursor: pointer; /* 設定鼠標樣式為指針 */
+    border-radius: 5px; /* 設定邊框圓角 */
+    margin-left: 10px; /* 左邊邊距 */
+    transition: background-color 0.3s ease; /* 平滑過渡效果 */
+}
+
+#search-button:hover {
+    background-color: #3b4f8a; /* 懸停效果的背景顏色 */
+}
+
+#popup-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 600px;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+}
+
+#popup-content {
+    padding: 20px;
+}
+
+#popup-content h3 {
+    margin-top: 0;
+}
+
+#popup-content ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#popup-content ul li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+#popup-content ul li:last-child {
+    border-bottom: none;
+}
+#mark-question, #eliminate-option {
+    background-color: #df8e47; /* 設定背景顏色為淡橘色 */
+    color: white; /* 如果需要更改文字顏色，可以加入這行 */
+    border: none; /* 去除按鈕邊框 */
+    padding: 10px 20px; /* 調整按鈕內間距 */
+    font-size: 20px; /* 調整文字大小 */
+    cursor: pointer; /* 滑鼠移過時顯示指針 */
+    font-weight: bold; /* 設定文字為粗體 */
+}
+
+#mark-question:hover, #eliminate-option:hover {
+    background-color: #FFA07A; /* 當滑鼠懸停時按鈕顏色變深 */
+}
+
+
+button#end-quiz {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 20px; /* 調整文字大小 */
+    border-radius: 5px;
+    font-weight: bold; /* 設定文字為粗體 */
+}
+
+/* 將剩下的按鈕設置成紫色 */
+button#pause-timer, button#resume-timer, button#next-question {
+    background-color: #6a4caf; /* 紫色 */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 20px; /* 調整文字大小 */
+    border-radius: 5px;
+    font-weight: bold; /* 設定文字為粗體 */
+}
+
+button#pause-timer:hover, button#resume-timer:hover, button#next-question:hover {
+    background-color: #5b3ea1; /* 當滑鼠懸停時按鈕顏色變深 */
+}
+
+
+button#end-quiz:hover {
+    background-color: darkred; /* 添加懸停效果的背景顏色 */
+}
+
+/* 將「送出」按鈕改成藍色 */
+button#confirm-answer {
+    background-color: rgb(53, 53, 255);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 20px; /* 調整文字大小 */
+    border-radius: 5px;
+    font-weight: bold; /* 設定文字為粗體 */
+}
+
+button#confirm-answer:hover {
+    background-color: darkblue; /* 添加懸停效果的背景顏色 */
+}
+.selected-answer {
+    background-color: rgb(138, 138, 252);
+    color: white;
+}
+#note-input {
+    width: 100%; 
+    height: 280px; /* 調整為較大的高度 */
+    padding: 10px; 
+    font-size: 16px; 
+    resize: vertical; /* 允許手動調整大小 */
+    border: 1px solid #aaa;
+    border-radius: 5px;
+}
+#back-link,#book-link, #register-link, #login-link {
+    position: absolute;
+    top: 20px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+}
+
+#back-link {
+    left: 20px;
+}
+#book-link {
+    left: 100px;
+}
+#register-link {
+    right: 100px;
+}
+
+#login-link {
+    right: 20px;
+}
+
+#back-link:hover, #register-link:hover, #login-link:hover {
+    text-decoration: underline;
+}
+#popup-window {
+    max-height: 80vh; /* 設定最大高度為視窗高度的 80% */
+    overflow-y: auto; /* 啟用垂直滾動條 */
+}

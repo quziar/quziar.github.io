@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教師頁面</title>
+
+    <!-- 引入外部 CSS -->
+    <link rel="stylesheet" href="/static/admin.css">
+</head>
+
+<body>
+<!-- 小視窗 -->
+<div id="popup-window" style="display: none;">
+
+    <div id="popup-content">
+
+        <h3 id="popup-title"></h3>
+        <div id="popup-body">
+            <!-- 這裡會動態插入註冊或登入表單 -->
+        </div>
+        <button id="close-popup">關閉</button>
+    </div>
+</div>
+
+    <h1>教師面板</h1>
+    <div class="goodbye">
+         <a href="#" id="login-link">登出</a>
+
+    </div>
+    <div class="button-container">
+        <button id="importBtn">📄 匯入 Excel 題目</button>
+        <button id="viewAllBtn">🔍 查看所有題目</button>
+        <button id="compareQuestionsBtn">🔎 比對相似題目</button>
+        <button id="exportExcelBtn">📊 下載 Excel</button>
+        <button id="copyteat">生成考卷</button>
+        <button id="viewteat">查看考卷</button>
+    </div>
+
+    <!-- 刪除題目區域 -->
+    <div class="delete-question-container">
+        <h3>刪除題目</h3>
+        <label for="questionId">輸入題目ID：</label>
+        <input type="number" id="questionId" placeholder="請輸入數字ID" />
+        <button id="viewQuestionBtn">顯示題目</button>
+        <button id="deleteBtn">刪除題目</button>
+        <p id="deleteResponse"></p> <!-- 顯示刪除結果 -->
+    </div>
+ <!-- 類別輸入框 -->
+<label for="categoryInput">輸入關鍵字：</label>
+<input type="text" id="categoryInput" placeholder="請輸入關鍵字">
+
+<button id="filterByCategoryBtn">搜尋題目</button>
+
+<!-- 顯示題目的區域 -->
+<div id="filteredQuestionList"></div>   
+    <div id="response"></div>
+
+    <div id="questionList"></div> <!-- 顯示題目或使用者的區域 -->
+
+    <!-- 公私有選擇視窗 -->
+    <div id="publicPrivateModal" style="display: none;">
+        <h3>請選擇題目為公有或私有：</h3>
+        <form>
+            <input type="radio" id="public" name="public_private" value="public" checked> 公有
+            <input type="radio" id="private" name="public_private" value="private"> 私有
+        </form>
+        <button id="confirmPublicPrivate">確認</button>
+        <button id="cancelModal">取消</button>
+    </div>
+
+    <!-- Excel 檔案選擇框 -->
+    <input type="file" id="excelFile" style="display: none;" accept=".xlsx, .xls" />
+
+    <!-- 引入外部 JS -->
+    <script src="/static/teacher.js"></script>
+</body>
+
+</html>
