@@ -53,6 +53,7 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
 
         if (response.ok) {
             const data = await response.json(); // 從後端獲取 JSON 資料
+            getCurrentUser();
 
             // 使用 switch 語句進行身份判斷
             switch (data.identities) {
