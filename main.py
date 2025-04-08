@@ -22,7 +22,7 @@ app = FastAPI(title="題庫系統")
 # 設定 Session 中介層，`secret_key` 用來加密 Session 資料
 # 確保 secret_key 是長且隨機的，這裡僅作為範例
 secret_key = os.urandom(24).hex()  # 生成一個隨機的密鑰
-app.add_middleware(SessionMiddleware, secret_key=secret_key)
+app.add_middleware(SessionMiddleware, secret_key=secret_key, same_site="none", https_only=True)
 
 # 根路由重定向到靜態頁面
 @app.get("/", response_class=RedirectResponse)
