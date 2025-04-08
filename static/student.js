@@ -11,6 +11,8 @@ function showSessionData() {
     });
 }
 
+showSessionData();
+
 async function fetchQuestions() {
     try {
         let response = await fetch("/api/questions/read_questions/");
@@ -286,7 +288,6 @@ document.addEventListener("DOMContentLoaded", fetchQuestions);
 document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById("sidebar").style.display = "none";
-    showSessionData();
 
     // 選擇全部按鈕
     selectAllButton.addEventListener('click', function() {
