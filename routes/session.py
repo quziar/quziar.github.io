@@ -42,3 +42,9 @@ async def logout(request: Request):
     # 清除 session
     request.session.clear()
     return JSONResponse(content={"message": "已成功登出"})
+
+@router.get("/show_session/")
+async def show_session(request: Request):
+    # 直接打印 session 資料
+    print("Current session data:", dict(request.session))
+    return {"message": "Session data printed to console"}
