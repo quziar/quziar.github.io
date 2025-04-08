@@ -1,6 +1,6 @@
 // 顯示 session 資料
 function showSessionData() {
-  fetch("http://localhost:8000/show_session/")
+  fetch("/api/session/show_session/")
     .then(response => response.json())  // 解析 JSON 回應
     .then(data => {
       console.log("Session Data:", data);  // 在控制台中顯示 session 資料
