@@ -1,3 +1,4 @@
+// 顯示 session 資料
 function showSessionData() {
   fetch("http://localhost:8000/show_session/")
     .then(response => response.json())  // 解析 JSON 回應
@@ -16,7 +17,7 @@ async function login(userId) {
         headers: {
             'Content-Type': 'application/json',
         },
-        credentials: 'include', // 這是保證攜帶 cookies
+        credentials: 'include', // 保證攜帶 cookies
     });
     if (response.ok) {
         const data = await response.json();
@@ -54,16 +55,15 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
             // 使用 switch 語句進行身份判斷
             switch (data.identities) {
                 case "管理員":
-                    login(username)
+                    login(username);
                     window.location.replace("/static/admin_dashboard.html");
                     break;
                 case "教授":
-                    login(username)
+                    login(username);
                     window.location.replace("/static/teacher.html");
                     break;
                 case "學生":
-                    login(username)
-                    showSessionData();
+                    login(username);
                     window.location.replace("/static/student.html");
                     break;
                 default:
