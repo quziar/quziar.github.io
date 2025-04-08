@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 # 正確引入路由
 from routes.questions import router as question_router
@@ -19,10 +20,23 @@ from routes.fonts import router as fonts_router
 # 初始化 FastAPI 應用
 app = FastAPI(title="題庫系統")
 
-# 設定 Session 中介層，`secret_key` 用來加密 Session 資料
-# 確保 secret_key 是長且隨機的，這裡僅作為範例
+# 設置 CORS 中介層，允許跨域請求
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 可以根據需要設置特定的域
+    allow_credentials=True,
+    allow_methods=["*"],  # 允許所有 HTTP 方法
+    allow_headers=["*"],  # 允許所有標頭
+)
+
+# 設置 Session 中介層，`secret_key` 用來加密 Session 資料
 secret_key = os.urandom(24).hex()  # 生成一個隨機的密鑰
-app.add_middleware(SessionMiddleware, secret_key=secret_key, same_site="none", https_only=True)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=secret_key,
+    same_site="none",  # 支援跨域 cookies
+    https_only=True     # 確保只通過 HTTPS 設置 cookies
+)
 
 # 根路由重定向到靜態頁面
 @app.get("/", response_class=RedirectResponse)
