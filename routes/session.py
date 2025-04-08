@@ -4,12 +4,6 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 import os
 
-router = APIRouter()
-
-# 確保您已經設置 SessionMiddleware
-secret_key = os.urandom(24).hex()
-app.add_middleware(SessionMiddleware, secret_key=secret_key, same_site="none", https_only=True)
-
 @router.post("/login/{user_id}")
 async def login(user_id: str, request: Request):
     # 設定 session
