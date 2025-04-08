@@ -5,14 +5,17 @@ async function login(userId) {
         headers: {
             'Content-Type': 'application/json',
         },
-        credentials: 'include', 
+        credentials: 'include', // 這是保證攜帶 cookies
     });
-    const data = await response.json();
-    console.log(data.message); // 顯示登入訊息
+    if (response.ok) {
+        const data = await response.json();
+        console.log(data.message); // 顯示登入訊息
+    } else {
+        console.error("登入失敗！");
+    }
 }
 
-
-//登入
+// 登入
 document.getElementById("loginBtn").addEventListener("click", async function() {
     let username = document.getElementById("username").value.trim();
     let password = document.getElementById("password").value.trim();
@@ -63,4 +66,3 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
         console.error("登入過程中出錯：", error);
     }
 });
-
