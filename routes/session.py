@@ -23,9 +23,6 @@ async def login(user_id: str, request: Request):
     request.session["currentUserID"] = user_id
     response = JSONResponse(content={"message": f"使用者 {user_id} 已成功登入"})
     
-    # 設定 Cookie 屬性：HttpOnly 和 Secure
-    response.set_cookie("session_id", value=user_id, httponly=True, secure=True, samesite="None")
-    
     return response
 
 # 取得 currentUserID
