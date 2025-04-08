@@ -11,17 +11,21 @@ async function fetchQuestions() {
     }
 }
 
-// 取得當前使用者 ID
+// 取得當前使用者 ID（使用 session，不用 token）
 async function getCurrentUser() {
-    const response = await fetch('/api/session/get_user/');
+    const response = await fetch('/api/session/get_user/', {
+        credentials: 'include'  // ⬅️ 讓 iOS、Safari 能帶上 cookie（session ID）
+    });
+
     if (response.ok) {
         const data = await response.json();
         return data.currentUserID;
     } else {
         console.log('未登入');
-        return null;  // 確保函式有回傳值
+        return null;
     }
 }
+
 
 // 全域變數
 let currentQuestionIndex = 0;
