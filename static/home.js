@@ -43,15 +43,15 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
             switch (data.identities) {
                 case "管理員":
                     login(username)
-                    window.location.href = "/static/admin_dashboard.html";
+                    window.location.replace("/static/admin_dashboard.html");
                     break;
                 case "教授":
                     login(username)
-                    window.location.href = "/static/teacher.html";
+                    window.location.replace("/static/teacher.html");
                     break;
                 case "學生":
                     login(username)
-                    window.location.href = "/static/student.html";
+                    window.location.replace("/static/student.html");
                     break;
                 default:
                     alert("身份不明，請聯繫系統管理員！");
