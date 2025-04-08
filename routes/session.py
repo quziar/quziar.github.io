@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 from fastapi.responses import JSONResponse
-from starlette.middleware.sessions import SessionMiddleware
-import os
+
+router = APIRouter()
 
 @router.post("/login/{user_id}")
 async def login(user_id: str, request: Request):
