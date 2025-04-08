@@ -64,7 +64,7 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
                     break;
                 case "學生":
                     login(username);
-                    window.location.replace("/static/student.html");
+                    //window.location.replace("/static/student.html");
                     break;
                 default:
                     alert("身份不明，請聯繫系統管理員！");
