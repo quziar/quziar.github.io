@@ -1,5 +1,16 @@
 let questions = [];
 
+function showSessionData() {
+  fetch("http://localhost:8000/show_session/")
+    .then(response => response.json())  // 解析 JSON 回應
+    .then(data => {
+      console.log("Session Data:", data);  // 在控制台中顯示 session 資料
+    })
+    .catch(error => {
+      console.error("Error:", error);  // 捕捉錯誤並顯示錯誤訊息
+    });
+}
+
 async function fetchQuestions() {
     try {
         let response = await fetch("/api/questions/read_questions/");
@@ -275,6 +286,7 @@ document.addEventListener("DOMContentLoaded", fetchQuestions);
 document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById("sidebar").style.display = "none";
+    showSessionData();
 
     // 選擇全部按鈕
     selectAllButton.addEventListener('click', function() {
