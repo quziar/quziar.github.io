@@ -15,21 +15,6 @@ async function login(userId) {
     }
 }
 
-// 取得當前使用者 ID（使用 session，不用 token）
-async function getCurrentUser() {
-    const response = await fetch('/api/session/get_user/', {
-        credentials: 'include'  // ⬅️ 讓 iOS、Safari 能帶上 cookie（session ID）
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        return data.currentUserID;
-    } else {
-        console.log('未登入');
-        return null;
-    }
-}
-
 // 登入
 document.getElementById("loginBtn").addEventListener("click", async function() {
     let username = document.getElementById("username").value.trim();
@@ -66,7 +51,7 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
                     break;
                 case "學生":
                     login(username)
-                    //window.location.href = "/static/student.html";
+                    window.location.href = "/static/student.html";
                     break;
                 default:
                     alert("身份不明，請聯繫系統管理員！");
@@ -80,9 +65,4 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
         alert("發生錯誤，請稍後再試！");
         console.error("登入過程中出錯：", error);
     }
-});
-
-// 登入
-document.getElementById("test").addEventListener("click", async function() {
-    getCurrentUser();
 });
