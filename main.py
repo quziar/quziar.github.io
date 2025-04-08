@@ -23,7 +23,7 @@ app = FastAPI(title="題庫系統")
 # 設置 CORS 中介層，允許跨域請求
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 可以根據需要設置特定的域
+    allow_origins=["https://www.smartlearningzones.com/"],  # 可以根據需要設置特定的域
     allow_credentials=True,
     allow_methods=["*"],  # 允許所有 HTTP 方法
     allow_headers=["*"],  # 允許所有標頭
