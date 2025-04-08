@@ -4,16 +4,29 @@ from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
-@router.post("/login/{user_id}")
+@app.post("/login/{user_id}")
 async def login(user_id: str, request: Request):
-    # 將 user_id 存入 session
-    request.session["currentUserID"] = user_id
-    
+    print(f"步驟 1: 收到登入請求，user_id={user_id}")
+
+    # 嘗試將 user_id 存入 session
+    try:
+        request.session["currentUserID"] = user_id
+        print("步驟 2: user_id 成功儲存到 session")
+    except Exception as e:
+        print(f"步驟 2: 儲存 user_id 進 session 失敗，錯誤訊息: {e}")
+        return JSONResponse(status_code=500, content={"message": "儲存 user_id 失敗"})
+
     # 在伺服器端打印訊息
-    print(f"使用者 {user_id} 已成功登入")
+    print(f"步驟 3: 使用者 {user_id} 已成功登入")
 
     # 返回 JSON 回應
-    return JSONResponse(content={"message": f"使用者 {user_id} 已成功登入"})
+    try:
+        response = JSONResponse(content={"message": f"使用者 {user_id} 已成功登入"})
+        print("步驟 4: 回應成功生成")
+        return response
+    except Exception as e:
+        print(f"步驟 4: 回應生成失敗，錯誤訊息: {e}")
+        return JSONResponse(status_code=500, content={"message": "回應生成失敗"})
 
 
 @router.get("/get_user/")
