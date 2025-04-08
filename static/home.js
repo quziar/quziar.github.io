@@ -1,3 +1,14 @@
+function showSessionData() {
+  fetch("http://localhost:8000/show_session/")
+    .then(response => response.json())  // 解析 JSON 回應
+    .then(data => {
+      console.log("Session Data:", data);  // 在控制台中顯示 session 資料
+    })
+    .catch(error => {
+      console.error("Error:", error);  // 捕捉錯誤並顯示錯誤訊息
+    });
+}
+
 // 儲存ID
 async function login(userId) {
     const response = await fetch(`/api/session/login/${userId}`, {
@@ -38,6 +49,7 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
 
         if (response.ok) {
             const data = await response.json(); // 從後端獲取 JSON 資料
+            showSessionData();
 
             // 使用 switch 語句進行身份判斷
             switch (data.identities) {
@@ -51,6 +63,7 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
                     break;
                 case "學生":
                     login(username)
+                    showSessionData();
                     window.location.replace("/static/student.html");
                     break;
                 default:
