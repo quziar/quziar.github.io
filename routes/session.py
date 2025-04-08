@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
-@app.post("/login/{user_id}")
+@router.post("/login/{user_id}")
 async def login(user_id: str, request: Request):
     print(f"步驟 1: 收到登入請求，user_id={user_id}")
 
