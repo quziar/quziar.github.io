@@ -1,7 +1,7 @@
 let questions = [];
 
 function showSessionData() {
-  fetch("/api/questions/show_session/")
+  fetch("/api/session/show_session/")
     .then(response => response.json())  // 解析 JSON 回應
     .then(data => {
       console.log("Session Data:", data);  // 在控制台中顯示 session 資料
