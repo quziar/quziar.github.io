@@ -15,21 +15,6 @@ async function login(userId) {
     }
 }
 
-// 取得當前使用者 ID（使用 session，不用 token）
-async function getCurrentUser() {
-    const response = await fetch('/api/session/get_user/', {
-        credentials: 'include'  // ⬅️ 讓 iOS、Safari 能帶上 cookie（session ID）
-    });
-
-    if (response.ok) {
-        const data = await response.json();
-        return data.currentUserID;
-    } else {
-        console.log('未登入');
-        return null;
-    }
-}
-
 // 登入
 document.getElementById("loginBtn").addEventListener("click", async function() {
     let username = document.getElementById("username").value.trim();
@@ -53,7 +38,6 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
 
         if (response.ok) {
             const data = await response.json(); // 從後端獲取 JSON 資料
-            getCurrentUser();
 
             // 使用 switch 語句進行身份判斷
             switch (data.identities) {
