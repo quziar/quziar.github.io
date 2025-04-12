@@ -21,24 +21,6 @@ from scripts.cookie_session import CookieSessionMiddleware
 # 初始化 FastAPI 應用
 app = FastAPI(title="題庫系統")
 
-# 設置 CORS 中介層，允許跨域請求
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://www.smartlearningzones.com/"],  # 可以根據需要設置特定的域
-    allow_credentials=True,
-    allow_methods=["*"],  # 允許所有 HTTP 方法
-    allow_headers=["*"],  # 允許所有標頭
-)
-
-# 設置 Session 中介層，`secret_key` 用來加密 Session 資料
-secret_key = os.urandom(24).hex()  # 生成一個隨機的密鑰
-app.add_middleware(
-    SessionMiddleware,
-    secret_key=secret_key,
-    same_site="none",  # 支援跨域 cookies
-    https_only=True     # 確保只通過 HTTPS 設置 cookies
-)
-
 app.add_middleware(CookieSessionMiddleware)
 
 # 根路由重定向到靜態頁面
