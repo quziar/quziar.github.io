@@ -4,6 +4,7 @@ import redis.asyncio as redis
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+from main import redis_url
 
 class RedisSessionMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, redis_url: str = redis_url, session_cookie: str = "session_id"):
