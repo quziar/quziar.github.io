@@ -26,8 +26,8 @@ class CookieSessionMiddleware(BaseHTTPMiddleware):
                 key="session",
                 value=encoded,
                 httponly=True,
-                secure=True,         # ✅ 支援 HTTPS only
-                samesite="none",     # ✅ 跨網域支援
+                secure=False,
+                samesite="None",    # ✅ 跨網域支援
                 max_age=3600         # ✅ 1 小時自動過期（可調）
             )
         except Exception as e:
