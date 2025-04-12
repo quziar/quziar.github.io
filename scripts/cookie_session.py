@@ -5,7 +5,6 @@ from itsdangerous import URLSafeSerializer
 import os
 
 SECRET_KEY = os.urandom(24).hex()
-print(f"SECRET_KEY: {SECRET_KEY}")
 
 serializer = URLSafeSerializer(SECRET_KEY, salt="cookie-session")
 
