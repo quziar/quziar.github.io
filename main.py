@@ -23,7 +23,7 @@ app = FastAPI(title="題庫系統")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://www.smartlearningzones.com"],  # 或 ['*'] 測試用
+    allow_origins=["https://quziar-github-io.onrender.com/"],  # 或 ['*'] 測試用
     allow_credentials=True,  # ✅ 重點！讓 cookie 能傳送
     allow_methods=["*"],
     allow_headers=["*"],
