@@ -6,8 +6,6 @@ import os
 
 SECRET_KEY = os.urandom(24).hex()
 
-print(f"[DEBUG] SECRET_KEY: {SECRET_KEY}")
-
 serializer = URLSafeSerializer(SECRET_KEY, salt="cookie-session")
 
 class CookieSessionMiddleware(BaseHTTPMiddleware):
