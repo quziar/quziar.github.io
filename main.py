@@ -16,6 +16,7 @@ from routes.admin import router as admin_router
 from routes.session import router as session_router
 from routes.exams import router as exam_router
 from routes.fonts import router as fonts_router
+from scripts.cookie_session import CookieSessionMiddleware
 
 # 初始化 FastAPI 應用
 app = FastAPI(title="題庫系統")
@@ -37,6 +38,8 @@ app.add_middleware(
     same_site="none",  # 支援跨域 cookies
     https_only=True     # 確保只通過 HTTPS 設置 cookies
 )
+
+app.add_middleware(CookieSessionMiddleware)
 
 # 根路由重定向到靜態頁面
 @app.get("/", response_class=RedirectResponse)
