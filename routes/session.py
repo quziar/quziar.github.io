@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 from fastapi.responses import JSONResponse
+from scripts.cookie_session import SECRET_KEY
 
 router = APIRouter()
 
