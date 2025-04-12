@@ -22,7 +22,7 @@ class CookieSessionMiddleware(BaseHTTPMiddleware):
 
         try:
             encoded = serializer.dumps(request.state.session)
-            response.set_cookie("session", encoded, httponly=True, samesite="lax")
+            response.set_cookie("session", encoded, httponly=True, samesite="lax",secure=True)
         except Exception:
             pass
 
