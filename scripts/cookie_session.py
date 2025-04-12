@@ -22,8 +22,15 @@ class CookieSessionMiddleware(BaseHTTPMiddleware):
 
         try:
             encoded = serializer.dumps(request.state.session)
-            response.set_cookie("session", encoded, httponly=True, samesite="lax")
-        except Exception:
-            pass
+            response.set_cookie(
+                key="session",
+                value=encoded,
+                httponly=True,
+                secure=True,         # ✅ 支援 HTTPS only
+                samesite="none",     # ✅ 跨網域支援
+                max_age=3600         # ✅ 1 小時自動過期（可調）
+            )
+        except Exception as e:
+            print("Failed to set cookie:", e)
 
         return response
