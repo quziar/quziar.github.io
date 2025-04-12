@@ -21,6 +21,14 @@ from scripts.cookie_session import CookieSessionMiddleware
 # 初始化 FastAPI 應用
 app = FastAPI(title="題庫系統")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://你的前端網址.com"],  # 或 ['*'] 測試用
+    allow_credentials=True,  # ✅ 重點！讓 cookie 能傳送
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.add_middleware(CookieSessionMiddleware)
 
 # 根路由重定向到靜態頁面
