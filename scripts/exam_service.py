@@ -2,6 +2,7 @@ import json
 import logging
 from database import get_user_db, get_text_db
 from starlette.concurrency import run_in_threadpool
+from datetime import datetime, timedelta
 
 # 設置日誌記錄
 logger = logging.getLogger(__name__)
@@ -13,7 +14,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 # 將 create_exam 設為異步函數
-async def create_exam(creator_id, selected_questions: list) -> int:
+async def create_exam(creator_id, selected_questions: list, title: str) -> int:
     # 檢查使用者是否存在
     def _get_user_db():
         with get_user_db() as conn:
@@ -39,6 +40,10 @@ async def create_exam(creator_id, selected_questions: list) -> int:
     if not all(isinstance(q, int) for q in selected_questions):
         raise Exception("選擇的題目格式錯誤，應為整數列表")
     
+    # 檢查 title 是否為非空字串
+    if not isinstance(title, str) or not title.strip():
+        raise Exception("考試標題無效")
+
     # 將選擇的題目列表轉換為 JSON 字串
     try:
         questions_json = json.dumps(selected_questions)
@@ -47,16 +52,17 @@ async def create_exam(creator_id, selected_questions: list) -> int:
 
     # 將考卷資料插入到 `exams` 表中
     def _insert_exam():
-        with get_text_db() as conn:  # 使用同步的 with 語句
-            cursor = conn.cursor()  # 使用資料庫連接來創建 cursor
-            cursor.execute(''' 
-                INSERT INTO exams (creator_id, questions)
-                VALUES (?, ?)
-            ''', (creator_id, questions_json))
-            conn.commit()
+        with get_text_db() as conn:
+            cursor = conn.cursor()
+            # 取得 +8 時區的時間
+            created_at = datetime.utcnow() + timedelta(hours=8)
+            created_at_str = created_at.strftime("%Y-%m-%d %H:%M:%S")  # 格式化為 SQLite 支援的 TIMESTAMP 格式
 
-            # 返回插入的考卷ID
+            cursor.execute(''' 
+                INSERT INTO exams (creator_id, title, questions, created_at)
+                VALUES (?, ?, ?, ?)
+            ''', (creator_id, title, questions_json, created_at_str))
+            conn.commit()
             return cursor.lastrowid
 
-    # 等待插入操作完成並返回結果
     return await run_in_threadpool(_insert_exam)
