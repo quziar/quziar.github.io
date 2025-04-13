@@ -96,9 +96,10 @@ class DatabaseConnection:
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS exams (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
                     creator_id TEXT NOT NULL,
                     questions TEXT NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_at TIMESTAMP NOT NULL,
                     FOREIGN KEY (creator_id) REFERENCES users (username)
                 )
             ''')
