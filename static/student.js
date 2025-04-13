@@ -654,7 +654,16 @@ function searchQuestions(subject, category, year, questionType, questionCount) {
 
     // 題數處理
     if (questionCount !== "全部" && questionCount !== "" && !isNaN(Number(questionCount))) {
-        filteredQuestions = filteredQuestions.slice(0, Number(questionCount));
+    const count = Number(questionCount);
+
+        // Fisher-Yates 洗牌演算法
+        for (let i = filteredQuestions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [filteredQuestions[i], filteredQuestions[j]] = [filteredQuestions[j], filteredQuestions[i]];
+        }
+
+        // 取前 N 題
+        filteredQuestions = filteredQuestions.slice(0, count);
     }
 
     // 單獨處理 category 為 "全部" 的情況
