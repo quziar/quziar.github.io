@@ -345,16 +345,14 @@ document.getElementById('viewQuestionBtn').addEventListener('click', function() 
     // 顯示載入中的提示
     document.getElementById('response').textContent = '正在載入題目...';
 
-    fetch('/api/questions/view_all_questions/')  // 從所有題目中過濾
+    // 發送請求到新的路由，根據題目 ID 取得題目資料
+    fetch(`/api/questions/view_questions/${questionId}`)
         .then(response => response.json())
         .then(data => {
             const questionList = document.getElementById('questionList');
             questionList.innerHTML = '';  // 清空現有題目
 
-            // 從所有題目中找到符合的 question_id
-            const question = data.questions.find(q => q.id === parseInt(questionId));
-
-            if (!question) {
+            if (!data) {
                 questionList.innerHTML = '<p>找不到該題目，請確認 ID 是否正確。</p>';
             } else {
                 // 顯示符合條件的題目
@@ -362,18 +360,18 @@ document.getElementById('viewQuestionBtn').addEventListener('click', function() 
                 div.classList.add('question-item');
 
                 div.innerHTML = `
-                    <strong>科目：</strong> ${question.subject || '無科目'}<br>
-                    <strong>年度：</strong> ${question.year || '無年度'}<br>
-                    <strong>類別：</strong> ${question.category || '無類別'}<br><br>
-                    <strong>ID:</strong> ${question.id}<br>
-                    <strong>問題：</strong> ${question.question_text || '無題目'}<br>
+                    <strong>科目：</strong> ${data.subject || '無科目'}<br>
+                    <strong>年度：</strong> ${data.year || '無年度'}<br>
+                    <strong>類別：</strong> ${data.category || '無類別'}<br><br>
+                    <strong>ID:</strong> ${data.id}<br>
+                    <strong>問題：</strong> ${data.question_text || '無題目'}<br>
                     <div class="answer-options">
-                        <span><strong>A:</strong> ${question.option_a || '無選項'}</span><br>
-                        <span><strong>B:</strong> ${question.option_b || '無選項'}</span><br>
-                        <span><strong>C:</strong> ${question.option_c || '無選項'}</span><br>
-                        <span><strong>D:</strong> ${question.option_d || '無選項'}</span><br>
+                        <span><strong>A:</strong> ${data.option_a || '無選項'}</span><br>
+                        <span><strong>B:</strong> ${data.option_b || '無選項'}</span><br>
+                        <span><strong>C:</strong> ${data.option_c || '無選項'}</span><br>
+                        <span><strong>D:</strong> ${data.option_d || '無選項'}</span><br>
                     </div>
-                    <br><strong>解答：</strong> ${question.correct_answer || '無解答'}
+                    <br><strong>解答：</strong> ${data.correct_answer || '無解答'}
                 `;
 
                 questionList.appendChild(div);

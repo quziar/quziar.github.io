@@ -7,7 +7,7 @@
     <title>教師頁面</title>
 
     <!-- 引入外部 CSS -->
-    <link rel="stylesheet" href="/static/admin.css">
+    <link rel="stylesheet" href="/static/teacher.css">
 </head>
 
 <body>
@@ -36,6 +36,7 @@
         <button id="exportExcelBtn">📊 下載 Excel</button>
         <button id="copyteat">生成考卷</button>
         <button id="viewteat">查看考卷</button>
+        <button id="viewUsersBtn">學生列表</button>
     </div>
 
     <!-- 刪除題目區域 -->
@@ -75,6 +76,11 @@
 
     <!-- 引入外部 JS -->
     <script src="/static/teacher.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.1.0/docx.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </body>
 
 </html>

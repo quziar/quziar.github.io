@@ -111,3 +111,43 @@ button:hover {
         width: 100%; /* 按鈕填滿寬度 */
     }
 }
+
+#popup-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 600px;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+}
+
+#popup-content {
+    padding: 20px;
+}
+
+#popup-content h3 {
+    margin-top: 0;
+}
+
+#popup-content ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#popup-content ul li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+#popup-content ul li:last-child {
+    border-bottom: none;
+}
+#popup-window {
+    max-height: 80vh; /* 設定最大高度為視窗高度的 80% */
+    overflow-y: auto; /* 啟用垂直滾動條 */
+}
