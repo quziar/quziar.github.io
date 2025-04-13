@@ -7,6 +7,7 @@ from scripts.export_questions import export_all_questions
 from scripts.read_questions import fetch_questions
 from scripts.save_quiz_result import save_quiz_result
 from scripts.get_quiz_history import get_quiz_history
+from scripts.get_question_by_id import get_question_by_id
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
@@ -145,6 +146,17 @@ def get_history(username: str):
     """API：獲取該使用者的測驗歷史紀錄"""
     return get_quiz_history(username)
 
+#查看單題
+@router.get("/view_questions/{question_id}")
+def get_single_question(question_id: int):
+    try:
+        question = get_question_by_id(question_id)
+        return question
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
 
 #新增題目
 @router.post("/import-single-question/")

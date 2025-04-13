@@ -10,6 +10,7 @@ router = APIRouter()
 
 # 定義傳遞給 API 的請求數據模型
 class GenerateExamRequest(BaseModel):
+    title: str
     creator_id: str  # 使用者 ID 為字串
     selectedQuestions: List[int]  # 被選擇的題目 ID 列表
 
@@ -32,8 +33,17 @@ async def generate_exam(request: GenerateExamRequest):
             logger.error(f"selectedQuestions 格式錯誤: {request.selectedQuestions}")
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="selectedQuestions 必須是整數列表")
 
+        # 檢查 title 是否為非空字串
+        if not request.title or not request.title.strip():
+            logger.error("title 為空或無效")
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="title 必須是非空字串")
+
         # 呼叫 create_exam 方法來生成考卷
-        exam_id = await create_exam(request.creator_id, request.selectedQuestions)
+        exam_id = await create_exam(
+            request.creator_id,
+            request.selectedQuestions,
+            request.title  # <--- 傳入 title
+        )
 
         return JSONResponse(content={"message": "考卷已成功生成！", "exam_id": exam_id}, status_code=status.HTTP_201_CREATED)
 
@@ -43,6 +53,7 @@ async def generate_exam(request: GenerateExamRequest):
     except Exception as e:
         logger.error(f"生成考卷時發生錯誤: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"生成考卷時發生錯誤: {str(e)}")
+
 
 # 查看考卷
 @router.get("/view_exam/")
