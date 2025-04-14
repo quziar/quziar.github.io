@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from scripts.exam_service import create_exam
 from scripts.view_exam import view_exam
+from scripts.start_exam import view_exam_by_title
 from pydantic import BaseModel
 from typing import List
 import logging
@@ -64,3 +65,12 @@ async def get_exam():
     except Exception as e:
         logger.error(f"錯誤詳情: {str(e)}")
         raise HTTPException(status_code=500, detail=f"無法載入題目，請稍後再試。錯誤詳情: {str(e)}")
+
+# 回傳題目列表
+@router.get("/start_exam")
+async def get_exam_by_title(title: str):
+    try:
+        questions = view_exam_by_title(title)
+        return {"questions": questions}
+    except Exception as e:
+        return {"error": str(e)}

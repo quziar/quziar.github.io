@@ -8,6 +8,7 @@ from scripts.read_questions import fetch_questions
 from scripts.save_quiz_result import save_quiz_result
 from scripts.get_quiz_history import get_quiz_history
 from scripts.get_question_by_id import get_question_by_id
+from scripts.fetch_questions_by_ids import fetch_questions_by_ids
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
@@ -50,6 +51,9 @@ class QuizResult(BaseModel):
     incorrectCount: int
     date: str
     details: List[QuizDetail]
+
+class IdsRequest(BaseModel):
+    ids: List[int]
 
 # 設置日誌
 logging.basicConfig(level=logging.DEBUG)
@@ -157,6 +161,15 @@ def get_single_question(question_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
+
+#回傳題目
+@router.post("/fetch_by_ids")
+async def fetch_by_ids(request: IdsRequest):
+    try:
+        questions = fetch_questions_by_ids(request.ids)
+        return { "questions": questions }
+    except Exception as e:
+        return { "error": str(e) }
 
 #新增題目
 @router.post("/import-single-question/")
