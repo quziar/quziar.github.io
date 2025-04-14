@@ -304,6 +304,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+window.onload = () => {
+  fetch('/api/exam/view_exam/')
+    .then(r => r.json())
+    .then(d => exam.innerHTML = '<option value="default">考卷</option>' +
+      (d.exams || []).map(e => `<option value="${e.id}">${e.title}</option>`).join(''))
+    .catch(() => exam.innerHTML += '<option value="">無法載入</option>');
+};
+
+
 
 // 開始測驗函數
 function startQuiz(selectedQuestions) {
@@ -354,6 +363,61 @@ document.getElementById('filter-search-button').addEventListener('click', functi
     } else {
         alert('未找到符合條件的題目。');
     }
+});
+
+document.getElementById('exam').addEventListener('change', async e => {
+  if (e.target.value !== 'default') {
+    try {
+      const selectedTitle = e.target.options[e.target.selectedIndex].text;
+      console.log('Selected Title:', selectedTitle);
+
+      // 取得考卷資料（包含題目 IDs）
+      const examRes = await fetch(`/api/exam/start_exam?title=${encodeURIComponent(selectedTitle)}`);
+      if (!examRes.ok) {
+        throw new Error('無法載入考卷資料');
+      }
+      const examData = await examRes.json();
+      console.log('Exam Data:', examData);
+
+      // 解析問題 ID 字串為陣列
+      const questionIds = JSON.parse(examData.questions); // 這裡將字串轉為陣列
+      console.log('Question IDs:', questionIds);
+
+      if (!questionIds || questionIds.length === 0) {
+        alert('該考卷無題目');
+        return;
+      }
+
+      // 呼叫 API，根據 ID 陣列取得完整題目
+      const questionRes = await fetch('/api/questions/fetch_by_ids', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: questionIds })
+      });
+
+      // 顯示API回應
+      const questionData = await questionRes.json();
+      console.log('Question Data:', questionData);
+
+      if (!questionData.questions || questionData.questions.length === 0) {
+        alert('題目資料載入失敗');
+        return;
+      }
+
+      // 設定全域題目變數
+      questions.length = 0;
+      questions.push(...questionData.questions);
+
+      document.getElementById('start-quiz').style.display = 'block'; // 顯示開始測驗按鈕
+      document.getElementById('start-quiz').dataset.timeLimit = 3600; // 設置時間限制
+
+      console.log('題目載入成功', questions);
+
+    } catch (err) {
+      console.error('題目載入錯誤', err);
+      alert('發生錯誤，請稍後再試');
+    }
+  }
 });
 
 
@@ -673,7 +737,6 @@ function searchQuestions(subject, category, year, questionType, questionCount) {
         return filteredQuestions.filter(question => question.category === category);
     }
 }
-
 
 
 
