@@ -418,6 +418,9 @@ document.getElementById('exam').addEventListener('change', async e => {
       alert('發生錯誤，請稍後再試');
     }
   }
+  else {
+      document.getElementById('start-quiz').style.display = 'none';
+  }
 });
 
 
