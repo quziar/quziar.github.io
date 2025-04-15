@@ -1,3 +1,18 @@
+let questions = [];
+
+async function fetchQuestions() {
+    try {
+        let response = await fetch("/api/questions/read_questions/");
+        let data = await response.json();
+        questions = data.questions;
+        console.log("載入的題目：", questions);
+    } catch (error) {
+        console.error("獲取題庫資料時出錯:", error);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", fetchQuestions);
+
 // 取得當前使用者 名稱
 async function getCurrentUser() {
     const response = await fetch('/api/session/get_user/');
@@ -854,4 +869,161 @@ function toggleDetails(index) {
 // 關閉視窗
 document.getElementById("close-popup").addEventListener("click", function() {
     document.getElementById("popup-window").style.display = "none";
+});
+
+// 其他搜尋功能
+document.getElementById('filter-search-button').addEventListener('click', function() {
+    const subject = document.getElementById('subject').value;
+    const category = document.getElementById('category').value;
+    const year = document.getElementById('year').value;
+    const questionType = document.getElementById('question-type').value;
+    const questionCount = document.getElementById('question-count').value; // 保持為字串形式
+
+    // 搜尋結果
+    const searchResults = searchQuestions(subject, category, year, questionType, questionCount); // 增加 questionCount 參數
+    
+    if (searchResults.length > 0) {
+    } else {
+        alert('未找到符合條件的題目。');
+    }
+});
+
+function searchQuestions(subject, category, year, questionType, questionCount) {
+    let filteredQuestions = questions.filter(question => {
+        return (
+            (subject === "全部" || subject === "" || question.subject === subject) &&
+            (category === "全部" || category === "" || question.category === category) && // 修正這一行
+            (year === "全部" || year === "" || question.year.toString() === year.toString()) &&
+            (questionType === "全部" || questionType === "" || question.type === questionType)
+        );
+    });
+
+    // 題數處理
+    if (questionCount !== "全部" && questionCount !== "" && !isNaN(Number(questionCount))) {
+    const count = Number(questionCount);
+
+        // Fisher-Yates 洗牌演算法
+        for (let i = filteredQuestions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [filteredQuestions[i], filteredQuestions[j]] = [filteredQuestions[j], filteredQuestions[i]];
+        }
+
+        // 取前 N 題
+        filteredQuestions = filteredQuestions.slice(0, count);
+
+        randomtest(filteredQuestions);
+        
+    }
+
+    // 單獨處理 category 為 "全部" 的情況
+    if (category === "全部") {
+        return filteredQuestions;
+    } else {
+        return filteredQuestions.filter(question => question.category === category);
+    }
+}
+
+async function randomtest (filteredQuestions){
+    // 取得當前使用者 ID
+    let currentUser = await getCurrentUser();
+    
+    const selectedQuestions = filteredQuestions.map(q => q.questionNumber);
+
+    // 顯示提示視窗讓使用者輸入考試標題
+    const examTitle = prompt('請輸入考試標題：');
+
+    if (!examTitle || examTitle.trim() === "") {
+        responseDiv.textContent = '請輸入有效的考試標題！';
+        button.disabled = false;
+        button.textContent = "生成考卷";
+        return;
+    }
+
+    if (!currentUser) {
+        responseDiv.textContent = '請先登入再生成考卷！';
+        button.disabled = false;
+        button.textContent = "生成考卷";
+        return;
+    }
+
+    // 在發送請求之前，檢查傳送的資料
+    console.log('傳送的資料:', JSON.stringify({
+        creator_id: currentUser,
+        selectedQuestions: selectedQuestions,
+        title: examTitle
+    }));
+
+    try {
+        const response = await fetch('/api/exam/generate-exam', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                creator_id: currentUser,
+                selectedQuestions,
+                title: examTitle
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            console.log('考卷生成成功:', result);
+        }
+
+    } finally {
+        
+    }
+}
+
+function toggleInputField(field) {
+    let selectElement = document.getElementById(field);
+    let inputElement = document.getElementById(field + "-input");
+
+    if (selectElement.value === "自行輸入") {
+        inputElement.style.display = "inline-block";
+        inputElement.focus();
+    } else {
+        inputElement.style.display = "none";
+        inputElement.value = ""; // 清空輸入框
+    }
+}
+
+function handleKeyPress(event, field) {
+    if (event.key === "Enter") {
+        let inputElement = event.target;
+        let selectElement = document.getElementById(field);
+        let value = inputElement.value.trim();
+
+        if (value) {
+            // 添加新選項到下拉選單並選擇它
+            let newOption = new Option(value, value);
+            selectElement.add(newOption);
+            selectElement.value = value;
+
+            // 隱藏輸入框並清空
+            inputElement.style.display = "none";
+            inputElement.value = "";
+
+            // 觸發 change 事件以便其他邏輯可以檢測到新值
+            let changeEvent = new Event('change');
+            selectElement.dispatchEvent(changeEvent);
+        }
+    }
+}
+
+// 為每個自行輸入的輸入框添加事件監聽器
+document.getElementById('category-input').addEventListener('keypress', function(event) {
+    handleKeyPress(event, 'category');
+});
+document.getElementById('subject-input').addEventListener('keypress', function(event) {
+    handleKeyPress(event, 'subject');
+});
+document.getElementById('year-input').addEventListener('keypress', function(event) {
+    handleKeyPress(event, 'year');
+});
+document.getElementById('time-limit-input').addEventListener('keypress', function(event) {
+    handleKeyPress(event, 'time-limit');
+});
+document.getElementById('question-count-input').addEventListener('keypress', function(event) {
+    handleKeyPress(event, 'question-count');
 });
