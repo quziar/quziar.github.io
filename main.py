@@ -11,13 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from scripts.redis_session import RedisSessionMiddleware
 
 # 正確引入路由
-from routes.questions import router as question_router
-from routes.users import router as user_router
-from routes.save_users import router as save_users_router
-from routes.admin import router as admin_router
-from routes.session import router as session_router
-from routes.exams import router as exam_router
-from routes.fonts import router as fonts_router
+from routes import question_router, user_router,save_users_router,admin_router,session_router,exam_router,fonts_router
 
 
 # 初始化 FastAPI 應用
