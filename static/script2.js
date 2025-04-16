@@ -618,6 +618,12 @@ async function logoutFunction() {
 // 綁定事件到按鈕
 document.getElementById("login-link").addEventListener("click", logoutFunction);
 
+function safeClear(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+}
+
+["subject", "year", "category", "questionText", "optionA", "optionB", "optionC", "optionD"].forEach(safeClear);
 
 
 // ===================== 新增題目 =====================
@@ -667,31 +673,29 @@ document.getElementById("submitQuestion").addEventListener("click", async () => 
         return;
     }
 
-    // 將資料傳送給後端
-    const formData = new FormData();
-    formData.append("question", JSON.stringify(questionData));
-    formData.append("public_private", publicPrivate);
+    // 構建要傳送的完整資料
+    const requestData = {
+        question: questionData,
+        public_private: publicPrivate
+    };
+
+    // 清空表單欄位
+    document.getElementById("subject").value = '';
 
     try {
         // 發送請求
-        const response = await fetch("/api/questions/import-questions/", {
+        const response = await fetch("/api/questions/import-single-question/", {
             method: "POST",
-            body: formData,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestData),
         });
 
         // 處理回應
         const result = await response.json();
         document.getElementById("addResponse").innerText = result.message;
 
-        // 清空表單欄位
-        document.getElementById("subject").value = '';
-        document.getElementById("year").value = '';
-        document.getElementById("category").value = '';
-        document.getElementById("questionText").value = '';
-        document.getElementById("optionA").value = '';
-        document.getElementById("optionB").value = '';
-        document.getElementById("optionC").value = '';
-        document.getElementById("optionD").value = '';
     } catch (error) {
         console.error("新增題目失敗", error);
         document.getElementById("addResponse").innerText = "新增題目時發生錯誤。";

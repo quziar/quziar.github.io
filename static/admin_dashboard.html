@@ -53,7 +53,22 @@
 <input type="text" id="categoryInput" placeholder="請輸入關鍵字">
 
 <button id="filterByCategoryBtn">搜尋題目</button>
-
+<div id="addResponse">
+    <input type="text" id="subject" placeholder="請輸入科目">
+    <input type="number" id="year" placeholder="請輸入年份">
+    <input type="text" id="category" placeholder="請輸入類別"><br>
+    <input type="text" id="questionText" placeholder="請輸入問題"><br>
+    <input type="text" id="optionA" placeholder="請輸入A選項">
+    <input type="text" id="optionB" placeholder="請輸入B選項">
+    <input type="text" id="optionC" placeholder="請輸入C選項">
+    <input type="text" id="optionD" placeholder="請輸入D選項">
+    <input type="radio" name="correct_answer" value="A">A
+    <input type="radio" name="correct_answer" value="B">B
+    <input type="radio" name="correct_answer" value="C">C
+    <input type="radio" name="correct_answer" value="D">D
+    <br>
+    <button id="submitQuestion">新增題目</button>
+</div>
 <!-- 顯示題目的區域 -->
 <div id="filteredQuestionList"></div>   
     <div id="response"></div>
