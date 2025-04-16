@@ -100,10 +100,13 @@ class DatabaseConnection:
                     creator_id TEXT NOT NULL,
                     questions TEXT NOT NULL,
                     created_at TIMESTAMP NOT NULL,
+                    start_time TIMESTAMP NOT NULL,
+                    duration INTEGER NOT NULL,
                     FOREIGN KEY (creator_id) REFERENCES users (username)
                 )
             ''')
             conn.commit()
+
 
     
     def _create_history_db(self):
