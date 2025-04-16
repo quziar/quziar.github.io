@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from scripts.view_all_questions import view_all_questions
 from scripts.import_questions import import_questions_from_excel
+from scripts.import_specific_question import import_questions
 from scripts.clean_duplicate_questions import clean_duplicate_questions
 from scripts.clear_specific_questions import delete_question_by_id
 from scripts.export_questions import export_all_questions
@@ -18,6 +19,9 @@ from openpyxl import load_workbook
 import pandas as pd
 import logging
 from typing import List, Optional
+import json
+from fastapi import Request
+
 
 router = APIRouter()
 
@@ -172,21 +176,32 @@ async def fetch_by_ids(request: IdsRequest):
         return { "error": str(e) }
 
 #新增題目
-@router.post("/import-single-question/")
+@router.post("/import-single-question")
 async def import_single_question(
-    question: QuestionData, 
-    public_private: str = Form(...)
+    request: Request  # 使用 Request 來取得原始請求資料
 ):
     try:
-        # 呼叫 import_questions 函式並傳入單一題目的資料與公私有參數
-        result = import_questions([question.dict()], public_private)
+        # 解析 JSON 請求體
+        body = await request.json()  # 這樣可以直接獲得請求的 JSON 資料
 
-        # 根據 import_questions 函式的結果回應
-        if "message" in result:
-            return JSONResponse(content=result, status_code=201)
-        else:
-            raise HTTPException(status_code=500, detail=f"匯入題目時發生錯誤，請稍後再試。錯誤詳情: {result['message']}")
+        # 從 JSON 中取出問題資料與公私有選項
+        question_data = body.get("question")
+        public_private = body.get("public_private")
+
+        # 檢查必填資料是否存在
+        if not question_data or not public_private:
+            return JSONResponse(status_code=400, content={"message": "缺少必要的資料"})
+
+        # 若是單筆也要轉為 list 結構，統一處理邏輯
+        if isinstance(question_data, dict):
+            question_data = [question_data]
+
+        # 等待 import_questions 函數的結果
+        result = await import_questions(question_data, public_private)
+        return JSONResponse(content=result)
+
+    except json.JSONDecodeError:
+        return JSONResponse(status_code=400, content={"message": "題目資料格式錯誤，請確認 JSON 是否正確。"})
 
     except Exception as e:
-        # 捕捉並處理異常
-        raise HTTPException(status_code=500, detail=f"匯入題目時發生錯誤，請稍後再試。錯誤詳情: {str(e)}")
+        return JSONResponse(status_code=500, content={"message": f"匯入過程發生錯誤: {str(e)}"})
