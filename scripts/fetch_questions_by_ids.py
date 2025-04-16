@@ -21,7 +21,7 @@ def fetch_questions_by_ids(id_list):
 
         questions = []
         for row in rows:
-            correct_answer = row[9]
+            correct_answer = "有人想作弊，但我人很好，我不會告訴老師"
             answer_mapping = {"A": row[5], "B": row[6], "C": row[7], "D": row[8]}
             question_type = "選擇"
             gh_value = correct_answer

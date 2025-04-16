@@ -1,68 +1,54 @@
 import json
 import logging
+from datetime import datetime, timedelta
 from database import get_user_db, get_text_db
 from starlette.concurrency import run_in_threadpool
-from datetime import datetime, timedelta
 
-# 設置日誌記錄
+# 日誌設定
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logger.addHandler(handler)
 
-# 將 create_exam 設為異步函數
-async def create_exam(creator_id, selected_questions: list, title: str) -> int:
-    # 檢查使用者是否存在
-    def _get_user_db():
+DEFAULT_DURATION = 3600
+TIMEZONE_OFFSET = timedelta(hours=8)
+TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+# 創建考卷
+async def create_exam(creator_id: str, selected_questions: list[int], title: str, duration: int = None, start_time: str = None) -> int:
+    print(start_time);
+    # 驗證使用者是否存在
+    def get_user():
         with get_user_db() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT username FROM users WHERE username = ?", (creator_id,))
-            return cursor.fetchone()
+            return conn.execute("SELECT username FROM users WHERE username = ?", (creator_id,)).fetchone()
     
-    user = await run_in_threadpool(_get_user_db)
-
-    # Log 輸出檢查
-    if user:
-        logger.debug(f"找到使用者: {user}")
-    else:
-        logger.error(f"使用者 {creator_id} 不存在於資料庫")
-    
+    # 使用線程池來執行同步的 get_user 函數
+    user = await run_in_threadpool(get_user)
     if not user:
+        logger.error(f"使用者 {creator_id} 不存在")
         raise Exception("使用者不存在")
-
-    # 檢查 selected_questions 是否為列表
-    if not isinstance(selected_questions, list):
-        raise Exception("選擇的題目格式錯誤，應為列表")
     
-    if not all(isinstance(q, int) for q in selected_questions):
-        raise Exception("選擇的題目格式錯誤，應為整數列表")
-    
-    # 檢查 title 是否為非空字串
-    if not isinstance(title, str) or not title.strip():
+    # 驗證資料
+    if not selected_questions or not all(isinstance(q, int) for q in selected_questions):
+        raise Exception("選擇的題目應為整數列表")
+    if not title.strip():
         raise Exception("考試標題無效")
 
-    # 將選擇的題目列表轉換為 JSON 字串
-    try:
-        questions_json = json.dumps(selected_questions)
-    except TypeError as e:
-        raise Exception(f"無法轉換題目為 JSON 格式: {e}")
+    duration = duration or DEFAULT_DURATION
+    questions_json = json.dumps(selected_questions)
 
-    # 將考卷資料插入到 `exams` 表中
-    def _insert_exam():
+    # 插入資料
+    def insert_exam():
         with get_text_db() as conn:
+            created_at = (datetime.utcnow() + TIMEZONE_OFFSET).strftime(TIME_FORMAT)
             cursor = conn.cursor()
-            # 取得 +8 時區的時間
-            created_at = datetime.utcnow() + timedelta(hours=8)
-            created_at_str = created_at.strftime("%Y-%m-%d %H:%M:%S")  # 格式化為 SQLite 支援的 TIMESTAMP 格式
-
             cursor.execute(''' 
-                INSERT INTO exams (creator_id, title, questions, created_at)
-                VALUES (?, ?, ?, ?)
-            ''', (creator_id, title, questions_json, created_at_str))
+                INSERT INTO exams (title, creator_id, questions, created_at, start_time, duration)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (title, creator_id, questions_json, created_at, start_time, duration))
             conn.commit()
             return cursor.lastrowid
 
-    return await run_in_threadpool(_insert_exam)
+    # 使用線程池執行同步的插入操作
+    return await run_in_threadpool(insert_exam)
