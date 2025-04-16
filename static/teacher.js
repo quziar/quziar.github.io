@@ -488,10 +488,8 @@ async function logoutFunction() {
 // 綁定事件到按鈕
 document.getElementById("login-link").addEventListener("click", logoutFunction);
 
-
-
 // ===================== 生成考卷 ===================== 
-document.getElementById('copyteat').addEventListener('click', async function () {
+document.getElementById('copytest').addEventListener('click', async function () {
     const button = this;
     const responseDiv = document.getElementById('response');
     responseDiv.textContent = '正在生成考卷，請稍候...';
@@ -501,7 +499,7 @@ document.getElementById('copyteat').addEventListener('click', async function () 
 
     // 取得選中的題目 ID 列表
     const selectedQuestions = Array.from(document.querySelectorAll('.question-checkbox:checked'))
-                                   .map(checkbox => parseInt(checkbox.value)); // 確保是整數
+                                   .map(checkbox => parseInt(checkbox.value));
 
     if (selectedQuestions.length === 0) {
         responseDiv.textContent = '請先勾選至少一個題目！';
@@ -512,7 +510,6 @@ document.getElementById('copyteat').addEventListener('click', async function () 
 
     // 顯示提示視窗讓使用者輸入考試標題
     const examTitle = prompt('請輸入考試標題：');
-
     if (!examTitle || examTitle.trim() === "") {
         responseDiv.textContent = '請輸入有效的考試標題！';
         button.disabled = false;
@@ -520,9 +517,22 @@ document.getElementById('copyteat').addEventListener('click', async function () 
         return;
     }
 
+    // 取得當前時間 +8 小時並格式化
+    const now = new Date();
+    now.setHours(now.getHours() + 8);
+    now.setSeconds(0);
+    const defaultStartTime = now.toISOString().slice(0, 19).replace('T', ' ');
+
+    // 使用者輸入考試時間（本地時間），我們會轉成 ISO 格式
+    const startTimeInput = prompt('請輸入開始考試時間 (YYYY-MM-DD HH:mm:ss)，預設為當前時間：', defaultStartTime);
+    let startTime = startTimeInput ;
+
+    // 顯示提示讓使用者輸入作答時間（秒）
+    const durationInput = prompt('請輸入作答時間（秒），預設為 3600 秒（一小時）：', '3600');
+    let duration = durationInput ? parseInt(durationInput) : 3600;
+
     // 取得當前使用者 ID
     let currentUser = await getCurrentUser();
-
     if (!currentUser) {
         responseDiv.textContent = '請先登入再生成考卷！';
         button.disabled = false;
@@ -530,11 +540,12 @@ document.getElementById('copyteat').addEventListener('click', async function () 
         return;
     }
 
-    // 在發送請求之前，檢查傳送的資料
     console.log('傳送的資料:', JSON.stringify({
         creator_id: currentUser,
         selectedQuestions: selectedQuestions,
-        title: examTitle
+        title: examTitle,
+        start_time: startTime,
+        duration: duration
     }));
 
     try {
@@ -544,7 +555,9 @@ document.getElementById('copyteat').addEventListener('click', async function () 
             body: JSON.stringify({
                 creator_id: currentUser,
                 selectedQuestions: selectedQuestions,
-                title: examTitle
+                title: examTitle,
+                start_time: startTime,
+                duration: duration
             })
         });
 
@@ -553,8 +566,13 @@ document.getElementById('copyteat').addEventListener('click', async function () 
         if (response.ok) {
             console.log('考卷生成成功:', result);
             responseDiv.textContent = `考卷「${examTitle}」生成成功！`;
+        } else {
+            responseDiv.textContent = `生成考卷失敗: ${result.detail}`;
         }
 
+    } catch (error) {
+        console.error('請求錯誤:', error);
+        responseDiv.textContent = '發生錯誤，請稍後再試！';
     } finally {
         button.disabled = false;
         button.textContent = "生成考卷";
@@ -584,7 +602,7 @@ document.getElementById('viewteat').addEventListener('click', async function () 
                 div.style.marginBottom = '1.5em';
 
                 const title = document.createElement('p');
-                title.innerHTML = `<strong>標題：</strong> ${exam.title}<br><strong>建立時間：</strong> ${exam.created_at}`;
+                title.innerHTML = `<strong>標題：</strong> ${exam.title}<br><strong>建立時間：</strong> ${exam.created_at}<br><strong>開考時間：</strong> ${exam.start_time}`;
 
                 const toggleButton = document.createElement('button');
                 toggleButton.textContent = '查看題目';

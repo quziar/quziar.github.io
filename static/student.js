@@ -1,10 +1,16 @@
 let questions = [];
+let questionIds = [];
 
+// 載入題庫資料
 async function fetchQuestions() {
     try {
         let response = await fetch("/api/questions/read_questions/");
         let data = await response.json();
         questions = data.questions;
+
+        // 從載入的題目中提取出題目 ID 並設定 questionIds
+        questionIds = questions.map(question => question.id);
+        
         console.log("載入的題目：", questions);
     } catch (error) {
         console.error("獲取題庫資料時出錯:", error);
@@ -39,7 +45,6 @@ let markedQuestionIndex = null; // 新增標記題目索引
 let completedQuestions = new Set(); // 新增已完成題目集合
 let totalQuestions = questions.length;
 let currentUser = getCurrentUser();
-
 
 // 異步函數來獲取當前用戶並更新全域變數
 async function setCurrentUser() {
@@ -271,7 +276,6 @@ function searchQuestionsByKeyword(keyword) {
 
 
 // 初始化
-document.addEventListener("DOMContentLoaded", fetchQuestions);
 document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById("sidebar").style.display = "none";
@@ -305,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 window.onload = () => {
-  fetch('/api/exam/view_exam/')
+  fetch('/api/exam/view_exam_title/')
     .then(r => r.json())
     .then(d => exam.innerHTML = '<option value="default">考卷</option>' +
       (d.exams || []).map(e => `<option value="${e.id}">${e.title}</option>`).join(''))
@@ -365,6 +369,7 @@ document.getElementById('filter-search-button').addEventListener('click', functi
     }
 });
 
+// 選擇考卷
 document.getElementById('exam').addEventListener('change', async e => {
   if (e.target.value !== 'default') {
     try {
@@ -380,7 +385,7 @@ document.getElementById('exam').addEventListener('change', async e => {
       console.log('Exam Data:', examData);
 
       // 解析問題 ID 字串為陣列
-      const questionIds = JSON.parse(examData.questions); // 這裡將字串轉為陣列
+      questionIds = JSON.parse(examData.questions); // 這裡將字串轉為陣列
       console.log('Question IDs:', questionIds);
 
       if (!questionIds || questionIds.length === 0) {
@@ -388,28 +393,19 @@ document.getElementById('exam').addEventListener('change', async e => {
         return;
       }
 
-      // 呼叫 API，根據 ID 陣列取得完整題目
-      const questionRes = await fetch('/api/questions/fetch_by_ids', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: questionIds })
-      });
-
-      // 顯示API回應
-      const questionData = await questionRes.json();
-      console.log('Question Data:', questionData);
-
-      if (!questionData.questions || questionData.questions.length === 0) {
-        alert('題目資料載入失敗');
-        return;
-      }
-
-      // 設定全域題目變數
-      questions.length = 0;
-      questions.push(...questionData.questions);
-
       document.getElementById('start-quiz').style.display = 'block'; // 顯示開始測驗按鈕
-      document.getElementById('start-quiz').dataset.timeLimit = 3600; // 設置時間限制
+      try {
+        const examRes = await fetch(`/api/exam/exam_duration?title=${encodeURIComponent(selectedTitle)}`);
+        if (!examRes.ok) {
+            throw new Error('無法載入考卷資料');
+        }
+
+        const data = await examRes.json();
+        document.getElementById('start-quiz').dataset.timeLimit = data.duration;
+        } catch (error) {
+        console.error('載入考試時間限制時發生錯誤：', error);
+        }
+
 
       console.log('題目載入成功', questions);
 
@@ -425,18 +421,45 @@ document.getElementById('exam').addEventListener('change', async e => {
 
 
 // 開始測驗按鈕事件監聽
-document.getElementById('start-quiz').addEventListener('click', function() {
+document.getElementById('start-quiz').addEventListener('click', async function() {
     document.getElementById("sidebar").style.display = "block";
     document.getElementById('start-quiz').style.display = 'none';
     document.getElementById('filter-search-container').style.display = 'none'; // 隱藏篩選搜尋選單
+    document.getElementById('exam').style.display = 'none';
     document.getElementById('question-container').style.display = 'block';
     document.querySelector('.button-container').style.display = 'flex';
+
     const timeLimit = parseInt(this.dataset.timeLimit);
     if (timeLimit > 0) {
         startTimer(timeLimit);
     }
-    showQuestion();
+
+    try {
+        // 呼叫 API，根據 ID 陣列取得完整題目
+        const questionRes = await fetch('/api/questions/fetch_by_ids', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: questionIds })
+        });
+
+        const questionData = await questionRes.json();
+        console.log('Question Data:', questionData);
+
+        if (!questionData.questions || questionData.questions.length === 0) {
+            alert('題目資料載入失敗');
+            return;
+        }
+
+        // 設定全域題目變數
+        questions.length = 0;
+        questions.push(...questionData.questions);
+        showQuestion();
+    } catch (error) {
+        console.error('題目載入時發生錯誤:', error);
+        alert('載入題目時發生錯誤，請稍後再試');
+    }
 });
+
 
 function selectAnswer(questionIndex, answer) {
     questions[questionIndex].selectedAnswer = answer;
@@ -535,17 +558,43 @@ document.getElementById('resume-timer').addEventListener('click', function() {
 
 
 // 在 endQuiz 函數中修改 scoreContainer 內的 HTML 來顯示返回主畫面按鈕
-function endQuiz() {
+async function endQuiz() {
     clearInterval(timerInterval); // 停止計時器
     let score = 0;
     let incorrectCount = 0;
-    const totalQuestions = questions.length; 
-    
-    // 遍歷所有問題，計算正確與錯誤的數量
-    questions.forEach((question) => {
+    const totalQuestions = questions.length;
+
+    let ans = [];
+
+    try {
+        const ansRes = await fetch('/api/questions/get_ans', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids: questionIds })
+        });
+
+        const ansData = await ansRes.json();
+        console.log('Question Data:', ansData);
+
+        if (!ansData.ans || ansData.ans.length === 0) {
+            alert('題目資料載入失敗');
+            return;
+        }
+
+        ans = ansData.ans;
+    } catch (error) {
+        console.error('題目載入時發生錯誤:', error);
+        alert('載入題目時發生錯誤，請稍後再試');
+        return;
+    }
+
+    // 比對使用者答案與正確答案
+    questions.forEach((question, index) => {
         if (question.type !== "申論") {
             const selectedAnswer = question.selectedAnswer || null;
-            if (selectedAnswer === question.gh) {
+            const correctAnswer = ans[index]?.answer || null;
+
+            if (selectedAnswer === correctAnswer) {
                 score++;
             } else {
                 incorrectCount++;
@@ -572,8 +621,8 @@ function endQuiz() {
 
     questions.forEach((question, index) => {
         const selectedAnswer = question.selectedAnswer || "未作答";
-        const correctAnswer = question.gh || "無";
-        const explanation = question.explanation || "無詳解";
+        const correctAnswer = ans[index]?.gh || "無";
+        const explanation = ans[index]?.explanation || "無詳解";
         const isCorrect = selectedAnswer === correctAnswer;
         let answerColor = isCorrect ? "blue" : "red";
         let result = isCorrect ? "O" : "X";
