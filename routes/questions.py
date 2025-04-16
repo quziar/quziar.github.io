@@ -10,6 +10,7 @@ from scripts.save_quiz_result import save_quiz_result
 from scripts.get_quiz_history import get_quiz_history
 from scripts.get_question_by_id import get_question_by_id
 from scripts.fetch_questions_by_ids import fetch_questions_by_ids
+from scripts.import_questions_ans import fetch_answers_by_ids
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
@@ -173,6 +174,18 @@ async def fetch_by_ids(request: IdsRequest):
         questions = fetch_questions_by_ids(request.ids)
         return { "questions": questions }
     except Exception as e:
+        return { "error": str(e) }
+
+#回傳答案
+@router.post("/get_ans")
+async def get_ans(request: IdsRequest):
+    try:
+        # 從資料庫獲取答案
+        ans = fetch_answers_by_ids(request.ids)
+        return { "ans": ans }
+    except Exception as e:
+        # 記錄錯誤訊息
+        logger.error(f"取得答案時發生錯誤: {str(e)}")
         return { "error": str(e) }
 
 #新增題目
