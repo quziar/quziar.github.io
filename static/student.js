@@ -592,7 +592,7 @@ async function endQuiz() {
     questions.forEach((question, index) => {
         if (question.type !== "申論") {
             const selectedAnswer = question.selectedAnswer || null;
-            const correctAnswer = ans[index]?.answer || null;
+            const correctAnswer = ans[index]?.gh || null;
 
             if (selectedAnswer === correctAnswer) {
                 score++;
@@ -656,12 +656,12 @@ async function endQuiz() {
         score: parseFloat(scorePercentage.toFixed(2)), // 確保是 float
         incorrectCount: incorrectCount,
         date: new Date().toLocaleString(),
-        details: questions.map((question) => ({
+        details: questions.map((question, index) => ({
             questionNumber: question.questionNumber,
             selectedAnswer: question.selectedAnswer || null,
-            correctAnswer: question.gh || "無",
-            isCorrect: (question.selectedAnswer || null) === (question.gh || "無"),
-            explanation: question.explanation || "無詳解",
+            correctAnswer: ans[index]?.gh || "無",
+            isCorrect: (question.selectedAnswer || null) === (ans[index]?.gh || "無"),
+            explanation: ans[index]?.explanation || "無詳解",
         })),
     };
 

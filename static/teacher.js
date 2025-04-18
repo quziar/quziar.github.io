@@ -889,7 +889,7 @@ document.getElementById("close-popup").addEventListener("click", function() {
     document.getElementById("popup-window").style.display = "none";
 });
 
-// 其他搜尋功能
+// ===================== 隨機生成考卷 =====================
 document.getElementById('filter-search-button').addEventListener('click', function() {
     const subject = document.getElementById('subject').value;
     const category = document.getElementById('category').value;
@@ -964,11 +964,33 @@ async function randomtest (filteredQuestions){
         return;
     }
 
-    // 在發送請求之前，檢查傳送的資料
+    // 取得當前時間 +8 小時並格式化
+    const now = new Date();
+    now.setHours(now.getHours() + 8);
+    now.setSeconds(0);
+    const defaultStartTime = now.toISOString().slice(0, 19).replace('T', ' ');
+
+    // 使用者輸入考試時間（本地時間），我們會轉成 ISO 格式
+    const startTimeInput = prompt('請輸入開始考試時間 (YYYY-MM-DD HH:mm:ss)，預設為當前時間：', defaultStartTime);
+    let startTime = startTimeInput ;
+
+    // 顯示提示讓使用者輸入作答時間（秒）
+    const durationInput = prompt('請輸入作答時間（秒），預設為 3600 秒（一小時）：', '3600');
+    let duration = durationInput ? parseInt(durationInput) : 3600;
+
+    if (!currentUser) {
+        responseDiv.textContent = '請先登入再生成考卷！';
+        button.disabled = false;
+        button.textContent = "生成考卷";
+        return;
+    }
+
     console.log('傳送的資料:', JSON.stringify({
         creator_id: currentUser,
         selectedQuestions: selectedQuestions,
-        title: examTitle
+        title: examTitle,
+        start_time: startTime,
+        duration: duration
     }));
 
     try {
@@ -977,8 +999,10 @@ async function randomtest (filteredQuestions){
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 creator_id: currentUser,
-                selectedQuestions,
-                title: examTitle
+                selectedQuestions: selectedQuestions,
+                title: examTitle,
+                start_time: startTime,
+                duration: duration
             })
         });
 
@@ -986,10 +1010,17 @@ async function randomtest (filteredQuestions){
 
         if (response.ok) {
             console.log('考卷生成成功:', result);
+            responseDiv.textContent = `考卷「${examTitle}」生成成功！`;
+        } else {
+            responseDiv.textContent = `生成考卷失敗: ${result.detail}`;
         }
 
+    } catch (error) {
+        console.error('請求錯誤:', error);
+        responseDiv.textContent = '發生錯誤，請稍後再試！';
     } finally {
-        
+        button.disabled = false;
+        button.textContent = "生成考卷";
     }
 }
 
