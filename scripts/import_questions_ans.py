@@ -1,5 +1,10 @@
 import sqlite3
 from database import get_question_db
+import unicodedata
+
+def to_halfwidth(s):
+    return unicodedata.normalize('NFKC', s)
+
 
 def fetch_answers_by_ids(id_list):
     """根據題目 ID 陣列從資料庫讀取並回傳 answer 和 gh"""
@@ -25,7 +30,7 @@ def fetch_answers_by_ids(id_list):
             for row in rows:
                 qid = row[0]
                 options = {"A": row[1], "B": row[2], "C": row[3], "D": row[4]}
-                correct_answer = row[5]
+                correct_answer = to_halfwidth(row[5].strip().upper())
 
                 # 確認正確答案是否存在於選項中
                 if correct_answer in options:
