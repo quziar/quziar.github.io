@@ -348,24 +348,45 @@ document.getElementById('toggle-question-list').addEventListener('click', functi
 });
 
 // 其他搜尋功能
-document.getElementById('filter-search-button').addEventListener('click', function() {
-    const subject = document.getElementById('subject').value;
-    const category = document.getElementById('category').value;
-    const year = document.getElementById('year').value;
-    const questionType = document.getElementById('question-type').value;
+document.getElementById('filter-search-button').addEventListener('click', async function () {
+    const subject = document.getElementById('subject').value.trim();
+    const category = document.getElementById('category').value.trim();
+    const year = document.getElementById('year').value.trim();
+    const questionType = document.getElementById('question-type').value.trim();
     const timeLimit = parseInt(document.getElementById('time-limit').value);
-    const questionCount = document.getElementById('question-count').value; // 保持為字串形式
+    const questionCount = document.getElementById('question-count').value.trim();
 
-    // 搜尋結果
-    const searchResults = searchQuestions(subject, category, year, questionType, questionCount); // 增加 questionCount 參數
-    
-    if (searchResults.length > 0) {
-        questions.length = 0; // 清空原有題目
-        questions.push(...searchResults); // 添加搜尋結果
-        document.getElementById('start-quiz').style.display = 'block'; // 顯示開始測驗按鈕
-        document.getElementById('start-quiz').dataset.timeLimit = timeLimit; // 設置時間限制
-    } else {
-        alert('未找到符合條件的題目。');
+    try {
+        const response = await fetch('/api/questions/search_questions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                subject,
+                category,
+                year,
+                questionType,
+                questionCount
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.question_ids.length > 0) {
+            questionIds = data.question_ids;
+
+            questions.length = 0; // 清空舊題目
+            document.getElementById('start-quiz').style.display = 'block'; // 顯示開始測驗按鈕
+            document.getElementById('start-quiz').dataset.timeLimit = timeLimit; // 設置時間限制
+
+            console.log("取得的題目 IDs:", questionIds);
+        } else {
+            alert('未找到符合條件的題目。');
+        }
+    } catch (error) {
+        console.error("發生錯誤：", error);
+        alert('搜尋題目時發生錯誤');
     }
 });
 
@@ -740,57 +761,6 @@ function parseYearRange(yearInput) {
     }
     return { start: Number(yearInput), end: Number(yearInput) };
 }
-//function searchQuestions(subject, category, year, questionType, questionCount) {
-    //let filteredQuestions = questions.filter(question => {
-        //return (
-            //(subject === "全部" || !subject || question.subject === subject) &&
-            //(category === "全部" || !category || question.category.includes(category)) &&
-            //(year === "全部" || !year || question.year.toString() === year.toString()) &&
-            //(questionType === "全部" || !questionType || question.type === questionType)
-        //);
-    //});
-
-    // 題數處理
-    //if (questionCount !== "全部" && questionCount !== "" && !isNaN(questionCount)) {
-        //return filteredQuestions.slice(0, Number(questionCount));
-   // }
-    //return filteredQuestions;
-//}
-
-
-function searchQuestions(subject, category, year, questionType, questionCount) {
-    let filteredQuestions = questions.filter(question => {
-        return (
-            (subject === "全部" || subject === "" || question.subject === subject) &&
-            (category === "全部" || category === "" || question.category === category) && // 修正這一行
-            (year === "全部" || year === "" || question.year.toString() === year.toString()) &&
-            (questionType === "全部" || questionType === "" || question.type === questionType)
-        );
-    });
-
-    // 題數處理
-    if (questionCount !== "全部" && questionCount !== "" && !isNaN(Number(questionCount))) {
-    const count = Number(questionCount);
-
-        // Fisher-Yates 洗牌演算法
-        for (let i = filteredQuestions.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [filteredQuestions[i], filteredQuestions[j]] = [filteredQuestions[j], filteredQuestions[i]];
-        }
-
-        // 取前 N 題
-        filteredQuestions = filteredQuestions.slice(0, count);
-    }
-
-    // 單獨處理 category 為 "全部" 的情況
-    if (category === "全部") {
-        return filteredQuestions;
-    } else {
-        return filteredQuestions.filter(question => question.category === category);
-    }
-}
-
-
 
 function toggleInputField(field) {
     let selectElement = document.getElementById(field);
