@@ -30,8 +30,8 @@ def fetch_answers_by_ids(id_list):
             for row in rows:
                 qid = row[0]
                 options = {"A": row[1], "B": row[2], "C": row[3], "D": row[4]}
-                if raw_answer is not None:
-                    correct_answer = to_halfwidth(raw_answer.strip().upper())
+                if row[5] is not None:
+                    correct_answer = to_halfwidth(row[5].strip().upper())
                 else:
                     correct_answer = ""
 
