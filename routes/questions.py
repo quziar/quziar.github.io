@@ -11,6 +11,7 @@ from scripts.get_quiz_history import get_quiz_history
 from scripts.get_question_by_id import get_question_by_id
 from scripts.fetch_questions_by_ids import fetch_questions_by_ids
 from scripts.import_questions_ans import fetch_answers_by_ids
+from scripts.search_questions import search_questions
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
@@ -59,6 +60,13 @@ class QuizResult(BaseModel):
 
 class IdsRequest(BaseModel):
     ids: List[int]
+
+class FilterRequest(BaseModel):
+    subject: str = ""
+    category: str = ""
+    year: str = ""
+    questionType: str = ""
+    questionCount: str = ""
 
 # 設置日誌
 logging.basicConfig(level=logging.DEBUG)
@@ -187,6 +195,12 @@ async def get_ans(request: IdsRequest):
         # 記錄錯誤訊息
         logger.error(f"取得答案時發生錯誤: {str(e)}")
         return { "error": str(e) }
+
+#篩選題目
+@router.post("/search_questions")
+def api_search_questions_post(filter: FilterRequest):
+    ids = search_questions(filter.subject, filter.category, filter.year, filter.questionType, filter.questionCount)
+    return {"success": True, "question_ids": ids}
 
 #新增題目
 @router.post("/import-single-question")
