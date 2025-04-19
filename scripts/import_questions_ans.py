@@ -30,7 +30,10 @@ def fetch_answers_by_ids(id_list):
             for row in rows:
                 qid = row[0]
                 options = {"A": row[1], "B": row[2], "C": row[3], "D": row[4]}
-                correct_answer = to_halfwidth(row[5].strip().upper())
+                if raw_answer is not None:
+                    correct_answer = to_halfwidth(raw_answer.strip().upper())
+                else:
+                    correct_answer = ""
 
                 # 確認正確答案是否存在於選項中
                 if correct_answer in options:
