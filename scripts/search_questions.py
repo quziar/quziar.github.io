@@ -1,14 +1,15 @@
 import random
-from database import get_question_db  # 根據實際檔案路徑調整
+from database import get_question_db
 
 def search_questions(subject, category, year, question_type, question_count):
     query = "SELECT id FROM questions WHERE 1=1"
     params = []
 
-    if question_type and question_type != "選擇題":
-        query += " AND correct_answer IS NOT NULL"
-    else:
-        query += " AND correct_answer IS NULL"
+    if question_type and question_type != "全部":
+        if question_type == "選擇":
+            query += " AND correct_answer IS NOT NULL"
+        elif question_type == "申論":
+            query += " AND correct_answer IS NULL"
 
     if subject and subject != "全部":
         query += " AND subject = ?"
@@ -28,7 +29,7 @@ def search_questions(subject, category, year, question_type, question_count):
         rows = cursor.fetchall()
         question_ids = [row["id"] for row in rows]
 
-    # 題數處理：亂數取出指定數量題目
+    # 隨機取題（如果不是 "全部" 且是數字）
     if question_count and question_count != "全部" and str(question_count).isdigit():
         count = int(question_count)
         random.shuffle(question_ids)
