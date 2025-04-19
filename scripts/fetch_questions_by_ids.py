@@ -21,13 +21,14 @@ def fetch_questions_by_ids(id_list):
 
         questions = []
         for row in rows:
-            correct_answer = "有人想作弊，但我人很好，我不會告訴老師"
+            correct_answer = row[9]
             answer_mapping = {"A": row[5], "B": row[6], "C": row[7], "D": row[8]}
             question_type = "選擇"
             gh_value = correct_answer
 
             if correct_answer in answer_mapping:
-                answer = answer_mapping[correct_answer]
+                answer = "有人想作弊，但我人很好，我不會告訴老師"
+                gh_value = "有人想作弊，但我人很好，我不會告訴老師"
             elif correct_answer is None or correct_answer.strip() == "":
                 answer = ""
                 question_type = "申論"
