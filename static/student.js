@@ -113,10 +113,11 @@ function showQuestionList() {
                 buttonStyle = "background-color: blue; color: white; border: 2px solid blue;";
             }
         }
-
+        // 題號顯示為連續數字（從 1 開始）
+        const displayNumber = index + 1;
         // 如果是進階模式，不顯示⭐，只顯示題號或答案
         return `<button onclick="jumpToQuestion(${index})" style="${buttonStyle}">
-            ${isGeneralMode ? question.questionNumber : `${question.questionNumber}.`} 
+            ${isGeneralMode ? displayNumber : `${displayNumber}.`} 
             ${!isGeneralMode && question.selectedAnswer ? `(${question.selectedAnswer})` : ''}
         </button>`;
     }).join('');
@@ -541,21 +542,26 @@ document.getElementById('next-question').addEventListener('click', function() {
 });
 
 
-
 // 監聽「結束測驗」按鈕的事件
-document.getElementById('end-quiz').addEventListener('click', function() {
-    // 檢查用戶是否回答完所有問題
+document.getElementById('end-quiz').addEventListener('click', function () {
     if (completedQuestions.size === totalQuestions) {
-        // 如果已經回答完所有題目，彈出確認框
         const isConfirmed = confirm("您已完成所有題目，確定要交卷嗎？");
         if (isConfirmed) {
-            endQuiz();  // 如果用戶確定交卷，執行結束測驗操作
+            endQuiz();
         }
     } else {
-        alert("您尚未完成所有題目，請完成後再提交！");
+        // 計算未完成的題號（index 從 0 開始）
+        const incomplete = [];
+        for (let i = 0; i < totalQuestions; i++) {
+            if (!completedQuestions.has(i)) {
+                incomplete.push(i + 1); // 顯示時 +1，符合人類習慣
+            }
+        }
+
+        // 顯示提示訊息
+        alert(`您尚未完成以下題號：${incomplete.join(", ")}，請完成後再提交！`);
     }
 });
-
 
 
 
