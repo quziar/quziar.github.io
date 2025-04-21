@@ -36,7 +36,7 @@ app.add_middleware(
 app.add_middleware(RedisSessionMiddleware)
 
 # 設定
-REDIS_URL = "rediss://red-cvt7qth5pdvs739hg6o0:iD1SXjcwMKL5xyHgXBVa9FRBIbzFMytH@singapore-keyvalue.render.com:6379"
+REDIS_URL = "redis://red-cvt7qth5pdvs739hg6o0:6379"
 
 @app.on_event("startup")
 async def startup_event():
