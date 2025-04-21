@@ -1,7 +1,10 @@
 import sqlite3
 import os
+import redis
+import base64
 
-# 使用相對路徑來引用資料庫文件
+# ------------------------- 資料庫操作 -------------------------
+
 DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'question_bank.db')    # 題庫資料庫
 USER_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'user_account.db')  # 使用者資料庫
 TEXT_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'text.db')  # 考卷資料庫
@@ -107,8 +110,6 @@ class DatabaseConnection:
             ''')
             conn.commit()
 
-
-    
     def _create_history_db(self):
         """創建歷史紀錄資料庫結構"""
         with sqlite3.connect(self.db_path) as conn:
