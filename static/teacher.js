@@ -1070,9 +1070,6 @@ document.getElementById('subject-input').addEventListener('keypress', function(e
 document.getElementById('year-input').addEventListener('keypress', function(event) {
     handleKeyPress(event, 'year');
 });
-document.getElementById('time-limit-input').addEventListener('keypress', function(event) {
-    handleKeyPress(event, 'time-limit');
-});
 document.getElementById('question-count-input').addEventListener('keypress', function(event) {
     handleKeyPress(event, 'question-count');
 });

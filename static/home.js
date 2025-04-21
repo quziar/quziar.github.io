@@ -42,15 +42,15 @@ document.getElementById("loginBtn").addEventListener("click", async function() {
             // 使用 switch 語句進行身份判斷
             switch (data.identities) {
                 case "管理員":
-                    login(username);
+                    await login(username);
                     window.location.replace("/static/admin_dashboard.html");
                     break;
                 case "教授":
-                    login(username);
+                    await login(username);
                     window.location.replace("/static/teacher.html");
                     break;
                 case "學生":
-                    login(username);
+                    await login(username);
                     window.location.replace("/static/student.html");
                     break;
                 default:

@@ -647,7 +647,12 @@ async function endQuiz() {
     `;
 
     questions.forEach((question, index) => {
-        const selectedAnswer = question.selectedAnswer || "未作答";
+        let selectedAnswer;
+        if (question.type === "申論") {
+            selectedAnswer = question.answer || "未作答";
+        } else {
+            selectedAnswer = question.selectedAnswer || "未作答";
+        }
         const correctAnswer = ans[index]?.gh || "無";
         const explanation = ans[index]?.explanation || "無詳解";
         const isCorrect = selectedAnswer === correctAnswer;
@@ -685,9 +690,9 @@ async function endQuiz() {
         date: new Date().toLocaleString(),
         details: questions.map((question, index) => ({
             questionNumber: question.questionNumber,
-            selectedAnswer: question.selectedAnswer || null,
+            selectedAnswer: question.type === "申論" ? question.answer || null : question.selectedAnswer || null,
             correctAnswer: ans[index]?.gh || "無",
-            isCorrect: (question.selectedAnswer || null) === (ans[index]?.gh || "無"),
+            isCorrect: (question.type === "申論" ? question.answer : question.selectedAnswer) === (ans[index]?.gh || "無"),
             explanation: ans[index]?.explanation || "無詳解",
         })),
     };
@@ -712,6 +717,7 @@ async function endQuiz() {
             console.error("儲存測驗結果失敗：", error);
         });
 }
+
 
 // 返回主畫面函數
 function returnToHome() {
