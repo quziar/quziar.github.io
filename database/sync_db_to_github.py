@@ -3,7 +3,6 @@ import shutil
 import stat
 import subprocess
 from datetime import datetime
-from dotenv import load_dotenv
 
 def remove_readonly(func, path, _):
     """在 Windows 上移除唯讀限制，以允許刪除"""
@@ -26,8 +25,6 @@ def check_db_exists(db_path, db_name):
     return True
 
 def sync_db_to_github():
-    # 載入 .env 檔案
-    load_dotenv()
 
     # 變數設定
     DB1 = os.getenv("DB1_PATH")
