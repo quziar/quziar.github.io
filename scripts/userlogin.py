@@ -1,30 +1,56 @@
 import sqlite3
-from database import get_user_db
+import bcrypt
+from database import USER_DB_PATH, get_user_db
 
-def userlogin():
+# 驗證密碼
+def verify_password(stored_hash: str, input_password: str) -> bool:
+    return bcrypt.checkpw(input_password.encode(), stored_hash.encode())
+
+# 驗證使用者密碼
+def verify_user_password(db_path, username, input_password):
     try:
-        # 使用資料庫連線
-        with get_user_db() as conn:
+        with sqlite3.connect(db_path) as conn:
             cursor = conn.cursor()
-            # 查詢 'users' 資料表
-            cursor.execute('SELECT * FROM users')  # 假設資料表名為 'users'
-            rows = cursor.fetchall()
+            cursor.execute('SELECT password FROM users WHERE username = ?', (username,))
+            row = cursor.fetchone()
 
-            # 獲取欄位名稱
-            columns = [column[0] for column in cursor.description]
+            if row:
+                stored_hashed_password = row[0]
 
-            # 將資料轉換為字典
-            result = [dict(zip(columns, row)) for row in rows]
+                if verify_password(stored_hashed_password, input_password):
+                    return True
+                else:
+                    return False
+            else:
+                return False
 
-        # 顯示抓取的結果
-        print(f"Found {len(result)} users in the database.")
-        
-        return result
+    except Exception as e:
+        print(f"❌ 登入過程中發生錯誤：{str(e)}")
+        return False
+
+def userlogin(username, input_password):
+    try:
+        with sqlite3.connect(USER_DB_PATH) as conn:
+            cursor = conn.cursor()
+            cursor.execute('SELECT username, password, identities FROM users WHERE username = ?', (username,))
+            row = cursor.fetchone()
+
+            if row:
+                stored_username, stored_hashed_password, identities = row
+
+                if verify_password(stored_hashed_password, input_password):
+                    return {
+                        "username": stored_username,
+                        "identities": identities
+                    }
+                else:
+                    return None
+            else:
+                return None
 
     except sqlite3.DatabaseError as db_error:
-        # 捕捉資料庫錯誤，並顯示詳細的錯誤訊息
         raise Exception(f"資料庫錯誤: {str(db_error)}")
 
     except Exception as e:
-        # 捕捉其他異常
-        raise Exception(f"無法載入使用者，請稍後再試。錯誤詳情: {str(e)}")
+        raise Exception(f"登入過程中出錯，請稍後再試。錯誤詳情: {str(e)}")
+

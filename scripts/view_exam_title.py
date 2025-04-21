@@ -9,7 +9,7 @@ def view_exam_title():
             rows = conn.execute('SELECT * FROM exams').fetchall()
 
             # 取得目前台灣時間（UTC+8），並轉為 naive datetime
-            now = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=16)))
+            now = datetime.now(timezone.utc).astimezone(timezone(timedelta(hours=8)))
             now_naive = now.replace(tzinfo=None)
 
             result = []

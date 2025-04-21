@@ -6,8 +6,8 @@ def view_all_users():
         # 使用資料庫連線
         with get_user_db() as conn:
             cursor = conn.cursor()
-            # 修改為查詢 user 表
-            cursor.execute('SELECT * FROM users')  # 假設資料表名為 'users'
+            # 查詢 users 資料表，獲取所有使用者資料
+            cursor.execute('SELECT id, username, identities FROM users')  # 查詢 ID、用戶名與身份欄位
             rows = cursor.fetchall()
 
             # 獲取欄位名稱
@@ -16,9 +16,6 @@ def view_all_users():
             # 將資料轉換為字典
             result = [dict(zip(columns, row)) for row in rows]
 
-        # 顯示抓取的結果
-        print(f"Found {len(result)} users in the database.")
-        
         return result
 
     except sqlite3.DatabaseError as db_error:
