@@ -552,9 +552,9 @@ document.getElementById('filterByCategoryBtn').addEventListener('click', functio
 
 //過渡用程式
 document.getElementById("abcd").addEventListener("click", async function() {
-    let newUsername = "b"
-    let newPassword = "123456"
-    let newidentities ="學生"
+    let newUsername = "t2"
+    let newPassword = "123"
+    let newidentities ="教授"
     
     try {
         // 向 FastAPI 發送註冊請求

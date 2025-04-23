@@ -583,7 +583,15 @@ document.getElementById('copytest').addEventListener('click', async function () 
 document.getElementById('viewteat').addEventListener('click', async function () {
     document.getElementById('response').textContent = '正在載入考卷列表...';
 
-    fetch('/api/exam/view_exam/')
+    let currentUser = await getCurrentUser();
+
+    fetch('/api/exam/view_exam/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ user: currentUser })
+    })
         .then(response => response.json())
         .then(data => {
             const questionList = document.getElementById('questionList');
@@ -728,23 +736,25 @@ document.getElementById('viewUsersBtn').addEventListener('click', function() {
 });
 
 // 歷史紀錄顯示功能
-function booklink(currentUser) {
+async function booklink(currentUser) {
     if (!currentUser) {
         alert("無此帳號！");
         return;
     }
 
-    fetch(`/api/questions/get_quiz_history/${currentUser}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.history.length === 0) {
-                alert("此學生目前沒有測驗歷史紀錄！");
-                return;
-            }
+    try {
+        const response = await fetch(`/api/questions/get_quiz_history/${currentUser}`);
+        const data = await response.json();
 
-            let historyHtml = `<h3>${currentUser} 的歷史紀錄：</h3>`;
-            data.history.forEach((result, index) => {
-                historyHtml += `
+        if (data.history.length === 0) {
+            alert("此學生目前沒有測驗歷史紀錄！");
+            return;
+        }
+
+        let historyHtml = `<h3>${currentUser} 的歷史紀錄：</h3>`;
+
+        for (const [index, result] of data.history.entries()) {
+            historyHtml += `
                 <div>
                     <h4>測驗日期：${result.date}</h4>
                     <p>總分：${result.score}%</p>
@@ -752,38 +762,68 @@ function booklink(currentUser) {
                     <button onclick="toggleDetails(${index})">顯示詳情</button>
                     <button onclick="exportToPDF(${index}, '${result.date}', ${result.score}, ${result.incorrectCount})">匯出 PDF</button>
                     <div id="details-${index}" style="display:none;">
-                        <table border="1" id="table-${index}">
-                            <tr style="color: black;">
-                                <th>題號</th>
-                                <th>學生答案</th>
-                                <th>正確答案</th>
-                                <th>詳解</th>
-                            </tr>
+                        <table border="1" id="table-${index}" style="width: 100%; text-align: left; color: black;">
+                            <thead>
+                                <tr>
+                                    <th>題號</th>
+                                    <th>題目</th>
+                                    <th>選項</th>
+                                    <th>學生答案</th>
+                                    <th>正確答案</th>
+                                    <th>詳解</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            const questions = await Promise.all(
+                result.details.map(detail =>
+                    fetch(`/api/questions/view_questions/${detail.questionNumber}`)
+                        .then(res => res.ok ? res.json() : null)
+                        .catch(() => null)
+                )
+            );
+
+            result.details.forEach((detail, i) => {
+                const question = questions[i];
+                if (!question) return;
+
+                const optionsHtml = `
+                    <strong>A:</strong> ${question.option_a || '無'}<br>
+                    <strong>B:</strong> ${question.option_b || '無'}<br>
+                    <strong>C:</strong> ${question.option_c || '無'}<br>
+                    <strong>D:</strong> ${question.option_d || '無'}
                 `;
 
-                result.details.forEach((detail) => {
-                    historyHtml += `
+                historyHtml += `
                     <tr>
                         <td>${detail.questionNumber}</td>
+                        <td>${question.question_text || '無題目'}</td>
+                        <td>${optionsHtml}</td>
                         <td>${detail.selectedAnswer || '未作答'}</td>
                         <td>${detail.correctAnswer}</td>
                         <td>${detail.explanation}</td>
                     </tr>
-                    `;
-                });
-
-                historyHtml += `</table><br></div></div>`;
+                `;
             });
 
-            document.getElementById("popup-window").style.display = "block";
-            document.getElementById("popup-title").textContent = "歷史紀錄";
-            document.getElementById("popup-body").innerHTML = historyHtml;
-        })
-        .catch(error => {
-            console.error("獲取歷史紀錄時發生錯誤：", error);
-            alert("無法獲取歷史紀錄，請稍後再試！");
-        });
-};
+            historyHtml += `
+                            </tbody>
+                        </table>
+                        <br>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById("popup-window").style.display = "block";
+        document.getElementById("popup-title").textContent = "歷史紀錄";
+        document.getElementById("popup-body").innerHTML = historyHtml;
+    } catch (error) {
+        console.error("獲取歷史紀錄時發生錯誤：", error);
+        alert("無法獲取歷史紀錄，請稍後再試！");
+    }
+}
 
 // 匯出 PDF 功能（自動讀取 TTF 字體）
 function exportToPDF(index, date, score, incorrectCount) {
@@ -810,23 +850,20 @@ function generatePDF(base64Font, index, date, score, incorrectCount) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    // 設定中文字體
     doc.addFileToVFS("NotoSansTC-Regular.ttf", base64Font);
     doc.addFont("NotoSansTC-Regular.ttf", "NotoTC", "normal");
     doc.setFont("NotoTC");
 
-    // 設定標題與測驗資訊
     doc.setFontSize(22);
-    doc.setTextColor(0, 51, 102); // 深藍色標題
+    doc.setTextColor(0, 51, 102);
     doc.text("測驗歷史紀錄", 10, 15);
 
     doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0); // 內容使用黑色
+    doc.setTextColor(0, 0, 0);
     doc.text(`📅 測驗日期：${date}`, 10, 25);
     doc.text(`✅ 總分：${score}%`, 10, 35);
     doc.text(`❌ 錯誤題數：${incorrectCount}`, 10, 45);
 
-    // **手動擷取表格內容**
     const table = document.getElementById(`table-${index}`);
     if (!table) {
         alert("無法找到表格，請重試！");
@@ -841,36 +878,47 @@ function generatePDF(base64Font, index, date, score, incorrectCount) {
         const rowData = [];
 
         cells.forEach(cell => {
-            rowData.push(cell.innerText.trim()); // 取出文字內容
+            rowData.push(cell.innerText.trim());
         });
 
         if (rowIndex === 0) {
-            tableData.unshift(rowData); // 第一列作為標題
+            tableData.unshift(rowData);
         } else {
             tableData.push(rowData);
         }
     });
 
-    // 使用 autoTable 匯出表格
     doc.autoTable({
         startY: 55,
-        head: [tableData[0]], // 第一列作為標題
-        body: tableData.slice(1), // 其他列作為表格內容
+        head: [tableData[0]],
+        body: tableData.slice(1),
         headStyles: {
-            fillColor: [0, 51, 102], // 標題背景：深藍色
-            textColor: [255, 255, 255], // 標題文字：白色
+            fillColor: [0, 51, 102],
+            textColor: [255, 255, 255],
             fontStyle: "bold",
         },
         bodyStyles: {
-            textColor: [0, 0, 0], // 內容文字：黑色
+            textColor: [0, 0, 0],
         },
         alternateRowStyles: {
-            fillColor: [230, 230, 230], // 交錯背景：淺灰色
+            fillColor: [230, 230, 230],
         },
-        styles: { font: "NotoTC" }
+        styles: {
+            font: "NotoTC",
+            fontSize: 10,
+            overflow: 'linebreak'
+        },
+        columnStyles: {
+            0: { cellWidth: 15 },  // 題號
+            1: { cellWidth: 60 },  // 題目
+            2: { cellWidth: 80 },  // 選項
+            3: { cellWidth: 20 },  // 您的答案
+            4: { cellWidth: 20 },  // 正確答案
+            5: { cellWidth: 70 },  // 詳解
+        }
+        
     });
 
-    // 下載 PDF
     doc.save(`測驗紀錄_${date}.pdf`);
 }
 
