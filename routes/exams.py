@@ -27,6 +27,9 @@ class GenerateExamRequest(BaseModel):
             now = datetime.utcnow() + timedelta(hours=8)
             self.start_time = now.replace(second=0, microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
 
+class UserRequest(BaseModel):
+    user: str
+
 # 設置日誌記錄
 logger = logging.getLogger(__name__)
 
@@ -50,14 +53,13 @@ async def generate_exam(request: GenerateExamRequest):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"生成考卷時發生錯誤: {str(e)}")
 
 # 查看考卷
-@router.get("/view_exam/")
-async def get_exam():
+@router.post("/view_exam/")
+async def api_view_exam(request: UserRequest):
     try:
-        text = view_exam()
-        return JSONResponse(content={"exams": text}, status_code=200)
+        exams = view_exam(request.user)
+        return {"exams": exams}
     except Exception as e:
-        logger.error(f"錯誤詳情: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"無法載入題目，請稍後再試。錯誤詳情: {str(e)}")
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 # 查看考卷標題
 @router.get("/view_exam_title/")
