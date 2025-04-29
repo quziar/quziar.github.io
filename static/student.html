@@ -58,7 +58,6 @@
             </select>
             <input type="text" id="subject-input" placeholder="手動輸入科目" style="display: none;">
 
-            <input type="text" id="category-input" onkeypress="handleKeyPress(event)" placeholder="手動輸入類別" style="display: none;">
             <select id="category" onchange="toggleInputField('category')">
                 <option value="">類別</option>
                 <option value="全部">全部</option>
@@ -82,6 +81,7 @@
                 <option value="法學緒論">法學緒論</option>
                 <!-- 其他類別選項 -->
             </select>
+            <input type="text" id="category-input" onkeypress="handleKeyPress(event)" placeholder="手動輸入類別" style="display: none;">
 
             <select id="year" onchange="toggleInputField('year')">
                 <option value="">年份</option>
@@ -130,7 +130,7 @@
             <button id="filter-search-button">搜尋</button>
         </div>
         <div>
-            <select id="exam"">
+            <select id="exam">
                 <option>考卷</option>
             </select>
         </div>
