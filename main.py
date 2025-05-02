@@ -36,7 +36,7 @@ app.add_middleware(
 app.add_middleware(RedisSessionMiddleware)
 
 # 設定
-REDIS_URL = "redis://red-cvt7qth5pdvs739hg6o0:6379"
+REDIS_URL = "rediss://red-cvt7qth5pdvs739hg6o0:iD1SXjcwMKL5xyHgXBVa9FRBIbzFMytH@singapore-keyvalue.render.com:6379"
 
 @app.on_event("startup")
 async def startup_event():
@@ -64,6 +64,10 @@ app.include_router(fonts_router, prefix="/api/fonts", tags=["fonts"])
 @app.get("/test/")
 async def test_route():
     return {"message": "測試路由正常工作"}
+
+    
+# ✅ 掛載圖片目錄
+app.mount("/database/pictures", StaticFiles(directory="database/pictures"), name="question_images")
 
 # 定期同步資料庫的任務
 async def sync_databases_periodically():
