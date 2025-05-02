@@ -40,8 +40,8 @@ def fetch_answers_by_ids(id_list):
                     answer = options[correct_answer]
                     gh = correct_answer
                 else:
-                    answer = ""
-                    gh = ""
+                    answer = correct_answer
+                    gh = correct_answer
 
                 result.append({
                     "answer": answer,
