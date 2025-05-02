@@ -9,6 +9,7 @@ DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'question_ba
 USER_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'user_account.db')  # 使用者資料庫
 TEXT_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'text.db')  # 考卷資料庫
 HISTORY_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'history.db')  # 歷史紀錄資料庫
+IMAGE_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'image.db')  # 新增圖片資料庫
 
 class DatabaseConnection:
     def __init__(self, db_path):
@@ -56,6 +57,8 @@ class DatabaseConnection:
             self._create_text_db()
         elif self.db_path == HISTORY_DB_PATH:
             self._create_history_db()
+        elif self.db_path == IMAGE_DB_PATH:
+            self._create_image_db()
 
     def _create_question_db(self):
         """創建題庫資料庫結構"""
@@ -74,6 +77,20 @@ class DatabaseConnection:
                     option_d TEXT,
                     correct_answer TEXT,
                     public_private TEXT
+                )
+            ''')
+            conn.commit()
+
+    def _create_image_db(self):
+        """創建圖片資料庫結構"""
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS question_images (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    question_id INTEGER NOT NULL,
+                    image_path TEXT NOT NULL,
+                    FOREIGN KEY (question_id) REFERENCES questions (id)
                 )
             ''')
             conn.commit()
@@ -159,3 +176,6 @@ def get_text_db():
 
 def get_history_db():
     return DatabaseConnection(HISTORY_DB_PATH)
+
+def get_image_db():
+    return DatabaseConnection(IMAGE_DB_PATH)
