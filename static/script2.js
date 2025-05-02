@@ -550,11 +550,53 @@ document.getElementById('filterByCategoryBtn').addEventListener('click', functio
         });
 });
 
+
+// ===================== 上傳圖片 =====================
+document.getElementById("upload-form").addEventListener("click", async function(event) {
+    event.preventDefault();
+
+    const questionId = document.getElementById("questionId").value;
+    const imageFile = document.getElementById("image").files[0];
+    const responseDiv = document.getElementById("uploadResponse");
+
+    if (!questionId) {
+        responseDiv.innerHTML = "<p>❌ 請先輸入題目 ID</p>";
+        return;
+    }
+
+    if (!imageFile) {
+        responseDiv.innerHTML = "<p>❌ 請選擇圖片</p>";
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("question_id", questionId);
+    formData.append("image", imageFile);
+
+    try {
+        const response = await fetch("/api/questions/upload_image", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            responseDiv.innerHTML = `<p>✅ 成功: ${result.message}</p>`;
+        } else {
+            responseDiv.innerHTML = `<p>❌ 失敗: ${result.message}</p>`;
+        }
+    } catch (error) {
+        responseDiv.innerHTML = `<p>❌ 錯誤: ${error.message}</p>`;
+    }
+});
+
+
 //過渡用程式
 document.getElementById("abcd").addEventListener("click", async function() {
-    let newUsername = "t2"
-    let newPassword = "123"
-    let newidentities ="教授"
+    let newUsername = "bob"
+    let newPassword = "990706"
+    let newidentities ="學生"
     
     try {
         // 向 FastAPI 發送註冊請求

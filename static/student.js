@@ -163,6 +163,7 @@ function showQuestion(index) {
  questionContainer.innerHTML = `
  <div class="question-header">${question.year} ${question.category} ${question.marked ? '⭐' : ''}</div>
  <h2>${index}. ${question.question}</h2>
+ <img src="${question.image}"style="max-width:400px;">
  <div class="option-container">
      ${
          question.type === "申論"
