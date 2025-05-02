@@ -12,6 +12,8 @@ from scripts.get_question_by_id import get_question_by_id
 from scripts.fetch_questions_by_ids import fetch_questions_by_ids
 from scripts.import_questions_ans import fetch_answers_by_ids
 from scripts.search_questions import search_questions
+from scripts.import_image import save_image_and_insert_path
+from scripts.view_image import get_image_path_by_question_id
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
@@ -23,7 +25,8 @@ import logging
 from typing import List, Optional
 import json
 from fastapi import Request
-
+import os
+import shutil
 
 router = APIRouter()
 
@@ -201,6 +204,30 @@ async def get_ans(request: IdsRequest):
 def api_search_questions_post(filter: FilterRequest):
     ids = search_questions(filter.subject, filter.category, filter.year, filter.questionType, filter.questionCount)
     return {"success": True, "question_ids": ids}
+
+# 上傳圖片
+@router.post("/upload_image")
+async def upload_image(
+    question_id: int = Form(...),
+    image: UploadFile = File(...)
+):
+    try:
+        # 把 image 當作 UploadFile 傳進去，由另一個函數處理儲存與資料庫插入
+        image_path = save_image_and_insert_path(question_id, image)
+
+        return JSONResponse(content={"message": "圖片上傳成功", "path": image_path})
+    except Exception as e:
+        return JSONResponse(content={"message": f"圖片上傳失敗: {str(e)}"}, status_code=400)
+
+# 獲取圖片路徑
+@router.get("/image_path/{question_id}")
+def get_image_path(question_id: int):
+    """根據題目 ID 回傳圖片路徑"""
+    image_path = get_image_path_by_question_id(question_id)
+    if image_path:
+        return {"image_path": image_path}
+    else:
+        raise HTTPException(status_code=404, detail="找不到對應的圖片路徑")
 
 #新增題目
 @router.post("/import-single-question")
