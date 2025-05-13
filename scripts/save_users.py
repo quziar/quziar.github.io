@@ -7,6 +7,18 @@ from database import USER_DB_PATH, get_user_db
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
+# 儲存使用者密碼（只用哈希）
+def store_user_password(db_path, username, password, identities):
+    hashed_password = hash_password(password)
+
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO users (username, password, identities)
+            VALUES (?, ?, ?)
+        ''', (username, hashed_password, identities))
+        conn.commit()
+
 def upload_users(users):
     try:
         with get_user_db() as conn:
