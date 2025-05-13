@@ -85,7 +85,7 @@ document.querySelectorAll(".eliminate-option").forEach(button => {
             question.eliminatedOptions.push(optionIndex); // 添加到刪除選項
         }
 
-        showQuestion(index); // 更新顯示題目
+        showQuestion(); // 更新顯示題目
     });
 });
 
