@@ -452,6 +452,7 @@ document.getElementById('start-quiz').addEventListener('click', async function()
     document.getElementById('exam').style.display = 'none';
     document.getElementById('question-container').style.display = 'block';
     document.querySelector('.button-container').style.display = 'flex';
+    document.getElementById("pause-timer").style.display = "none";//隱藏時間暫停按鈕
 
     const timeLimit = parseInt(this.dataset.timeLimit);
     if (timeLimit > 0) {
