@@ -237,18 +237,6 @@ def get_image_path(question_id: int):
     else:
         raise HTTPException(status_code=404, detail="找不到對應的圖片路徑")
 
-#AI測試
-@router.post("/grade", response_model=ScoreResponse)
-async def grade_answer(request: AnswerRequest):
-    try:
-        score = evaluate_answer(
-            correct_answer=request.correct_answer,
-            student_answer=request.student_answer
-        )
-        return {"score": score}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"評分錯誤: {str(e)}")
-
 #新增題目
 @router.post("/import-single-question")
 async def import_single_question(
