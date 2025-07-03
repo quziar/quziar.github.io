@@ -32,7 +32,6 @@ router = APIRouter()
 
 # 定義一個 Pydantic 模型來驗證請求體
 class DeleteQuestionRequest(BaseModel):
-    
     question_id: int
 
 # 構建要傳送的題目資料
@@ -47,19 +46,17 @@ class QuestionData(BaseModel):
     option_d: str
     correct_answer: str
 
-class QuizDetail(BaseModel):
+class QuestionNumberItem(BaseModel):
     questionNumber: int
+
+class SelectedAnswerItem(BaseModel):
     selectedAnswer: Optional[str]
-    correctAnswer: str
-    isCorrect: bool
-    explanation: Optional[str] = "無詳解"
 
 class QuizResult(BaseModel):
     username: str
-    score: float
-    incorrectCount: int
+    questionNumber: List[QuestionNumberItem]
+    selectedAnswer: List[SelectedAnswerItem]
     date: str
-    details: List[QuizDetail]
 
 class IdsRequest(BaseModel):
     ids: List[int]
@@ -153,9 +150,8 @@ def get_questions():
 #儲存測驗結果
 @router.post("/save_quiz_result")
 def save_result(quiz_result: QuizResult):
-    """API: 儲存測驗結果"""
     try:
-        save_quiz_result(quiz_result.dict())  # 確保正確傳入 dict
+        save_quiz_result(quiz_result.dict())
         return {"message": "測驗結果已儲存"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -163,7 +159,6 @@ def save_result(quiz_result: QuizResult):
 #獲得測驗紀錄
 @router.get("/get_quiz_history/{username}")
 def get_history(username: str):
-    """API：獲取該使用者的測驗歷史紀錄"""
     return get_quiz_history(username)
 
 #查看單題
