@@ -14,7 +14,6 @@ from scripts.import_questions_ans import fetch_answers_by_ids
 from scripts.search_questions import search_questions
 from scripts.import_image import save_image_and_insert_path
 from scripts.view_image import get_image_path_by_question_id
-from scripts.aitest import evaluate_answer
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
@@ -71,14 +70,7 @@ class FilterRequest(BaseModel):
     year: str = ""
     questionType: str = ""
     questionCount: str = ""
-
-class AnswerRequest(BaseModel):
-    correct_answer: str
-    student_answer: str
-
-class ScoreResponse(BaseModel):
-    score: int
-
+    
 # 設置日誌
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
