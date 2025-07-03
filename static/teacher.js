@@ -744,23 +744,78 @@ async function booklink(currentUser) {
 
     try {
         const response = await fetch(`/api/questions/get_quiz_history/${currentUser}`);
-        const data = await response.json();
+        if (!response.ok) {
+            throw new Error("無法從伺服器獲取歷史紀錄");
+        }
 
-        if (data.history.length === 0) {
-            alert("此學生目前沒有測驗歷史紀錄！");
+        const resultData = await response.json();
+        if (!resultData.history || resultData.history.length === 0) {
+            alert("您目前沒有測驗歷史紀錄！");
             return;
         }
 
+        const history = resultData.history;
         let historyHtml = `<h3>${currentUser} 的歷史紀錄：</h3>`;
 
-        for (const [index, result] of data.history.entries()) {
+        for (const [index, result] of history.entries()) {
+            let score = 0;
+            let incorrectCount = 0;
+
+            const questionIds = result.question_number.map(q => q.questionNumber);
+            const selectedAnswers = result.selected_answer.map(a => a.selectedAnswer);
+            const totalQuestions = questionIds.length;
+
+            // 建立 details 陣列
+            const details = questionIds.map((qId, i) => ({
+                questionNumber: qId,
+                selectedAnswer: selectedAnswers[i] || null
+            }));
+
+            // 取得正確答案
+            let ans = [];
+            try {
+                const ansRes = await fetch('/api/questions/get_ans', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ids: questionIds })
+                });
+
+                if (!ansRes.ok) throw new Error("伺服器回應錯誤");
+                const ansData = await ansRes.json();
+                ans = ansData.ans || [];
+            } catch (error) {
+                console.error('題目載入錯誤:', error);
+                alert('載入題目時發生錯誤，請稍後再試');
+                return;
+            }
+
+            // 取得題目內容
+            const questions = await Promise.all(
+                details.map(detail =>
+                    fetch(`/api/questions/view_questions/${detail.questionNumber}`)
+                        .then(res => res.ok ? res.json() : null)
+                        .catch(() => null)
+                )
+            );
+
+            // 計算分數
+            questions.forEach((q, i) => {
+                const selectedAnswer = details[i].selectedAnswer;
+                const correctAnswer = ans[i]?.gh || null;
+                if (selectedAnswer === correctAnswer) score++;
+                else incorrectCount++;
+            });
+
+            const scorePercentage = ((score / totalQuestions) * 100).toFixed(2);
+
+            // 組合 HTML 區塊
             historyHtml += `
                 <div>
                     <h4>測驗日期：${result.date}</h4>
-                    <p>總分：${result.score}%</p>
-                    <p>錯誤題數：${result.incorrectCount}</p>
+                    <p>總分：${scorePercentage}%</p>
+                    <p>錯誤題數：${incorrectCount}</p>
                     <button onclick="toggleDetails(${index})">顯示詳情</button>
-                    <button onclick="exportToPDF(${index}, '${result.date}', ${result.score}, ${result.incorrectCount})">匯出 PDF</button>
+                    <button onclick="exportToPDF(${index}, '${result.date}', ${score}, ${incorrectCount})">匯出 PDF</button>
                     <div id="details-${index}" style="display:none;">
                         <table border="1" id="table-${index}" style="width: 100%; text-align: left; color: black;">
                             <thead>
@@ -768,7 +823,7 @@ async function booklink(currentUser) {
                                     <th>題號</th>
                                     <th>題目</th>
                                     <th>選項</th>
-                                    <th>學生答案</th>
+                                    <th>您的答案</th>
                                     <th>正確答案</th>
                                     <th>詳解</th>
                                 </tr>
@@ -776,15 +831,7 @@ async function booklink(currentUser) {
                             <tbody>
             `;
 
-            const questions = await Promise.all(
-                result.details.map(detail =>
-                    fetch(`/api/questions/view_questions/${detail.questionNumber}`)
-                        .then(res => res.ok ? res.json() : null)
-                        .catch(() => null)
-                )
-            );
-
-            result.details.forEach((detail, i) => {
+            details.forEach((detail, i) => {
                 const question = questions[i];
                 if (!question) return;
 
@@ -797,12 +844,12 @@ async function booklink(currentUser) {
 
                 historyHtml += `
                     <tr>
-                        <td>${detail.questionNumber}</td>
+                        <td>${(i+1)}</td>
                         <td>${question.question_text || '無題目'}</td>
                         <td>${optionsHtml}</td>
                         <td>${detail.selectedAnswer || '未作答'}</td>
-                        <td>${detail.correctAnswer}</td>
-                        <td>${detail.explanation}</td>
+                        <td>${ans[i]?.gh || '無'}</td>
+                        <td>${question.explanation || '無'}</td>
                     </tr>
                 `;
             });
@@ -813,12 +860,15 @@ async function booklink(currentUser) {
                         <br>
                     </div>
                 </div>
+                <hr>
             `;
         }
 
+        // 顯示 popup 視窗
         document.getElementById("popup-window").style.display = "block";
         document.getElementById("popup-title").textContent = "歷史紀錄";
         document.getElementById("popup-body").innerHTML = historyHtml;
+
     } catch (error) {
         console.error("獲取歷史紀錄時發生錯誤：", error);
         alert("無法獲取歷史紀錄，請稍後再試！");
