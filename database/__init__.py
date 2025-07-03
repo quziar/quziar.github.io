@@ -131,32 +131,15 @@ class DatabaseConnection:
         """創建歷史紀錄資料庫結構"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
-
-            # 創建 history 表格
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     username TEXT NOT NULL,
-                    score REAL NOT NULL,
-                    incorrectCount INTEGER NOT NULL,
+                    question_number TEXT NOT NULL,
+                    selected_answer TEXT,
                     date TEXT NOT NULL
                 )
             ''')
-
-            # 創建 history_details 表格
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS history_details (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    history_id INTEGER,
-                    question_number INTEGER NOT NULL,
-                    selected_answer TEXT,
-                    correct_answer TEXT,
-                    is_correct INTEGER,
-                    explanation TEXT,
-                    FOREIGN KEY (history_id) REFERENCES history (id)
-                )
-            ''')
-
             conn.commit()
 
     def get_cursor(self):
