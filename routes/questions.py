@@ -14,6 +14,7 @@ from scripts.import_questions_ans import fetch_answers_by_ids
 from scripts.search_questions import search_questions
 from scripts.import_image import save_image_and_insert_path
 from scripts.view_image import get_image_path_by_question_id
+from scripts.AItest import evaluate_answer
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
@@ -27,8 +28,11 @@ import json
 from fastapi import Request
 import os
 import shutil
+import httpx
 
 router = APIRouter()
+
+BOTPRESS_WEBHOOK_URL = "https://webhook.botpress.cloud/7367767d-6baf-4d16-b042-fc270f9f996a"
 
 # 定義一個 Pydantic 模型來驗證請求體
 class DeleteQuestionRequest(BaseModel):
@@ -67,6 +71,11 @@ class FilterRequest(BaseModel):
     year: str = ""
     questionType: str = ""
     questionCount: str = ""
+
+class Question(BaseModel):
+    question: str
+    correct: str
+    answer: str
     
 # 設置日誌
 logging.basicConfig(level=logging.DEBUG)
@@ -223,6 +232,27 @@ def get_image_path(question_id: int):
         return {"image_path": image_path}
     else:
         raise HTTPException(status_code=404, detail="找不到對應的圖片路徑")
+
+# AI測試
+@router.post("/evaluate")
+async def evaluate_proxy(request: Request):
+    try:
+        data = await request.json()  # 解析 JSON 內容
+
+        question = data.get("question", "")
+        reference = data.get("reference_answer", "")
+        student = data.get("student_answer", "")
+
+        if not all([question, reference, student]):
+            return {"error": "缺少必要欄位（question, reference_answer, student_answer）"}
+
+        ans = evaluate_answer(question, reference, student)
+        return {"ans": ans}
+
+    except Exception as e:
+        logger.error(f"取得答案時發生錯誤: {str(e)}")
+        return {"error": str(e)}
+
 
 #新增題目
 @router.post("/import-single-question")
