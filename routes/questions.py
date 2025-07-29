@@ -27,7 +27,6 @@ import json
 from fastapi import Request
 import os
 import shutil
-import httpx
 
 router = APIRouter()
 
