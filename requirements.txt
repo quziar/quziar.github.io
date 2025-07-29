@@ -12,6 +12,3 @@ bcrypt
 hvac
 python-dotenv
 werkzeug
-transformers
-torch
-accelerate
