@@ -12,3 +12,4 @@ bcrypt
 hvac
 python-dotenv
 werkzeug
+google-genai
