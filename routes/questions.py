@@ -14,6 +14,7 @@ from scripts.import_questions_ans import fetch_answers_by_ids
 from scripts.search_questions import search_questions
 from scripts.import_image import save_image_and_insert_path
 from scripts.view_image import get_image_path_by_question_id
+from scripts.aitest import evaluate_answer
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
@@ -69,6 +70,11 @@ class FilterRequest(BaseModel):
     year: str = ""
     questionType: str = ""
     questionCount: str = ""
+
+class EvalRequest(BaseModel):
+    question: str
+    rubric: str
+    student_answer: str
     
 # 設置日誌
 logging.basicConfig(level=logging.DEBUG)
@@ -225,6 +231,15 @@ def get_image_path(question_id: int):
         return {"image_path": image_path}
     else:
         raise HTTPException(status_code=404, detail="找不到對應的圖片路徑")
+
+#AI測試
+@router.post("/evaluate")
+def evaluate(req: EvalRequest):
+    try:
+        score = evaluate_answer(req.question, req.rubric, req.student_answer)
+        return {"accuracy": score}
+    except Exception as e:
+        return {"error": str(e)}
 
 #新增題目
 @router.post("/import-single-question")
