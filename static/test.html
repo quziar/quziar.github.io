@@ -13,8 +13,11 @@
 <body>
   <h1>AI 自動評分</h1>
 
-  <label for="correct">正確答案：</label><br>
-  <textarea id="correct" placeholder="請輸入正確答案"></textarea><br>
+  <label for="question">題目：</label><br>
+  <textarea id="question" placeholder="請輸入題目"></textarea><br>
+
+  <label for="rubric">評分標準：</label><br>
+  <textarea id="rubric" placeholder="請輸入評分標準"></textarea><br>
 
   <label for="student">考生答案：</label><br>
   <textarea id="student" placeholder="請輸入考生答案"></textarea><br>
@@ -25,18 +28,25 @@
 
   <script>
     async function grade() {
-      const correct = document.getElementById("correct").value;
-      const student = document.getElementById("student").value;
+      const question = document.getElementById("question").value.trim();
+      const rubric = document.getElementById("rubric").value.trim();
+      const student = document.getElementById("student").value.trim();
       const resultDiv = document.getElementById("result");
+
+      if (!question || !rubric || !student) {
+        resultDiv.innerText = "請填寫所有欄位再送出";
+        return;
+      }
 
       resultDiv.innerText = "評分中...";
 
       try {
-        const response = await fetch("/api/questions/grade", {
+        const response = await fetch("/api/questions/evaluate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            correct_answer: correct,
+            question: question,
+            rubric: rubric,
             student_answer: student
           })
         });
@@ -44,7 +54,11 @@
         if (!response.ok) throw new Error("API 呼叫失敗");
 
         const data = await response.json();
-        resultDiv.innerText = `AI 評分結果：${data.score} 分`;
+        if (data.accuracy !== undefined) {
+          resultDiv.innerText = `AI 評分結果：${data.accuracy} 分`;
+        } else {
+          resultDiv.innerText = `錯誤：${data.error || "無法取得分數"}`;
+        }
       } catch (err) {
         resultDiv.innerText = "發生錯誤：" + err.message;
       }
