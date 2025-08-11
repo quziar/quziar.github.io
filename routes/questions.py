@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from scripts.view_all_questions import view_all_questions
 from scripts.import_questions import import_questions_from_excel
 from scripts.import_specific_question import import_questions
@@ -28,6 +28,7 @@ import json
 from fastapi import Request
 import os
 import shutil
+
 
 router = APIRouter()
 
@@ -230,7 +231,7 @@ def get_image_path(question_id: int):
     if image_path:
         return {"image_path": image_path}
     else:
-        raise HTTPException(status_code=404, detail="找不到對應的圖片路徑")
+        return ""
 
 #AI測試
 @router.post("/evaluate")
