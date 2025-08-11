@@ -233,56 +233,104 @@ document.getElementById('deleteBtn').addEventListener('click', function() {
 });
 
 // ===================== 顯示特定題目 =====================
-document.getElementById('viewQuestionBtn').addEventListener('click', function() {
+document.getElementById('viewQuestionBtn').addEventListener('click', async function() {
     const questionId = document.getElementById('questionId').value;
 
-    // 檢查 ID 是否為數字
     if (!questionId || isNaN(questionId)) {
         document.getElementById('response').textContent = '請輸入有效的數字ID！';
         return;
     }
 
-    // 顯示載入中的提示
     document.getElementById('response').textContent = '正在載入題目...';
 
-    // 發送請求到新的路由，根據題目 ID 取得題目資料
-    fetch(`/api/questions/view_questions/${questionId}`)
+    try {
+        const questionResp = await fetch(`/api/questions/view_questions/${questionId}`);
+        if (!questionResp.ok) throw new Error('題目資料取得失敗');
+        const data = await questionResp.json();
+
+        const imageResp = await fetch(`/api/questions/image_path/${questionId}`);
+        if (!imageResp.ok) throw new Error('圖片路徑取得失敗');
+        const imageData = await imageResp.json();
+        const imagePath = imageData.image_path || '';
+
+        const questionList = document.getElementById('questionList');
+        questionList.innerHTML = '';
+
+        if (!data) {
+            questionList.innerHTML = '<p>找不到該題目，請確認 ID 是否正確。</p>';
+        } else {
+            const div = document.createElement('div');
+            div.classList.add('question-item');
+
+            div.innerHTML = `
+                <strong>科目：</strong> ${data.subject || '無科目'}<br>
+                <strong>年度：</strong> ${data.year || '無年度'}<br>
+                <strong>類別：</strong> ${data.category || '無類別'}<br><br>
+                ${imagePath ? `<img src="${imagePath}" style="max-width:400px;">` : ''}<br>
+                <strong>ID:</strong> ${data.id}<br>
+                <strong>問題：</strong> ${data.question_text || '無題目'}<br>
+                <div class="answer-options">
+                    <span><strong>A:</strong> ${data.option_a || '無選項'}</span><br>
+                    <span><strong>B:</strong> ${data.option_b || '無選項'}</span><br>
+                    <span><strong>C:</strong> ${data.option_c || '無選項'}</span><br>
+                    <span><strong>D:</strong> ${data.option_d || '無選項'}</span><br>
+                </div>
+                <br><strong>解答：</strong> ${data.correct_answer || '無解答'}
+            `;
+
+            questionList.appendChild(div);
+        }
+
+        document.getElementById('response').textContent = '';
+    } catch (error) {
+        document.getElementById('response').textContent = '無法載入題目，請稍後再試。';
+        console.error('Error:', error);
+    }
+});
+
+// ===================== 新增題目圖片 =====================
+document.getElementById('imageBtn').addEventListener('click', function() {
+    const questionId = document.getElementById('questionId').value;
+
+    if (!questionId || isNaN(questionId)) {
+        document.getElementById('response').textContent = '請輸入有效的數字ID！';
+        return;
+    }
+
+    // 先打開檔案選擇視窗
+    const fileInput = document.getElementById('imageFile');
+    fileInput.value = ''; // 重置已選檔案
+    fileInput.click();
+
+    // 檔案選擇完成後自動上傳
+    fileInput.onchange = function() {
+        const imageFile = fileInput.files[0];
+        if (!imageFile) return;
+
+        const formData = new FormData();
+        formData.append('question_id', questionId);
+        formData.append('image', imageFile);
+
+        document.getElementById('response').textContent = '圖片上傳中...';
+
+        fetch(`/api/questions/upload_image`, {
+            method: 'POST',
+            body: formData
+        })
         .then(response => response.json())
         .then(data => {
-            const questionList = document.getElementById('questionList');
-            questionList.innerHTML = '';  // 清空現有題目
-
-            if (!data) {
-                questionList.innerHTML = '<p>找不到該題目，請確認 ID 是否正確。</p>';
+            if (data.error) {
+                document.getElementById('response').textContent = `上傳失敗：${data.error}`;
             } else {
-                // 顯示符合條件的題目
-                const div = document.createElement('div');
-                div.classList.add('question-item');
-
-                div.innerHTML = `
-                    <strong>科目：</strong> ${data.subject || '無科目'}<br>
-                    <strong>年度：</strong> ${data.year || '無年度'}<br>
-                    <strong>類別：</strong> ${data.category || '無類別'}<br><br>
-                    <strong>ID:</strong> ${data.id}<br>
-                    <strong>問題：</strong> ${data.question_text || '無題目'}<br>
-                    <div class="answer-options">
-                        <span><strong>A:</strong> ${data.option_a || '無選項'}</span><br>
-                        <span><strong>B:</strong> ${data.option_b || '無選項'}</span><br>
-                        <span><strong>C:</strong> ${data.option_c || '無選項'}</span><br>
-                        <span><strong>D:</strong> ${data.option_d || '無選項'}</span><br>
-                    </div>
-                    <br><strong>解答：</strong> ${data.correct_answer || '無解答'}
-                `;
-
-                questionList.appendChild(div);
+                document.getElementById('response').textContent = '圖片上傳成功！';
+                console.log('圖片路徑：', data.image_path);
             }
-
-            document.getElementById('response').textContent = '';  // 清除載入提示
         })
         .catch(error => {
-            document.getElementById('response').textContent = '無法載入題目，請稍後再試。';
+            document.getElementById('response').textContent = '上傳時發生錯誤，請稍後再試。';
             console.error('Error:', error);
         });
+    };
 });
 
 // ===================== 比對相似題目 =====================

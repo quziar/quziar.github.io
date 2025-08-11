@@ -41,13 +41,16 @@
 
     <!-- 刪除題目區域 -->
     <div class="delete-question-container">
-        <h3>刪除題目</h3>
+        <h3>題目檢索</h3>
         <label for="questionId">輸入題目ID：</label>
         <input type="number" id="questionId" placeholder="請輸入數字ID" />
         <button id="viewQuestionBtn">顯示題目</button>
         <button id="deleteBtn">刪除題目</button>
-        <p id="deleteResponse"></p> <!-- 顯示刪除結果 -->
+        <button id="imageBtn">題目圖片新增</button>
+        <p id="deleteResponse"></p> 
     </div>
+
+    <input type="file" id="imageFile" accept="image/*" style="display:none;"><br>
  <!-- 類別輸入框 -->
 <label for="categoryInput">輸入關鍵字：</label>
 <input type="text" id="categoryInput" placeholder="請輸入關鍵字">
