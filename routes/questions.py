@@ -237,8 +237,11 @@ def get_image_path(question_id: int):
 @router.post("/evaluate")
 def evaluate(req: EvalRequest):
     try:
-        score = evaluate_answer(req.question, req.rubric, req.student_answer)
-        return {"accuracy": score}
+        result = evaluate_answer(req.question, req.rubric, req.student_answer)
+        return {
+            "score": result["score"],
+            "explanation": result.get("explanation", "")
+        }
     except Exception as e:
         return {"error": str(e)}
 
