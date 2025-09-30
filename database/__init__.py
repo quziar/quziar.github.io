@@ -10,6 +10,7 @@ USER_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'user_a
 TEXT_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'text.db')  # 考卷資料庫
 HISTORY_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'history.db')  # 歷史紀錄資料庫
 IMAGE_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'image.db')  # 新增圖片資料庫
+SAVE_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'database', 'save.db')  # 新增存檔資料庫
 
 class DatabaseConnection:
     def __init__(self, db_path):
@@ -59,6 +60,8 @@ class DatabaseConnection:
             self._create_history_db()
         elif self.db_path == IMAGE_DB_PATH:
             self._create_image_db()
+        elif self.db_path == SAVE_DB_PATH:
+            self._create_save_db()
 
     def _create_question_db(self):
         """創建題庫資料庫結構"""
@@ -104,7 +107,8 @@ class DatabaseConnection:
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     username TEXT UNIQUE NOT NULL,
                     password TEXT NOT NULL,
-                    identities TEXT NOT NULL
+                    identities TEXT NOT NULL,
+                    class TEXT NOT NULL
                 )
             ''')
             conn.commit()
@@ -122,6 +126,7 @@ class DatabaseConnection:
                     created_at TIMESTAMP NOT NULL,
                     start_time TIMESTAMP NOT NULL,
                     duration INTEGER NOT NULL,
+                    whetherexam INTEGER NOT NULL DEFAULT 0,
                     FOREIGN KEY (creator_id) REFERENCES users (username)
                 )
             ''')
@@ -134,10 +139,26 @@ class DatabaseConnection:
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS history (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
                     username TEXT NOT NULL,
                     question_number TEXT NOT NULL,
                     selected_answer TEXT,
                     date TEXT NOT NULL
+                )
+            ''')
+            conn.commit()
+
+    def _create_save_db(self):
+        """創建存檔資料庫結構"""
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS save (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL,
+                    question_number TEXT NOT NULL,
+                    selected_answer TEXT,
+                    endtime TIMESTAMP NOT NULL
                 )
             ''')
             conn.commit()
@@ -162,3 +183,6 @@ def get_history_db():
 
 def get_image_db():
     return DatabaseConnection(IMAGE_DB_PATH)
+    
+def get_save_db():
+    return DatabaseConnection(SAVE_DB_PATH)
