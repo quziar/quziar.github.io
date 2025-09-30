@@ -1,3 +1,4 @@
+# scripts/aitest.py
 from google import genai
 import os
 import json
@@ -5,9 +6,14 @@ import re
 
 API_KEY = "AIzaSyAlyVuLvU3JXXezcSM8tgVxOKwIalDpuYw"  #禁止外傳
 
+# 建立 Google GenAI 客戶端
 client = genai.Client(api_key=API_KEY)
 
 def evaluate_answer(question: str, rubric: str, student_answer: str):
+    """
+    根據題目、評分標準和學生答案，使用 Google GenAI 模型生成評分。
+    會輸出 JSON，包含 score (四捨五入到最接近 10%) 和 explanation。
+    """
     def round_to_nearest_10(score: int) -> int:
         return int(round(score / 10.0) * 10)
 
@@ -27,6 +33,7 @@ def evaluate_answer(question: str, rubric: str, student_answer: str):
 {student_answer}
 """
 
+    # 呼叫 GenAI 模型
     response = client.models.generate_content(
         model="gemini-2.5-pro",
         contents=prompt

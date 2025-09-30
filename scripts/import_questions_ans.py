@@ -7,13 +7,13 @@ def to_halfwidth(s):
 
 
 def fetch_answers_by_ids(id_list):
-    """根據題目 ID 陣列從資料庫讀取並回傳 answer 和 gh"""
+    """根據題目 ID 陣列從資料庫讀取並回傳 answer 和 gh，順序符合 id_list"""
     if not id_list:
-        # 如果 id_list 為空，直接返回空陣列
         return []
 
-    # 使用 placeholders 防止 SQL 注入攻擊
     placeholders = ','.join(['?'] * len(id_list))
+
+    order_case = " ".join([f"WHEN ? THEN {i}" for i, _ in enumerate(id_list)])
 
     try:
         with get_question_db() as db:
@@ -22,8 +22,9 @@ def fetch_answers_by_ids(id_list):
                 SELECT id, option_a, option_b, option_c, option_d, correct_answer
                 FROM questions
                 WHERE id IN ({placeholders})
+                ORDER BY CASE id {order_case} END
             """
-            cursor.execute(query, id_list)
+            cursor.execute(query, id_list + id_list)
             rows = cursor.fetchall()
 
             result = []
@@ -51,6 +52,5 @@ def fetch_answers_by_ids(id_list):
             return result
 
     except sqlite3.Error as e:
-        # 捕捉任何資料庫錯誤
         print(f"資料庫錯誤: {e}")
         return []
