@@ -26,7 +26,11 @@ class GenerateExamRequest(BaseModel):
         if self.start_time is None:
             now = datetime.utcnow() + timedelta(hours=8)
             self.start_time = now.replace(second=0, microsecond=0).strftime("%Y-%m-%d %H:%M:%S")
-
+class SaveData(BaseModel):
+    creator_id: str
+    question_number: list[int]
+    selected_answer: list[str]
+    duration: int
 class UserRequest(BaseModel):
     user: str
 
@@ -89,3 +93,4 @@ async def get_exam_duration_by_title(title: str):
         return {"duration": duration}
     except Exception as e:
         return {"error": str(e)}
+    

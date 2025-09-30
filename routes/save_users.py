@@ -4,6 +4,7 @@ from scripts.save_users import upload_users  # 使用匯入的 upload_users
 from scripts.userlogin import userlogin  # 使用匯入的 userlogin
 from scripts.view_all_users import view_all_users  # 使用匯入的 view_all_users
 from database import get_user_db  # 假設這是連接資料庫的函式
+from scripts.update_password import update_user_password
 
 router = APIRouter()
 
@@ -53,3 +54,15 @@ async def register_user(user: User):
         return {"message": "註冊成功"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"註冊過程中發生錯誤: {e}")
+
+
+@router.post("/update_password/")
+async def update_password(request: User):
+    try:
+        success = update_user_password(request.username, request.password)
+        if success:
+            return {"message": f"使用者 {request.username} 的密碼已更新"}
+        else:
+            raise HTTPException(status_code=404, detail=f"使用者 {request.username} 不存在")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"變更密碼過程中發生錯誤: {e}")

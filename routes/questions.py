@@ -15,6 +15,7 @@ from scripts.search_questions import search_questions
 from scripts.import_image import save_image_and_insert_path
 from scripts.view_image import get_image_path_by_question_id
 from scripts.aitest import evaluate_answer
+from scripts.update_question import update_question
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi import File, Form, UploadFile
 from io import BytesIO
@@ -244,6 +245,15 @@ def evaluate(req: EvalRequest):
         }
     except Exception as e:
         return {"error": str(e)}
+
+#更新以編輯題目
+@router.put("/update/{question_id}")
+def update(question_id: int, updated_data: QuestionData):
+    try:
+        update_question(question_id, updated_data.dict())
+        return JSONResponse(content={"message": "題目更新成功"})
+    except Exception as e:
+        return JSONResponse(content={"message": f"題目更新失敗: {str(e)}"}, status_code=400)
 
 #新增題目
 @router.post("/import-single-question")
