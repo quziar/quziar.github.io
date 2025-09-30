@@ -37,73 +37,178 @@ document.addEventListener("DOMContentLoaded", async function() {
     }
 });
 
-// ===================== 查看所有題目 =====================
+// ---------- Modal 元素 ----------
+const modal = document.createElement("div");
+modal.id = "editModal";
+modal.classList.add("modal");
 
-// 當點擊查看所有題目按鈕時，發送 GET 請求
+const modalContent = document.createElement("div");
+modalContent.classList.add("modal-content");
+modal.appendChild(modalContent);
+
+const closeModal = document.createElement("span");
+closeModal.id = "closeModal";
+closeModal.textContent = "×";
+modalContent.appendChild(closeModal);
+
+const editFrame = document.createElement("iframe");
+editFrame.id = "editFrame";
+modalContent.appendChild(editFrame);
+
+document.body.appendChild(modal);
+
+// 關閉 Modal
+closeModal.onclick = () => modal.style.display = "none";
+window.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+
+let currentPage = 1;
+const itemsPerPage = 10;
+let allQuestions = [];
+
 document.getElementById('viewAllBtn').addEventListener('click', function () {
-    // 顯示載入中的提示
-    document.getElementById('response').textContent = '正在載入題目...';
+    const questionList = document.getElementById('questionList');
+    const responseText = document.getElementById('response');
 
-    fetch('/api/questions/view_all_questions/') // 注意：這裡需要與 FastAPI 路由一致
-        .then(response => response.json())
-        .then(data => {
-            const questionList = document.getElementById('questionList');
-            questionList.innerHTML = ''; // 清空現有題目
+    if (questionList.style.display === 'none' || questionList.style.display === '') {
+        responseText.textContent = '正在載入題目...';
+        questionList.style.display = 'block';
 
-            if (data.questions && data.questions.length === 0) {
-                questionList.innerHTML = '<p>目前沒有題目</p>';
-            } else {
-                // 顯示從後端獲取的題目
-                data.questions.forEach(question => {
-                    const div = document.createElement('div');
-                    div.classList.add('question-item');
-
-                    // 添加勾選框
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.classList.add('question-checkbox');
-                    checkbox.value = question.id;
-
-                    // 顯示科目、年度、類別
-                    div.innerHTML = `
-                        <strong>科目：</strong> ${question.subject || '無科目'}<br>
-                        <strong>年度：</strong> ${question.year || '無年度'}<br>
-                        <strong>類別：</strong> ${question.category || '無類別'}<br><br>
-                    `;
-
-                    // 將勾選框插入到題目內容前
-                    div.prepend(checkbox);
-
-                    // 顯示題目的 ID 和問題內容
-                    div.innerHTML += `
-                        <strong>ID:</strong> ${question.id}<br>
-                        <strong>問題：</strong> ${question.question_text || '無題目'}<br>
-                    `;
-
-                    // 顯示選項
-                    const optionsDiv = document.createElement('div');
-                    optionsDiv.classList.add('answer-options');
-                    optionsDiv.innerHTML = `
-                        <span><strong>A:</strong> ${question.option_a || '無選項'}</span><br>
-                        <span><strong>B:</strong> ${question.option_b || '無選項'}</span><br>
-                        <span><strong>C:</strong> ${question.option_c || '無選項'}</span><br>
-                        <span><strong>D:</strong> ${question.option_d || '無選項'}</span><br>
-                    `;
-                    div.appendChild(optionsDiv);
-
-                    // 顯示正確答案
-                    div.innerHTML += `<br><strong>解答：</strong> ${question.correct_answer || '無解答'}`;
-
-                    questionList.appendChild(div);
-                });
-            }
-            document.getElementById('response').textContent = ''; // 清除載入提示
-        })
-        .catch(error => {
-            document.getElementById('response').textContent = '無法載入題目，請稍後再試。';
-            console.error('Error:', error);
-        });
+        fetch('/api/questions/view_all_questions/')
+            .then(response => response.json())
+            .then(data => {
+                allQuestions = data.questions || [];
+                currentPage = 1;
+                renderPage();
+                responseText.textContent = '';
+            })
+            .catch(error => {
+                responseText.textContent = '無法載入題目，請稍後再試。';
+                console.error('Error:', error);
+            });
+    } else {
+        questionList.style.display = 'none';
+    }
 });
+
+// 渲染指定頁數
+function renderPage() {
+    const questionList = document.getElementById('questionList');
+    questionList.innerHTML = '';
+
+    if (allQuestions.length === 0) {
+        questionList.innerHTML = '<p>目前沒有題目</p>';
+        return;
+    }
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, allQuestions.length);
+    const pageQuestions = allQuestions.slice(startIndex, endIndex);
+
+    pageQuestions.forEach(question => {
+        const div = document.createElement('div');
+        div.classList.add('question-item');
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.classList.add('question-checkbox');
+        checkbox.value = question.id;
+
+        const answerOptions = document.createElement('div');
+        answerOptions.classList.add('answer-options');
+        answerOptions.style.display = 'none';
+        answerOptions.innerHTML = `
+            <span><strong>A:</strong> ${question.option_a || '無選項'}</span><br>
+            <span><strong>B:</strong> ${question.option_b || '無選項'}</span><br>
+            <span><strong>C:</strong> ${question.option_c || '無選項'}</span><br>
+            <span><strong>D:</strong> ${question.option_d || '無選項'}</span><br>
+        `;
+
+        const metadata = document.createElement('div');
+        metadata.classList.add('metadata');
+        metadata.style.display = 'none';
+        metadata.innerHTML = `
+            <strong>ID:</strong> ${question.id}<br>
+            <strong>年度：</strong> ${question.year || '無年度'}<br>
+            <strong>科目：</strong> ${question.subject || '無科目'}<br>
+            <strong>類別：</strong> ${question.category || '無類別'}<br>
+        `;
+
+        const correctAnswer = document.createElement('div');
+        correctAnswer.classList.add('correct-answer');
+        correctAnswer.style.display = 'none';
+        correctAnswer.innerHTML = `<strong>解答：</strong> ${question.correct_answer || '無解答'}`;
+
+        const questionText = document.createElement('div');
+        questionText.innerHTML = `<strong>問題：</strong> ${question.question_text || '無題目'}<br>`;
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '編輯';
+        editBtn.classList.add('edit-btn');
+        editBtn.addEventListener('click', function () {
+            editFrame.src = `/edit/${question.id}`;
+            modal.style.display = 'flex';
+        });
+
+        const toggleDetailsBtn = document.createElement('button');
+        toggleDetailsBtn.textContent = '顯示詳細';
+        toggleDetailsBtn.classList.add('toggle-details-btn');
+        toggleDetailsBtn.addEventListener('click', function () {
+            const isVisible = answerOptions.style.display !== 'none';
+            answerOptions.style.display = isVisible ? 'none' : 'block';
+            metadata.style.display = isVisible ? 'none' : 'block';
+            correctAnswer.style.display = isVisible ? 'none' : 'block';
+            toggleDetailsBtn.textContent = isVisible ? '顯示詳細' : '隱藏詳細';
+        });
+
+        div.appendChild(checkbox);
+        div.appendChild(questionText);
+        div.appendChild(answerOptions);
+        div.appendChild(metadata);
+        div.appendChild(correctAnswer);
+        div.appendChild(editBtn);
+        div.appendChild(toggleDetailsBtn);
+
+        questionList.appendChild(div);
+    });
+
+    renderPagination();
+}
+
+// 分頁按鈕
+function renderPagination() {
+    const questionList = document.getElementById('questionList');
+
+    const paginationDiv = document.createElement('div');
+    paginationDiv.classList.add('pagination');
+
+    const totalPages = Math.ceil(allQuestions.length / itemsPerPage);
+
+    const prevBtn = document.createElement('button');
+    prevBtn.textContent = '上一頁';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderPage();
+        }
+    });
+
+    const nextBtn = document.createElement('button');
+    nextBtn.textContent = '下一頁';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderPage();
+        }
+    });
+
+    paginationDiv.appendChild(prevBtn);
+    paginationDiv.appendChild(document.createTextNode(` 第 ${currentPage} 頁 / 共 ${totalPages} 頁 `));
+    paginationDiv.appendChild(nextBtn);
+
+    questionList.appendChild(paginationDiv);
+}
 
 
 // ===================== 匯入題目 =====================
@@ -429,74 +534,171 @@ document.getElementById('compareQuestionsBtn').addEventListener('click', functio
         });
 });
 
-// ===================== 顯示根據關鍵字過濾的題目 =====================
-document.getElementById('filterByCategoryBtn').addEventListener('click', function() {
+function searchQuestionsByKeyword(keyword) {
+    // 移除頭尾空白並轉換為大寫以統一比較
+    keyword = keyword.trim().toUpperCase();
+
+    // 使用正則表達式解析關鍵字 (支援 AND, OR, NOT)
+    const andParts = keyword.split(/\s+AND\s+/);
+    let orParts = [];
+    let notParts = [];
+
+    andParts.forEach(part => {
+        if (part.includes(" OR ")) {
+            orParts.push(...part.split(/\s+OR\s+/));
+        } else if (part.startsWith("NOT ")) {
+            notParts.push(part.replace("NOT ", ""));
+        } else {
+            orParts.push(part);
+        }
+    });
+
+    return questions.filter(question => {
+        let questionText = question.question.toUpperCase();
+
+        // 確保 AND 條件全部匹配
+        if (andParts.length > 1 && !andParts.every(term => questionText.includes(term))) {
+            return false;
+        }
+
+        // 確保 OR 條件至少匹配一個
+        if (orParts.length > 0 && !orParts.some(term => questionText.includes(term))) {
+            return false;
+        }
+
+        // 確保 NOT 條件都不匹配
+        if (notParts.some(term => questionText.includes(term))) {
+            return false;
+        }
+
+        return true;
+    });
+}
+
+
+// ===================== 關鍵字 =====================
+document.getElementById('filterByCategoryBtn').addEventListener('click', function () {
     const selectedCategory = document.getElementById('categoryInput').value.trim();
 
-    // 檢查是否有輸入關鍵字
     if (!selectedCategory) {
         document.getElementById('response').textContent = '請輸入一個關鍵字！';
         return;
     }
 
-    // 顯示載入中的提示
     document.getElementById('response').textContent = '正在載入題目...';
 
-    fetch(`/api/questions/view_all_questions/`)  // 獲取所有題目
+    fetch('/api/questions/view_all_questions/')
         .then(response => response.json())
         .then(data => {
             const questionList = document.getElementById('questionList');
-            questionList.innerHTML = '';  // 清空現有題目
+            questionList.innerHTML = '';
 
-            // 篩選出符合關鍵字的題目
-            const filteredQuestions = data.questions.filter(question => 
-                (String(question.subject).includes(selectedCategory)) ||
-                (String(question.year).includes(selectedCategory)) ||
-                (String(question.category).includes(selectedCategory)) ||
-                (String(question.id).includes(selectedCategory)) ||
-                (String(question.question_text).includes(selectedCategory)) ||
-                (String(question.option_a).includes(selectedCategory)) ||
-                (String(question.option_b).includes(selectedCategory)) ||
-                (String(question.option_c).includes(selectedCategory)) ||
-                (String(question.option_d).includes(selectedCategory)) ||
-                (String(question.correct_answer).includes(selectedCategory))
-            );
-            
+           const filteredQuestions = data.questions.filter(question =>
+           matchesKeyword(question, selectedCategory)
+);
 
             if (filteredQuestions.length === 0) {
                 questionList.innerHTML = `<p>未找到符合關鍵字「${selectedCategory}」的題目。</p>`;
             } else {
-                // 顯示符合條件的題目
                 filteredQuestions.forEach(question => {
                     const div = document.createElement('div');
                     div.classList.add('question-item');
 
-                    div.innerHTML = `
-                        <strong>科目：</strong> ${question.subject || '無科目'}<br>
-                        <strong>年度：</strong> ${question.year || '無年度'}<br>
-                        <strong>類別：</strong> ${question.category || '無類別'}<br><br>
-                        <strong>ID:</strong> ${question.id}<br>
-                        <strong>問題：</strong> ${question.question_text || '無題目'}<br>
-                        <div class="answer-options">
-                            <span><strong>A:</strong> ${question.option_a || '無選項'}</span><br>
-                            <span><strong>B:</strong> ${question.option_b || '無選項'}</span><br>
-                            <span><strong>C:</strong> ${question.option_c || '無選項'}</span><br>
-                            <span><strong>D:</strong> ${question.option_d || '無選項'}</span><br>
-                        </div>
-                        <br><strong>解答：</strong> ${question.correct_answer || '無解答'}
-                    `;
+                    // 建立 checkbox
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.classList.add('question-checkbox');
+                    checkbox.value = question.id;
+                    div.appendChild(checkbox);
 
+                    // 顯示基本資訊
+                    div.appendChild(document.createTextNode(`科目：${question.subject || '無科目'}`));
+                    div.appendChild(document.createElement('br'));
+
+                    div.appendChild(document.createTextNode(`年度：${question.year || '無年度'}`));
+                    div.appendChild(document.createElement('br'));
+
+                    div.appendChild(document.createTextNode(`類別：${question.category || '無類別'}`));
+                    div.appendChild(document.createElement('br'));
+                    div.appendChild(document.createElement('br'));
+
+                    div.appendChild(document.createTextNode(`ID: ${question.id}`));
+                    div.appendChild(document.createElement('br'));
+
+                    div.appendChild(document.createTextNode(`問題：${question.question_text || '無題目'}`));
+                    div.appendChild(document.createElement('br'));
+
+                    // 建立選項區塊
+                    const optionsDiv = document.createElement('div');
+                    optionsDiv.classList.add('answer-options');
+                    optionsDiv.innerHTML = `
+                        <span><strong>A:</strong> ${question.option_a || '無選項'}</span><br>
+                        <span><strong>B:</strong> ${question.option_b || '無選項'}</span><br>
+                        <span><strong>C:</strong> ${question.option_c || '無選項'}</span><br>
+                        <span><strong>D:</strong> ${question.option_d || '無選項'}</span><br>
+                    `;
+                    div.appendChild(optionsDiv);
+
+                    div.appendChild(document.createElement('br'));
                     questionList.appendChild(div);
                 });
             }
 
-            document.getElementById('response').textContent = '';  // 清除載入提示
+            document.getElementById('response').textContent = '';
         })
         .catch(error => {
             document.getElementById('response').textContent = '無法載入題目，請稍後再試。';
             console.error('Error:', error);
         });
 });
+
+function matchesKeyword(question, keyword) {
+  const keywordUpper = keyword.trim().toUpperCase();
+  const andParts = keywordUpper.split(/\s+AND\s+/);
+  let orParts = [];
+  let notParts = [];
+
+  andParts.forEach(part => {
+    if (part.includes(" OR ")) {
+      orParts.push(...part.split(/\s+OR\s+/));
+    } else if (part.startsWith("NOT ")) {
+      notParts.push(part.replace("NOT ", "").trim());
+    } else {
+      orParts.push(part.trim());
+    }
+  });
+
+  const searchable = [
+    question.subject,
+    question.year,
+    question.category,
+    question.id,
+    question.question_text,
+    question.option_a,
+    question.option_b,
+    question.option_c,
+    question.option_d,
+    question.correct_answer
+  ].map(v => String(v).toUpperCase()).join(" ");
+
+  if (andParts.length > 1 && !andParts.every(term => searchable.includes(term.trim()))) return false;
+  if (orParts.length > 0 && !orParts.some(term => searchable.includes(term.trim()))) return false;
+  if (notParts.some(term => searchable.includes(term.trim()))) return false;
+
+  question._matched_terms = [...andParts, ...orParts]; // ✨ 用於高亮
+  return true;
+}
+
+function highlightKeyword(text, keywords) {
+  if (!text) return '';
+  const terms = keywords.map(term => term.trim()).filter(t => t);
+  let result = String(text);
+  terms.forEach(term => {
+    const regex = new RegExp(`(${term})`, 'gi');
+    result = result.replace(regex, '<mark>$1</mark>');
+  });
+  return result;
+}
 
 // 清除ID
 async function logout() {
@@ -536,96 +738,7 @@ async function logoutFunction() {
 // 綁定事件到按鈕
 document.getElementById("login-link").addEventListener("click", logoutFunction);
 
-// ===================== 生成考卷 ===================== 
-document.getElementById('copytest').addEventListener('click', async function () {
-    const button = this;
-    const responseDiv = document.getElementById('response');
-    responseDiv.textContent = '正在生成考卷，請稍候...';
 
-    button.disabled = true;
-    button.textContent = "生成中...";
-
-    // 取得選中的題目 ID 列表
-    const selectedQuestions = Array.from(document.querySelectorAll('.question-checkbox:checked'))
-                                   .map(checkbox => parseInt(checkbox.value));
-
-    if (selectedQuestions.length === 0) {
-        responseDiv.textContent = '請先勾選至少一個題目！';
-        button.disabled = false;
-        button.textContent = "生成考卷";
-        return;
-    }
-
-    // 顯示提示視窗讓使用者輸入考試標題
-    const examTitle = prompt('請輸入考試標題：');
-    if (!examTitle || examTitle.trim() === "") {
-        responseDiv.textContent = '請輸入有效的考試標題！';
-        button.disabled = false;
-        button.textContent = "生成考卷";
-        return;
-    }
-
-    // 取得當前時間 +8 小時並格式化
-    const now = new Date();
-    now.setHours(now.getHours() + 8);
-    now.setSeconds(0);
-    const defaultStartTime = now.toISOString().slice(0, 19).replace('T', ' ');
-
-    // 使用者輸入考試時間（本地時間），我們會轉成 ISO 格式
-    const startTimeInput = prompt('請輸入開始考試時間 (YYYY-MM-DD HH:mm:ss)，預設為當前時間：', defaultStartTime);
-    let startTime = startTimeInput ;
-
-    // 顯示提示讓使用者輸入作答時間（秒）
-    const durationInput = prompt('請輸入作答時間（秒），預設為 3600 秒（一小時）：', '3600');
-    let duration = durationInput ? parseInt(durationInput) : 3600;
-
-    // 取得當前使用者 ID
-    let currentUser = await getCurrentUser();
-    if (!currentUser) {
-        responseDiv.textContent = '請先登入再生成考卷！';
-        button.disabled = false;
-        button.textContent = "生成考卷";
-        return;
-    }
-
-    console.log('傳送的資料:', JSON.stringify({
-        creator_id: currentUser,
-        selectedQuestions: selectedQuestions,
-        title: examTitle,
-        start_time: startTime,
-        duration: duration
-    }));
-
-    try {
-        const response = await fetch('/api/exam/generate-exam', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                creator_id: currentUser,
-                selectedQuestions: selectedQuestions,
-                title: examTitle,
-                start_time: startTime,
-                duration: duration
-            })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            console.log('考卷生成成功:', result);
-            responseDiv.textContent = `考卷「${examTitle}」生成成功！`;
-        } else {
-            responseDiv.textContent = `生成考卷失敗: ${result.detail}`;
-        }
-
-    } catch (error) {
-        console.error('請求錯誤:', error);
-        responseDiv.textContent = '發生錯誤，請稍後再試！';
-    } finally {
-        button.disabled = false;
-        button.textContent = "生成考卷";
-    }
-});
 
 // ===================== 查看考卷 ===================== 
 document.getElementById('viewteat').addEventListener('click', async function () {
@@ -645,11 +758,27 @@ document.getElementById('viewteat').addEventListener('click', async function () 
             const questionList = document.getElementById('questionList');
             questionList.innerHTML = ''; // 清空現有資料
 
-            if (!data.exams || data.exams.length === 0) {
-                questionList.innerHTML = '<p>目前沒有考卷。</p>';
-                document.getElementById('response').textContent = '';
-                return;
-            }
+        if (!data.exams || data.exams.length === 0) {
+            questionList.innerHTML = '<p>目前沒有考卷。</p>';
+            document.getElementById('response').textContent = '';
+            return;
+        }
+
+        // ✅ 排序：建立時間由新到舊
+        data.exams.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+        // 顯示每份考卷的標題與建立時間
+        data.exams.forEach(exam => {
+            const div = document.createElement('div');
+            div.classList.add('exam-item');
+            div.style.marginBottom = '1.5em';
+
+            const title = document.createElement('p');
+            title.innerHTML = `<strong>標題：</strong> ${exam.title}<br><strong>建立時間：</strong> ${exam.created_at}<br><strong>開考時間：</strong> ${exam.start_time}`;
+            
+            // ...（以下略，維持原邏輯）
+        });
+
 
             // 顯示每份考卷的標題與建立時間
             data.exams.forEach(exam => {
@@ -797,6 +926,7 @@ async function booklink(currentUser) {
         }
 
         const resultData = await response.json();
+
         if (!resultData.history || resultData.history.length === 0) {
             alert("您目前沒有測驗歷史紀錄！");
             return;
@@ -813,7 +943,7 @@ async function booklink(currentUser) {
             const selectedAnswers = result.selected_answer.map(a => a.selectedAnswer);
             const totalQuestions = questionIds.length;
 
-            // 建立 details 陣列
+            // 建立 details 結構
             const details = questionIds.map((qId, i) => ({
                 questionNumber: qId,
                 selectedAnswer: selectedAnswers[i] || null
@@ -829,6 +959,7 @@ async function booklink(currentUser) {
                 });
 
                 if (!ansRes.ok) throw new Error("伺服器回應錯誤");
+
                 const ansData = await ansRes.json();
                 ans = ansData.ans || [];
             } catch (error) {
@@ -850,13 +981,17 @@ async function booklink(currentUser) {
             questions.forEach((q, i) => {
                 const selectedAnswer = details[i].selectedAnswer;
                 const correctAnswer = ans[i]?.gh || null;
-                if (selectedAnswer === correctAnswer) score++;
-                else incorrectCount++;
+
+                if (selectedAnswer === correctAnswer) {
+                    score++;
+                } else {
+                    incorrectCount++;
+                }
             });
 
             const scorePercentage = ((score / totalQuestions) * 100).toFixed(2);
 
-            // 組合 HTML 區塊
+            // 組合 HTML 顯示
             historyHtml += `
                 <div>
                     <h4>測驗日期：${result.date}</h4>
@@ -912,7 +1047,7 @@ async function booklink(currentUser) {
             `;
         }
 
-        // 顯示 popup 視窗
+        // 顯示在 popup 視窗中
         document.getElementById("popup-window").style.display = "block";
         document.getElementById("popup-title").textContent = "歷史紀錄";
         document.getElementById("popup-body").innerHTML = historyHtml;
@@ -921,7 +1056,7 @@ async function booklink(currentUser) {
         console.error("獲取歷史紀錄時發生錯誤：", error);
         alert("無法獲取歷史紀錄，請稍後再試！");
     }
-}
+};
 
 // 匯出 PDF 功能（自動讀取 TTF 字體）
 function exportToPDF(index, date, score, incorrectCount) {
@@ -1218,4 +1353,199 @@ document.getElementById('year-input').addEventListener('keypress', function(even
 });
 document.getElementById('question-count-input').addEventListener('keypress', function(event) {
     handleKeyPress(event, 'question-count');
+});
+
+
+// 控制批改區是否顯示
+let gradingVisible = false;
+
+// 點擊按鈕切換批改區顯示與隱藏
+document.getElementById("gradingAreaBtn").addEventListener("click", () => {
+    gradingVisible = !gradingVisible; // 切換狀態
+
+    // 根據狀態顯示或隱藏
+    document.getElementById("grading-area").style.display = gradingVisible ? "block" : "none";
+
+    // 若顯示時，自動載入該學生的批改資料
+    if (gradingVisible) {
+        const studentId = document.getElementById("studentIdInput").value.trim();
+        if (studentId) loadGrading(studentId);
+    }
+});
+
+// 提交批改資料
+document.getElementById("submitGradingBtn").addEventListener("click", () => {
+    const studentId = document.getElementById("studentIdInput").value.trim();
+    const score = document.getElementById("scoreInput").value;
+    const comment = document.getElementById("commentInput").value;
+
+    if (!studentId || score === "" || comment === "") {
+        alert("⚠️ 請填寫完整資料！");
+        return;
+    }
+
+    const data = { studentId, score, comment };
+
+    fetch("/api/grading", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(res => {
+        if (res.ok) {
+            alert("✅ 批改資料已儲存！");
+        } else {
+            alert("❌ 儲存失敗，請稍後再試！");
+        }
+    })
+    .catch(err => {
+        console.error("送出錯誤：", err);
+        alert("⚠️ 伺服器錯誤！");
+    });
+});
+
+// 讀取已存在的批改資料（可在點擊查詢或顯示時自動載入）
+function loadGrading(studentId) {
+    fetch(`/api/grading/${studentId}`)
+        .then(res => {
+            if (!res.ok) throw new Error("查無資料");
+            return res.json();
+        })
+        .then(data => {
+            document.getElementById("scoreInput").value = data.score;
+            document.getElementById("commentInput").value = data.comment;
+        })
+        .catch(() => {
+            console.log("❔ 尚無批改紀錄");
+            document.getElementById("scoreInput").value = "";
+            document.getElementById("commentInput").value = "";
+        });
+}
+
+// 格式化台灣時間為 YYYY-MM-DD HH:mm:ss
+function formatTaipeiTime(dateString) {
+    const taipeiDate = new Date(dateString);
+    const options = {
+        timeZone: 'Asia/Taipei',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+    const parts = new Intl.DateTimeFormat('zh-TW', options).formatToParts(taipeiDate);
+    const map = Object.fromEntries(parts.map(p => [p.type, p.value]));
+    return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}:${map.second}`;
+}
+
+// 生成考卷
+document.getElementById('copytest').addEventListener('click', async function () {
+    const button = this;
+    const responseDiv = document.getElementById('response');
+    responseDiv.textContent = '請填寫考試資訊...';
+    button.disabled = true;
+
+    // 設定預設開始時間為當前時間 +8 小時
+    const now = new Date();
+    now.setHours(now.getHours() + 8);
+    now.setSeconds(0);
+    now.setMilliseconds(0);
+    const defaultStartTime = now.toISOString().slice(0, 16); // datetime-local 格式
+    document.getElementById('startTimeInput').value = defaultStartTime;
+    document.getElementById('examModal').style.display = 'block';
+
+    document.getElementById('confirmExam').onclick = async function () {
+        const examTitle = document.getElementById('examTitleInput').value.trim();
+        const startTimeRaw = document.getElementById('startTimeInput').value;
+        const durationMinutes = parseInt(document.getElementById('durationInput').value) || 60;
+
+        if (!examTitle) {
+            responseDiv.textContent = '請輸入有效的考試標題！';
+            button.disabled = false;
+            return;
+        }
+
+        const selectedQuestions = Array.from(document.querySelectorAll('.question-checkbox:checked'))
+                                       .map(checkbox => parseInt(checkbox.value));
+        if (selectedQuestions.length === 0) {
+            responseDiv.textContent = '請先勾選至少一個題目！';
+            button.disabled = false;
+            return;
+        }
+
+        // 將開始時間轉成台灣時間格式
+        const startTimeFormatted = formatTaipeiTime(startTimeRaw);
+        const duration = durationMinutes * 60;
+
+        let currentUser = await getCurrentUser();
+        if (!currentUser) {
+            responseDiv.textContent = '請先登入再生成考卷！';
+            button.disabled = false;
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/exam/generate-exam', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    creator_id: currentUser,
+                    selectedQuestions,
+                    title: examTitle,
+                    start_time: startTimeFormatted,
+                    duration: duration
+                })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                responseDiv.textContent = `考卷「${examTitle}」生成成功！開始時間（台灣時間）：${startTimeFormatted}`;
+            } else {
+                responseDiv.textContent = `生成考卷失敗: ${result.detail}`;
+            }
+        } catch (error) {
+            console.error('請求錯誤:', error);
+            responseDiv.textContent = '發生錯誤，請稍後再試！';
+        } finally {
+            button.disabled = false;
+            document.getElementById('examModal').style.display = 'none';
+        }
+    };
+});
+
+// ===================== 新增學生 =====================
+document.getElementById("addstudent").addEventListener("click", async function() {
+
+    const newUsernameInput = prompt('請輸入學生名');
+    let newUsername = newUsernameInput ;
+
+    const newPasswordInput = prompt('請輸入密碼');
+    let newPassword = newPasswordInput ;
+
+    let newidentities ="學生"
+    
+    try {
+        // 向 FastAPI 發送註冊請求
+        const response = await fetch("/api/save_users/register/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ username: newUsername, password: newPassword, identities: newidentities})
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert(data.message); // 顯示註冊成功訊息
+        } else {
+            const errorData = await response.json();
+            alert(errorData.detail || "註冊失敗");
+        }
+    } catch (error) {
+        alert("發生錯誤，請稍後再試！");
+        console.error(error);
+    }
+    
 });

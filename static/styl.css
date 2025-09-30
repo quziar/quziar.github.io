@@ -1,0 +1,292 @@
+body {
+  margin: 0;
+  font-family: "Microsoft JhengHei", Arial, sans-serif;
+  background: #f5f5f5;
+}
+
+
+header {
+  display: flex;                 
+  align-items: center;           
+  justify-content: space-between;
+  background-color: #3b5998;     
+  color: white;                  
+  padding: 20px;               
+  position: sticky;            
+  top: 0;                        
+  z-index: 1000;             
+  font-size: 25px;              
+}
+
+.header-left, .header-right {
+  display: flex;                 
+  align-items: center;          
+  gap: 15px;                     
+}
+
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 30px;
+  font-weight: bold;
+}
+
+
+
+a {
+  color: white;
+  text-decoration: none;
+}
+
+.hamburger {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* 主內容 */
+main {
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.fake-h2 {
+  all: unset;
+  display: block;
+  font-size: 1.5em;        
+  font-weight: bold;
+  margin: 0.83em auto;  /* 🔑 自動水平外距 */
+  cursor: default;
+  text-align: center;
+  width: fit-content;   /* 內容寬度自適應，才能用 margin auto 置中 */
+}
+
+/* 按鈕區塊 */
+.button-container {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+button {
+  width: 120px;
+  height: 50px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+button.practice {
+  background-color: #4CAF50;
+  color: white;
+}
+button.practice:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+button.exam {
+  background-color: #2196F3;
+  color: white;
+}
+button.exam:hover {
+  background-color: #1976D2;
+  transform: scale(1.05);
+}
+
+
+/* 通用按鈕樣式 */
+button.vs-btn {
+  position: relative;
+  border: none;
+  padding: 15px 40px;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%); /* 斜角造型 */
+}
+
+button.vs-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+}
+
+/* 綠色練習 */
+button.practice {
+  background: linear-gradient(135deg, #4CAF50 50%, #45a049 50%);
+}
+
+/* 藍色考試 */
+button.exam {
+  background: linear-gradient(135deg, #2196F3 50%, #1976D2 50%);
+}
+/* 歷史紀錄 */
+
+/* 帳號選單容器 */
+.account-menu {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+/* 預設只顯示主選項 */
+#main-account-link {
+    font-size: 25px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+/* 下拉選單樣式 */
+#account-dropdown {
+    display: none;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    min-width: 120px;
+    z-index: 1000;
+}
+
+/* 下拉內的連結 */
+#account-dropdown a {
+    display: block;
+    padding: 14px 20px; 
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+#account-dropdown a:hover {
+    background-color: #f4f4f4;
+}
+
+/* 歷史卡片 */
+.history-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    padding: 20px;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+/* 卡片內的按鈕區 */
+.history-actions {
+    margin-top: 10px;
+}
+
+/* 統一按鈕樣式 */
+.history-card .btn {
+    background: #4a148c;   /* 紫色 */
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    margin-right: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.history-card .btn:hover {
+    background: #6a1b9a;  /* hover 深一點 */
+}
+
+/* 詳細內容表格 */
+.history-card table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.history-card th, 
+.history-card td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+}
+.history-item {
+    margin-bottom: 20px;
+}
+
+.history-item hr {
+    margin: 20px 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+}
+/* 通用按鈕基礎樣式（可放在 site css） */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: background-color 0.15s ease, transform 0.06s ease;
+}
+
+/* 針對 history area 的藍色按鈕（優先於一般 .btn） */
+#questionList .btn.btn-blue,
+.history-card .btn.btn-blue,
+.history-item .btn.btn-blue {
+    background-color: #4d19d2; /* 主要藍色（可以改色碼） */
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(25, 118, 210, 0.18);
+}
+
+/* hover / active / focus */
+#questionList .btn.btn-blue:hover,
+.history-card .btn.btn-blue:hover,
+.history-item .btn.btn-blue:hover {
+    background-color: #15c020; /* 深一點的藍 */
+    transform: translateY(-1px);
+}
+#questionList .btn.btn-blue:active,
+.history-card .btn.btn-blue:active,
+.history-item .btn.btn-blue:active {
+    transform: translateY(0);
+}
+#questionList .btn.btn-blue:focus,
+.history-card .btn.btn-blue:focus,
+.history-item .btn.btn-blue:focus {
+    outline: 3px solid rgba(25, 118, 210, 0.18);
+    outline-offset: 2px;
+}
+
+/* 若你的舊樣式擋住了上述設定（例如 .history-card .btn { background: #4a148c }），
+   可改用 !important 強制覆蓋（僅當必要時使用） */
+#questionList .btn.btn-blue {
+    /* background-color: #1976d2 !important; */
+}
+/* 歷史紀錄表格框線樣式 */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;  /* 邊框合併 */
+    color: black;
+    font-size: 14px;
+}
+
+.history-table th,
+.history-table td {
+    border: 1px solid #000;     /* 每個格子都有框線 */
+    padding: 8px;
+    vertical-align: top;        /* 文字靠上 */
+}
+
+/* 表頭加粗 & 灰底 */
+.history-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    text-align: center;
+}

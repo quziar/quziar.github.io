@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>躲避彈幕遊戲</title>
+<style>
+  body { margin:0; overflow:hidden; background:#000; color:#fff; font-family:Arial, sans-serif; user-select:none; }
+  #time { position:absolute; top:10px; left:10px; font-size:24px; }
+  #startBtn { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); padding:15px 30px; font-size:20px; cursor:pointer; }
+  .player { width:20px; height:20px; background:#0f0; border-radius:50%; position:absolute; pointer-events:none; }
+  .bullet { position:absolute; transform-origin:center center; }
+  .redSquare { width:25px; height:25px; background:red; }
+  .bluePlane { width:0; height:0; border-left:12px solid transparent; border-right:12px solid transparent; border-bottom:20px solid blue; position:absolute; }
+  .whiteBullet { width:20px; height:20px; background:white; border-radius:50%; position:absolute; }
+  .explosion { position:absolute; width:200px; height:200px; border-radius:50%; background:radial-gradient(circle, orange, red, transparent); pointer-events:none; opacity:0.8; }
+  .repulse { position:absolute; width:200px; height:200px; border-radius:50%; border:2px solid cyan; pointer-events:none; opacity:0.5; }
+  .chaos { position:absolute; width:200px; height:200px; border-radius:50%; border:2px solid magenta; pointer-events:none; opacity:0.5; }
+  .warningLine, .orangeLine { position:absolute; left:0; width:100%; pointer-events:none; }
+  .warningLine { background:red; height:4px; opacity:0.8; animation: blink 0.5s infinite alternate; }
+  .orangeLine { background:orange; height:2px; transition: all 3s linear; }
+  @keyframes blink { 0%{opacity:0;} 100%{opacity:0.8;} }
+</style>
+</head>
+<body>
+<div id="time">時間: 0 秒</div>
+<button id="startBtn">開始遊戲</button>
+<div id="player" class="player"></div>
+
+<script>
+const player = document.getElementById('player');
+const timeDisplay = document.getElementById('time');
+const startBtn = document.getElementById('startBtn');
+let bullets = [], explosions = [], repulses = [], chaosFields = [];
+let orangeLines = [];
+let startTime, timeInterval, gameInterval, bulletInterval, orangeInterval;
+let isGameOver = false;
+
+const ROTATION_SPEED = 3;
+const EXPLOSION_SIZE = 200;
+
+document.addEventListener('mousemove', e => {
+  if(!isGameOver){
+    player.style.left = e.clientX - player.offsetWidth/2 + 'px';
+    player.style.top = e.clientY - player.offsetHeight/2 + 'px';
+  }
+});
+
+function createBullet(){
+  const bullet = document.createElement('div');
+  bullet.classList.add('bullet');
+  const typeRand = Math.random();
+  let speed, sizeX, sizeY;
+  if(typeRand<0.1){ bullet.classList.add('redSquare'); speed=2; sizeX=25; sizeY=25; }
+  else if(typeRand<0.9){ bullet.classList.add('bluePlane'); speed=4; sizeX=20; sizeY=16; }
+  else{ bullet.classList.add('whiteBullet'); speed=2; sizeX=16; sizeY=16; bullet.dataset.visible='true'; bullet.dataset.lastChange=Date.now(); bullet.dataset.originalColor='white'; }
+
+  const edge = Math.floor(Math.random()*4);
+  let posX,posY;
+  switch(edge){
+    case 0: posX=Math.random()*window.innerWidth; posY=-sizeY; break;
+    case 1: posX=window.innerWidth; posY=Math.random()*window.innerHeight; break;
+    case 2: posX=Math.random()*window.innerWidth; posY=window.innerHeight; break;
+    case 3: posX=-sizeX; posY=Math.random()*window.innerHeight; break;
+  }
+  bullet.style.left=posX+'px'; bullet.style.top=posY+'px';
+
+  const playerX=player.offsetLeft+player.offsetWidth/2;
+  const playerY=player.offsetTop+player.offsetHeight/2;
+  const dx = playerX - (posX+sizeX/2);
+  const dy = playerY - (posY+sizeY/2);
+  const distance=Math.sqrt(dx*dx+dy*dy);
+  bullet.dataset.vx = (dx/distance)*speed;
+  bullet.dataset.vy = (dy/distance)*speed;
+  const angle = Math.atan2(dy,dx)*180/Math.PI;
+  bullet.dataset.angle = angle;
+  bullet.style.transform=`rotate(${angle}deg)`;
+  document.body.appendChild(bullet);
+  bullets.push(bullet);
+}
+
+function createExplosion(x,y){
+  const exp=document.createElement('div');
+  exp.classList.add('explosion');
+  exp.style.width=EXPLOSION_SIZE+'px';
+  exp.style.height=EXPLOSION_SIZE+'px';
+  exp.style.left=x-EXPLOSION_SIZE/2+'px';
+  exp.style.top=y-EXPLOSION_SIZE/2+'px';
+  document.body.appendChild(exp);
+  explosions.push({el:exp, life:30});
+}
+
+function createRepulse(x,y){
+  const rep = document.createElement('div');
+  rep.classList.add('repulse');
+  rep.style.left = x-EXPLOSION_SIZE/2+'px';
+  rep.style.top = y-EXPLOSION_SIZE/2+'px';
+  document.body.appendChild(rep);
+  repulses.push({el:rep, life:60, x:x, y:y});
+}
+
+function createChaos(x,y){
+  const ch = document.createElement('div');
+  ch.classList.add('chaos');
+  ch.style.left = x-EXPLOSION_SIZE/2+'px';
+  ch.style.top = y-EXPLOSION_SIZE/2+'px';
+  document.body.appendChild(ch);
+  chaosFields.push({el:ch, life:30, x:x, y:y});
+}
+
+let orangeTimeouts = [];
+
+function createOrangeLine() {
+  const yPos = Math.random() * window.innerHeight;
+
+  // 警告線
+  const warn = document.createElement('div');
+  warn.classList.add('warningLine');
+  warn.style.top = yPos + 'px';
+  document.body.appendChild(warn);
+
+  // 延遲生成橘線
+  orangeTimeouts.push(setTimeout(() => {
+    warn.remove();
+
+    const line = document.createElement('div');
+    line.classList.add('orangeLine');
+    line.style.position = 'absolute';
+    line.style.left = '0px';
+    line.style.width = '100%';
+    line.style.height = '2px';
+    line.style.top = (yPos - 1) + 'px';
+    line.style.background = 'orange';
+    document.body.appendChild(line);
+    orangeLines.push(line);
+
+    // 向上下加粗
+    orangeTimeouts.push(setTimeout(() => {
+      line.style.height = '120px';
+      line.style.top = (yPos - 60) + 'px';
+    }, 10));
+
+    // 縮回
+    orangeTimeouts.push(setTimeout(() => {
+      line.style.height = '2px';
+      line.style.top = (yPos - 1) + 'px';
+      orangeTimeouts.push(setTimeout(() => {
+        line.remove();
+        orangeLines.splice(orangeLines.indexOf(line), 1);
+      }, 2000));
+    }, 5000));
+
+  }, 3000));
+}
+
+let orangeIntervalTime = 32000;
+function scheduleOrange(){
+  orangeIntervalTime -= 4000;
+  if (orangeIntervalTime < 8000) orangeIntervalTime = 8000;
+
+  orangeInterval=setInterval(createOrangeLine,orangeIntervalTime);
+}
+
+function updateWhiteBullets(b){
+  if(!b.classList.contains('whiteBullet')) return;
+  const now = Date.now();
+  const elapsed = now - b.dataset.lastChange;
+  if(b.dataset.visible==='true' && elapsed>=2000){ b.style.backgroundColor='black'; b.dataset.visible='false'; b.dataset.lastChange=now; }
+  else if(b.dataset.visible==='false' && elapsed>=1000){ b.style.backgroundColor='white'; b.dataset.visible='true'; b.dataset.lastChange=now; }
+}
+
+function moveBullets(){
+  bullets.forEach((b,i)=>{
+    let vx=parseFloat(b.dataset.vx), vy=parseFloat(b.dataset.vy);
+    b.style.left=b.offsetLeft+vx+'px';
+    b.style.top=b.offsetTop+vy+'px';
+
+    if(b.classList.contains('redSquare')||b.classList.contains('bluePlane')){
+      let angle=parseFloat(b.dataset.angle);
+      angle+=ROTATION_SPEED;
+      b.dataset.angle=angle;
+      b.style.transform=`rotate(${angle}deg)`;
+    }
+
+    updateWhiteBullets(b);
+
+    const bulletCenterX=b.offsetLeft+(b.offsetWidth||10)/2;
+    const bulletCenterY=b.offsetTop+(b.offsetHeight||10)/2;
+    const playerCenterX=player.offsetLeft+player.offsetWidth/2;
+    const playerCenterY=player.offsetTop+player.offsetHeight/2;
+    const dx=bulletCenterX-playerCenterX;
+    const dy=bulletCenterY-playerCenterY;
+    const distance=Math.sqrt(dx*dx+dy*dy);
+    const radius=(b.offsetWidth||20)/2+player.offsetWidth/2;
+    if(distance<radius) endGame();
+
+    // 紅色碰撞爆炸
+    if(b.classList.contains('redSquare')){
+      for(let j=bullets.length-1;j>=0;j--){
+        const other=bullets[j];
+        if(other!==b && other.classList.contains('redSquare')){
+          const ox=other.offsetLeft+other.offsetWidth/2;
+          const oy=other.offsetTop+other.offsetHeight/2;
+          const d=Math.sqrt((bulletCenterX-ox)**2+(bulletCenterY-oy)**2);
+          if(d<25){
+            createExplosion((bulletCenterX+ox)/2,(bulletCenterY+oy)/2);
+            if(b.parentNode)b.parentNode.removeChild(b);
+            if(other.parentNode)other.parentNode.removeChild(other);
+            bullets.splice(i,1); bullets.splice(j>i?j-1:j,1); return;
+          }
+        }
+      }
+    }
+
+    // 藍色碰撞斥力
+    if(b.classList.contains('bluePlane')){
+      for(let j=bullets.length-1;j>=0;j--){
+        const other=bullets[j];
+        if(other!==b && other.classList.contains('bluePlane')){
+          const ox=other.offsetLeft+other.offsetWidth/2;
+          const oy=other.offsetTop+other.offsetHeight/2;
+          const d=Math.sqrt((bulletCenterX-ox)**2+(bulletCenterY-oy)**2);
+          if(d<20){ 
+            createRepulse((bulletCenterX+ox)/2,(bulletCenterY+oy)/2);
+            if(b.parentNode)b.parentNode.removeChild(b);
+            if(other.parentNode)other.parentNode.removeChild(other);
+            bullets.splice(i,1); bullets.splice(j>i?j-1:j,1); return;
+          }
+        }
+      }
+    }
+
+    // 白色碰撞混沌
+    if(b.classList.contains('whiteBullet')){
+      for(let j=bullets.length-1;j>=0;j--){
+        const other=bullets[j];
+        if(other!==b && other.classList.contains('whiteBullet')){
+          const ox=other.offsetLeft+other.offsetWidth/2;
+          const oy=other.offsetTop+other.offsetHeight/2;
+          const d=Math.sqrt((bulletCenterX-ox)**2+(bulletCenterY-oy)**2);
+          if(d<20){
+            createChaos((bulletCenterX+ox)/2,(bulletCenterY+oy)/2);
+            if(b.parentNode)b.parentNode.removeChild(b);
+            if(other.parentNode)other.parentNode.removeChild(other);
+            bullets.splice(i,1); bullets.splice(j>i?j-1:j,1); return;
+          }
+        }
+      }
+    }
+
+    if(b.offsetTop<-100 || b.offsetTop>window.innerHeight+100 || b.offsetLeft<-100 || b.offsetLeft>window.innerWidth+100){
+      if(b.parentNode)b.parentNode.removeChild(b);
+      bullets.splice(i,1);
+    }
+
+    // 斥力場影響
+    repulses.forEach(rep=>{
+      const bx = b.offsetLeft + (b.offsetWidth||10)/2;
+      const by = b.offsetTop + (b.offsetHeight||10)/2;
+      const dx = bx - rep.x;
+      const dy = by - rep.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if(dist < EXPLOSION_SIZE/2){ 
+        const speed = Math.sqrt(vx*vx + vy*vy);
+        const ux = dx/dist;
+        const uy = dy/dist;
+        b.dataset.vx = ux*speed;
+        b.dataset.vy = uy*speed;
+      }
+    });
+
+    // 混沌場影響
+    chaosFields.forEach(ch=>{
+      const bx = b.offsetLeft + (b.offsetWidth||10)/2;
+      const by = b.offsetTop + (b.offsetHeight||10)/2;
+      const dx = bx - ch.x;
+      const dy = by - ch.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if(dist < EXPLOSION_SIZE/2){
+        if(!b.dataset.changing){ 
+          b.dataset.changing='true';
+          const originalColor = b.dataset.originalColor || 'white';
+          b.style.backgroundColor='black';
+          setTimeout(()=>{ b.style.backgroundColor=originalColor; b.dataset.changing=''; },1000);
+        }
+      }
+    });
+
+    b.dataset.vx = parseFloat(b.dataset.vx);
+    b.dataset.vy = parseFloat(b.dataset.vy);
+  });
+
+  // 更新斥力場
+  repulses.forEach((rep,i)=>{
+    rep.life--;
+    if(rep.life<=0){ 
+      if(rep.el.parentNode) rep.el.parentNode.removeChild(rep.el); 
+      repulses.splice(i,1);
+    }
+  });
+
+  // 更新混沌場
+  chaosFields.forEach((ch,i)=>{
+    ch.life--;
+    if(ch.life<=0){ 
+      if(ch.el.parentNode) ch.el.parentNode.removeChild(ch.el);
+      chaosFields.splice(i,1);
+    }
+  });
+
+  // 更新爆炸
+  explosions.forEach((exp,i)=>{
+    exp.life--;
+    exp.el.style.opacity=exp.life/30;
+    const expX=exp.el.offsetLeft+EXPLOSION_SIZE/2;
+    const expY=exp.el.offsetTop+EXPLOSION_SIZE/2;
+    const dx=expX-(player.offsetLeft+player.offsetWidth/2);
+    const dy=expY-(player.offsetTop+player.offsetHeight/2);
+    if(Math.sqrt(dx*dx+dy*dy)<EXPLOSION_SIZE/2) endGame();
+    if(exp.life<=0){ if(exp.el.parentNode)exp.el.parentNode.removeChild(exp.el); explosions.splice(i,1);}
+  });
+
+  // 檢查橘線碰撞玩家
+  orangeLines.forEach(line => {
+    const lineRect = line.getBoundingClientRect();
+    const playerRect = player.getBoundingClientRect();
+
+    const isOverlap = !(
+      playerRect.right < lineRect.left ||
+      playerRect.left > lineRect.right ||
+      playerRect.bottom < lineRect.top ||
+      playerRect.top > lineRect.bottom
+    );
+
+    if (isOverlap) endGame();
+  });
+  }
+
+let bulletSpeed = 500; // 初始間隔（ms）
+let minBulletSpeed = 100; // 最小間隔
+let bulletAcceleration = 1; // 每次生成減少的間隔（ms）
+
+function spawnBullet() {
+  createBullet();
+
+  // 調整間隔，不能低於最小值
+  bulletSpeed -= bulletAcceleration;
+  if (bulletSpeed < minBulletSpeed) bulletSpeed = minBulletSpeed;
+
+  console.log(bulletSpeed);
+
+  // 遞歸調用下一次生成
+  bulletInterval = setTimeout(spawnBullet, bulletSpeed);
+}
+
+function startGame(){
+  isGameOver=false;
+  startBtn.style.display='none';
+  bullets.forEach(b=>b.remove()); bullets=[];
+  explosions.forEach(e=>e.el.remove()); explosions=[];
+  repulses.forEach(r=>r.el.remove()); repulses=[];
+  chaosFields.forEach(c=>c.el.remove()); chaosFields=[];
+  orangeLines.forEach(l=>l.remove()); orangeLines=[];
+  startTime=Date.now();
+  timeDisplay.textContent='時間: 0 秒';
+  timeInterval=setInterval(()=>{timeDisplay.textContent='時間: '+Math.floor((Date.now()-startTime)/1000)+' 秒';},100);
+  bulletSpeed = 500;
+  spawnBullet(); 
+  gameInterval=setInterval(moveBullets,16);
+  scheduleOrange();
+}
+
+function endGame() {
+  if (!isGameOver) {
+    isGameOver = true;
+
+    // 停止所有 interval
+    clearInterval(timeInterval);
+    clearInterval(gameInterval);
+    clearInterval(bulletInterval);
+    clearInterval(orangeInterval);
+
+    // 清除所有橘線
+    orangeLines.forEach(line => {
+      if (line.parentNode) line.parentNode.removeChild(line);
+    });
+    orangeLines = [];
+
+    // 清除所有警告線
+    const warnings = document.querySelectorAll('.warningLine');
+    warnings.forEach(w => w.remove());
+
+    // 清除所有 setTimeout
+    orangeTimeouts.forEach(id => clearTimeout(id));
+    orangeTimeouts = [];
+    
+    orangeIntervalTime = 32000;
+
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    alert('遊戲結束！你存活了: ' + elapsed + ' 秒');
+    startBtn.style.display = 'block';
+  }
+}
+
+startBtn.addEventListener('click',startGame);
+</script>
+</body>
+</html>

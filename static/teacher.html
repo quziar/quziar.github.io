@@ -36,8 +36,18 @@
         <button id="exportExcelBtn">📊 下載 Excel</button>
         <button id="copytest">生成考卷</button>
         <button id="viewteat">查看考卷</button>
+        <button id="addstudent">新增學生</button>
         <button id="viewUsersBtn">學生列表</button>
+        <button id="gradingAreaBtn">📝 老師批改區</button>
     </div>
+<div id="grading-area" style="display: none;">
+    <h2>📝 老師批改區</h2>
+    學生 ID：<input type="text" id="studentIdInput"><br>
+    分數：<input type="number" id="scoreInput"><br>
+    評語：<textarea id="commentInput"></textarea><br>
+    <button id="submitGradingBtn">📤 提交批改</button>
+</div>
+
 
     <!-- 刪除題目區域 -->
     <div class="delete-question-container">
@@ -54,8 +64,10 @@
  <!-- 類別輸入框 -->
 <label for="categoryInput">輸入關鍵字：</label>
 <input type="text" id="categoryInput" placeholder="請輸入關鍵字">
-
 <button id="filterByCategoryBtn">搜尋題目</button>
+
+<div id="response"></div>
+
 
 <div>
 <div id="container">
@@ -80,7 +92,7 @@
 
             <input type="text" id="category-input" onkeypress="handleKeyPress(event)" placeholder="手動輸入類別" style="display: none;">
             <select id="category" onchange="toggleInputField('category')">
-                <option value="">類別</option>
+                <option value="">考試類別</option>
                 <option value="全部">全部</option>
                 <option value="自行輸入">自行輸入</option>
                 <option value="普考">普考</option>
@@ -153,6 +165,20 @@
 
             <button id="filter-search-button">隨機生成考卷</button>
     </div>
+
+<div id="examModal" style="display:none;">
+  <label>考試標題：</label>
+  <input type="text" id="examTitleInput"><br>
+
+  <label>開始時間：</label>
+  <input type="datetime-local" id="startTimeInput"><br>
+
+  <label>作答時間（分鐘）：</label>
+  <input type="number" id="durationInput" value="60"><br>
+
+  <button id="confirmExam">確認生成</button>
+</div>
+
 <!-- 顯示題目的區域 -->
 <div id="filteredQuestionList"></div>   
     <div id="response"></div>

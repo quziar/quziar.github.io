@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         break;
                     case "學生":
                         await login(username);
-                        window.location.replace("/static/student.html");
+                        window.location.replace("/static/styl.html");
                         break;
                     default:
                         alert("身份不明，請聯繫系統管理員！");

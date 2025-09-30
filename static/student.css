@@ -134,7 +134,7 @@ h2, p {
     color: white;
 }
 
-/* === 控制按鈕樣式（統一設計） === */
+/* 全域樣式 */
 button {
     background-color: #3b198d;
     color: white;
@@ -147,6 +147,18 @@ button {
     font-size: 16px;
     transition: background-color 0.3s ease;
 }
+
+/* 搜尋按鈕個別微調 */
+#filterByCategoryBtn {
+    padding: 6px 12px;
+    margin-left: 8px;
+    background-color: #110e57;
+}
+
+#filterByCategoryBtn:hover {
+    background-color: #bd610b;
+}
+
 
 button:hover {
     background-color: #45a049;
@@ -309,6 +321,8 @@ select:focus, input[type="text"]:focus {
     flex: 1 1 auto;
 }
 
+
+
 /* 強調考卷選單的外觀 */
 #exam {
     padding: 0.5rem;
@@ -382,9 +396,7 @@ select {
 
 /* === 返回與登入連結 === */
 #back-link,
-#book-link,
-#register-link,
-#login-link {
+#book-link {
     position: absolute;
     top: 20px;
     text-decoration: none;
@@ -395,12 +407,8 @@ select {
 
 #back-link { left: 20px; }
 #book-link { left: 100px; }
-#register-link { right: 100px; }
-#login-link { right: 20px; }
 
-#back-link:hover,
-#register-link:hover,
-#login-link:hover {
+#back-link:hover{
     text-decoration: underline;
 }
 
@@ -442,5 +450,79 @@ select {
 #popup-content ul li:last-child {
     border-bottom: none;
 }
+/* 題目與使用者列表容器 */
+#questionList {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background-color: white;
+    text-align: left;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 卡片效果 */
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-x: auto; /* 避免溢出 */
+}
 
+/* 響應式設計，適配小螢幕 */
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.5rem; /* 小螢幕縮小標題 */
+    }
 
+    .button-container {
+        flex-direction: column; /* 按鈕垂直排列 */
+    }
+
+    #questionList {
+        padding: 10px; /* 小螢幕減少間距 */
+    }
+
+    button {
+        width: 100%; /* 按鈕填滿寬度 */
+    }
+}
+
+/* 帳號選單容器 */
+.account-menu {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+/* 預設只顯示主選項 */
+#main-account-link {
+    font-size: 25px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+/* 下拉選單樣式 */
+#account-dropdown {
+    display: none;
+    position: absolute;
+    top: 35px;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    min-width: 120px;
+    z-index: 1000;
+}
+
+/* 下拉內的連結 */
+#account-dropdown a {
+    display: block;
+    padding: 14px 20px; 
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+#account-dropdown a:hover {
+    background-color: #f4f4f4;
+}

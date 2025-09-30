@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>題庫系統</title>
+  <!-- 引入外部 CSS -->
+  <link rel="stylesheet" href="styl.css">
+</head>
+<body>
+  <!-- 標題列 -->
+  <header>
+    <div class="header-left">
+      <a href="#" id="back-link">返回</a>
+      <a href="#" id="history-link">歷史紀錄</a>
+    </div>
+    <div class="header-center">題庫系統</div>
+  <!-- 帳號選單 -->
+  <div class="account-menu">
+    <a href="#" id="main-account-link" style="display: inline-flex; align-items: center; gap: 4px; text-decoration: none; color: rgb(253, 251, 251);">
+      <svg width="24" height="24" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 4 H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M3 10 H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M3 16 H17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </a>
+
+    <div class="dropdown" id="account-dropdown">
+      <a href="#" id="register-link">註冊</a>
+      <a href="#" id="class-link">班級資訊</a>
+      <a href="#" id="login-link">登出</a>
+    </div>
+  </div>
+  </header>
+
+  <!-- 主內容 -->
+ <main>
+  <button id="secretBtn" class="fake-h2">請問您要做甚麼？</button>
+  <div class="vs-container">
+    <button class="practice" onclick="choose('自主練習')">自主練習</button>
+    <span class="vs-line"></span>
+    <button class="exam" onclick="choose('考試')">考試</button>
+  </div>
+    <!-- 歷史紀錄顯示區 -->
+    <div id="questionList"></div>
+</main>
+
+  
+
+  <!-- 引入外部 JS -->
+  <script src="styl.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</body>
+</html>

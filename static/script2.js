@@ -134,6 +134,8 @@ document.getElementById('viewAllBtn').addEventListener('click', function() {
                     // 顯示正確答案
                     div.innerHTML += `<br><strong>解答：</strong> ${question.correct_answer || '無解答'}`;
 
+                    div.innerHTML += `<br><strong>所屬：</strong> ${question.public_private}`;
+
                     questionList.appendChild(div);
                 });
             }
@@ -248,6 +250,7 @@ document.getElementById('viewUsersBtn').addEventListener('click', function() {
                         <strong>ID:</strong> ${user.id} <br>
                         <strong>帳號:</strong> ${user.username} <br>
                         <strong>身份:</strong> ${user.identities} <br>
+                        <strong>班級:</strong> ${user.class || "無"} <br>
                         <hr>
                     `;
                     questionList.appendChild(div);
@@ -591,11 +594,69 @@ document.getElementById("upload-form").addEventListener("click", async function(
     }
 });
 
+// ===================== 查看所有存檔 =====================
+document.getElementById('checkSaveBtn').addEventListener('click', function() {
+    const responseEl = document.getElementById('response');
+    const questionList = document.getElementById('questionList');
+
+    responseEl.textContent = '正在載入已有存檔...';
+    questionList.innerHTML = '';
+
+    fetch('/api/SL/view_all_save/')
+        .then(response => response.json())
+        .then(data => {
+            if (!data.save || data.save.length === 0) {
+                questionList.innerHTML = '<p>目前沒有任何存檔</p>';
+                return;
+            }
+
+            data.save.forEach(save => {
+                const div = document.createElement('div');
+                div.classList.add('question-item');
+
+                let answers = [];
+
+                // 1. 嘗試解析字串 JSON
+                if (typeof save.selected_answer === 'string') {
+                    try {
+                        answers = JSON.parse(save.selected_answer);
+                    } catch (err) {
+                        // 如果解析失敗，就用逗號分隔字串
+                        answers = save.selected_answer.split(',');
+                    }
+                } else if (Array.isArray(save.selected_answer)) {
+                    answers = save.selected_answer;
+                }
+
+                // 2. 處理每題答案，空白顯示「無作答」
+                const answersWithIndex = answers.map((ans, idx) => {
+                    const displayAns = ans && ans.trim() !== '' ? ans : '無作答';
+                    return `第${idx + 1}題: ${displayAns}`;
+                });
+
+                // 3. 每題換行
+                div.innerHTML = `
+                    <strong>學生名：</strong> ${save.username || '訪客'}<br>
+                    <strong>答案：</strong><br> ${answersWithIndex.join('<br>')}<br>
+                    <strong>結束時間：</strong> ${save.endtime || '無結束時間'}<br><br>
+                `;
+
+                questionList.appendChild(div);
+            });
+
+            responseEl.textContent = '';
+        })
+        .catch(error => {
+            responseEl.textContent = '無法載入題目，請稍後再試。';
+            console.error('Error:', error);
+        });
+});
+
 
 //過渡用程式
 document.getElementById("abcd").addEventListener("click", async function() {
-    let newUsername = "bob"
-    let newPassword = "990706"
+    let newUsername = "b"
+    let newPassword = "123456"
     let newidentities ="學生"
     
     try {
