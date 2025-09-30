@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-image: url('home.PNG');
+    background-image: url('home.png');
     background-size: cover;   /* 保持比例，完整顯示 */
     background-position: center;
     background-repeat: no-repeat;
