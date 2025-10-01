@@ -548,6 +548,7 @@ async function endQuiz() {
 function returnToHome() {
     // 隱藏測驗結束畫面
     document.getElementById('score-container').style.display = 'none';
+    document.getElementById("question-container").style.display = "none";
 
     // 顯示主畫面
     document.getElementById('container').style.display = 'none'; // 隱藏測驗畫面

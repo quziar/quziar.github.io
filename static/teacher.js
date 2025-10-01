@@ -183,33 +183,66 @@ function renderPagination() {
 
     const totalPages = Math.ceil(allQuestions.length / itemsPerPage);
 
+    // 上一頁按鈕
     const prevBtn = document.createElement('button');
     prevBtn.textContent = '上一頁';
-    prevBtn.disabled = currentPage === 1;
     prevBtn.addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            renderPage();
-        }
+        currentPage = currentPage > 1 ? currentPage - 1 : totalPages;
+        renderPage();
     });
 
+    // 下一頁按鈕
     const nextBtn = document.createElement('button');
     nextBtn.textContent = '下一頁';
-    nextBtn.disabled = currentPage === totalPages;
     nextBtn.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-            currentPage++;
+        currentPage = currentPage < totalPages ? currentPage + 1 : 1;
+        renderPage();
+    });
+
+    // 頁數顯示
+    const pageInfo = document.createElement('span');
+    pageInfo.textContent = ` 第 ${currentPage} 頁 / 共 ${totalPages} 頁 `;
+
+    // 搜尋頁數輸入框
+    const pageInput = document.createElement('input');
+    pageInput.type = 'number';
+    pageInput.min = 1;
+    pageInput.max = totalPages;
+    pageInput.placeholder = '跳至頁數';
+    pageInput.style.width = '80px';
+
+    // 跳轉邏輯（共用）
+    const jumpToPage = () => {
+        const page = parseInt(pageInput.value);
+        if (!isNaN(page) && page >= 1 && page <= totalPages) {
+            currentPage = page;
             renderPage();
+        } else {
+            alert(`請輸入 1 到 ${totalPages} 的頁碼`);
+        }
+    };
+
+    // 跳轉按鈕
+    const goBtn = document.createElement('button');
+    goBtn.textContent = '跳轉';
+    goBtn.addEventListener('click', jumpToPage);
+
+    // Enter 鍵觸發跳轉
+    pageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            jumpToPage();
         }
     });
 
+    // 組合元素
     paginationDiv.appendChild(prevBtn);
-    paginationDiv.appendChild(document.createTextNode(` 第 ${currentPage} 頁 / 共 ${totalPages} 頁 `));
+    paginationDiv.appendChild(pageInfo);
     paginationDiv.appendChild(nextBtn);
+    paginationDiv.appendChild(pageInput);
+    paginationDiv.appendChild(goBtn);
 
     questionList.appendChild(paginationDiv);
 }
-
 
 // ===================== 匯入題目 =====================
 
@@ -438,7 +471,7 @@ document.getElementById('imageBtn').addEventListener('click', function() {
     };
 });
 
-// ===================== 比對相似題目 =====================
+/* ===================== 比對相似題目 =====================
 document.getElementById('compareQuestionsBtn').addEventListener('click', function() {
     // 顯示載入中的提示
     document.getElementById('response').textContent = '正在比對題目...';
@@ -574,7 +607,7 @@ function searchQuestionsByKeyword(keyword) {
         return true;
     });
 }
-
+*/
 
 // ===================== 關鍵字 =====================
 document.getElementById('filterByCategoryBtn').addEventListener('click', function () {
@@ -1355,73 +1388,6 @@ document.getElementById('question-count-input').addEventListener('keypress', fun
     handleKeyPress(event, 'question-count');
 });
 
-
-// 控制批改區是否顯示
-let gradingVisible = false;
-
-// 點擊按鈕切換批改區顯示與隱藏
-document.getElementById("gradingAreaBtn").addEventListener("click", () => {
-    gradingVisible = !gradingVisible; // 切換狀態
-
-    // 根據狀態顯示或隱藏
-    document.getElementById("grading-area").style.display = gradingVisible ? "block" : "none";
-
-    // 若顯示時，自動載入該學生的批改資料
-    if (gradingVisible) {
-        const studentId = document.getElementById("studentIdInput").value.trim();
-        if (studentId) loadGrading(studentId);
-    }
-});
-
-// 提交批改資料
-document.getElementById("submitGradingBtn").addEventListener("click", () => {
-    const studentId = document.getElementById("studentIdInput").value.trim();
-    const score = document.getElementById("scoreInput").value;
-    const comment = document.getElementById("commentInput").value;
-
-    if (!studentId || score === "" || comment === "") {
-        alert("⚠️ 請填寫完整資料！");
-        return;
-    }
-
-    const data = { studentId, score, comment };
-
-    fetch("/api/grading", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    })
-    .then(res => {
-        if (res.ok) {
-            alert("✅ 批改資料已儲存！");
-        } else {
-            alert("❌ 儲存失敗，請稍後再試！");
-        }
-    })
-    .catch(err => {
-        console.error("送出錯誤：", err);
-        alert("⚠️ 伺服器錯誤！");
-    });
-});
-
-// 讀取已存在的批改資料（可在點擊查詢或顯示時自動載入）
-function loadGrading(studentId) {
-    fetch(`/api/grading/${studentId}`)
-        .then(res => {
-            if (!res.ok) throw new Error("查無資料");
-            return res.json();
-        })
-        .then(data => {
-            document.getElementById("scoreInput").value = data.score;
-            document.getElementById("commentInput").value = data.comment;
-        })
-        .catch(() => {
-            console.log("❔ 尚無批改紀錄");
-            document.getElementById("scoreInput").value = "";
-            document.getElementById("commentInput").value = "";
-        });
-}
-
 // 格式化台灣時間為 YYYY-MM-DD HH:mm:ss
 function formatTaipeiTime(dateString) {
     const taipeiDate = new Date(dateString);
@@ -1519,12 +1485,28 @@ document.getElementById('copytest').addEventListener('click', async function () 
 document.getElementById("addstudent").addEventListener("click", async function() {
 
     const newUsernameInput = prompt('請輸入學生名');
-    let newUsername = newUsernameInput ;
+    if (newUsernameInput === null) {
+        // 按取消，直接結束函式
+        return;
+    }
+    let newUsername = newUsernameInput.trim();
+    if (newUsername === "") {
+        alert("學生名不可為空");
+        return;
+    }
 
     const newPasswordInput = prompt('請輸入密碼');
-    let newPassword = newPasswordInput ;
+    if (newPasswordInput === null) {
+        // 按取消，直接結束函式
+        return;
+    }
+    let newPassword = newPasswordInput.trim();
+    if (newPassword === "") {
+        alert("密碼不可為空");
+        return;
+    }
 
-    let newidentities ="學生"
+    let newidentities = "學生";
     
     try {
         // 向 FastAPI 發送註冊請求
@@ -1533,7 +1515,7 @@ document.getElementById("addstudent").addEventListener("click", async function()
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ username: newUsername, password: newPassword, identities: newidentities})
+            body: JSON.stringify({ username: newUsername, password: newPassword, identities: newidentities })
         });
 
         if (response.ok) {
