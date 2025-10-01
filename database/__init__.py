@@ -126,7 +126,6 @@ class DatabaseConnection:
                     created_at TIMESTAMP NOT NULL,
                     start_time TIMESTAMP NOT NULL,
                     duration INTEGER NOT NULL,
-                    whetherexam INTEGER NOT NULL DEFAULT 0,
                     FOREIGN KEY (creator_id) REFERENCES users (username)
                 )
             ''')
