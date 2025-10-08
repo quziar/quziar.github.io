@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>無限土地策略遊戲 v4</title>
+<link rel="stylesheet" href="game.css">
+<style>
+  /* 強制讓彈出視窗浮在最上層 */
+  #rulesModal {
+    display: none;
+    position: fixed;
+    z-index: 99999 !important;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+
+  #rulesContent {
+    background: #fff;
+    color: #000;
+    border-radius: 12px;
+    max-width: 600px;
+    max-height: 80vh;
+    margin: 5% auto;
+    padding: 20px 30px;
+    line-height: 1.6;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    font-size: 15px;
+    overflow-y: auto;
+  }
+
+  #closeRules {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  #showRulesBtn {
+    position: fixed;
+    bottom: 20px; right: 20px;
+    background: #222;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    z-index: 9999;
+  }
+
+  #showRulesBtn:hover {
+    background: #444;
+  }
+</style>
+</head>
+<body>
+
+<div id="topPanel">
+  <div>物資: <span id="resources">10</span></div>
+  <div>特殊物資: <span id="specialResources">0</span></div>
+  <div>兵力: <span id="army">0</span></div>
+</div>
+
+<div id="timers">
+  <div>下次產物資: <span id="produceTimer">5</span>s</div>
+  <div>下一事件: <span id="eventTimer">60</span>s</div>
+</div>
+
+<button id="pauseBtn">⏸ 暫停</button>
+<!-- 規則說明書按鈕 -->
+<button id="showRulesBtn">📜 規則說明</button>
+
+<!-- 彈出視窗內容 -->
+<div id="rulesModal">
+  <div id="rulesContent">
+    <span id="closeRules">&times;</span>
+    <h2>遊戲規則說明</h2>
+
+    <h3>基本規則：</h3>
+    <ul>
+      <li>每隔五秒，你將自動獲得 <b>物資、特殊物資與兵力</b>。這些資源可以用來購買或升級土地。</li>
+      <li>每隔一分鐘會觸發投資事件，有機會獲得額外五倍的物資，或者最壞情況是五倍負債 =)</li>
+      <li>土地資源：
+        <ul>
+          <li>平原：基礎物資 1 點</li>
+          <li>森林：基礎物資 1 點，但結算產量翻倍</li>
+          <li>河流：自身及周圍土地各增加 1 點基礎物資</li>
+        </ul>
+      </li>
+      <li>購買土地所需物資：
+        <ul>
+          <li>平原：10 點</li>
+          <li>森林：25 點</li>
+          <li>河流：10 點</li>
+          <li>山地：不可購買</li>
+        </ul>
+      </li>
+      <li>一般土地升級所需物資：
+        <ul>
+          <li>LV2：20 點</li>
+          <li>LV3：50 點</li>
+          <li>LV4：120 點</li>
+          <li>LV5：300 點</li>
+        </ul>
+      </li>
+      <li>LV5 土地可以生產 <b>1 點特殊物資</b>。</li>
+      <li>可使用 10 點特殊物資將 LV5 土地轉換為兵營。</li>
+      <li><b>兵營不會生產物資</b>，專注於兵力生產。</li>
+      <li>兵營最高等級為 LV5，升級每次需要 100 點物資和 20 點特殊物資。</li>
+      <li>兵營消耗物資生產兵力，消耗量依等級如下：
+        <ul>
+          <li>LV1：100 點</li>
+          <li>LV2：95 點</li>
+          <li>LV3：90 點</li>
+          <li>LV4：85 點</li>
+          <li>LV5：80 點</li>
+        </ul>
+      </li>
+      <li>兵營生產兵力量依等級如下：
+        <ul>
+          <li>LV1：5 點</li>
+          <li>LV2：10 點</li>
+          <li>LV3：10 點</li>
+          <li>LV4：15 點</li>
+          <li>LV5：15 點</li>
+        </ul>
+      </li>
+      <li>攻擊其他領地需要兵力：
+        <ul>
+          <li>一般土地：需要兵力 = 土地等級 × 10</li>
+          <li>兵營：需要兵力 = 建築等級 × 100</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h3>敵人特性：</h3>
+    <ul>
+      <li>紅色敵人:前期最弱的敵人，但是一旦讓它得到兵營，你就得品嘗它的無視距離核彈攻擊。</li>
+      <li>紫色敵人:擁有最高LV10的土地與建築，別讓他到後期，除非你想體驗無限兵力，在對面的那種。</li>
+      <li>亮綠色敵人：只會購買土地，是最弱的敵人。</li>
+      <li>黑色敵人：幾乎無法擊敗，不必花力氣對付它。</li>
+      <li>粉色敵人:如果資本家來到這遊戲，會發生什麼?會變粉色敵人。</li>
+      <li>橘色敵人:它直到你打贏其他顏色，他都不會有第二塊土地...什麼叫它能抗住紅色的核彈?</li>
+      <li>你可以使用暫停按鈕暫停遊戲...你問我為何寫在敵人特性裡?你點點看就知道了。</li>
+    </ul>
+  </div>
+</div>
+
+<div id="gridWrapper">
+  <div id="grid"></div>
+</div>
+
+<canvas id="minimap" width="200" height="200"></canvas>
+<div id="tooltip"></div>
+
+<script src="enemyAI.js"></script>
+<script src="enemy2AI.js"></script>
+<script src="enemy3AI.js"></script>
+<script src="enemy4AI.js"></script>
+<script src="enemy5AI.js"></script>
+<script src="enemy6AI.js"></script>
+<script src="game.js"></script>
+<script>
+  const modal = document.getElementById("rulesModal");
+  const btn = document.getElementById("showRulesBtn");
+  const close = document.getElementById("closeRules");
+
+  btn.onclick = () => {
+    modal.style.display = "block";
+  };
+
+  close.onclick = () => {
+    modal.style.display = "none";
+  };
+
+  window.onclick = (e) => {
+    if (e.target === modal) modal.style.display = "none";
+  };
+</script>
+</body>
+</html>

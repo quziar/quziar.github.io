@@ -1,0 +1,141 @@
+.cell { width:50px; height:50px; border:1px solid #999; display:flex; align-items:center; justify-content:center; position:absolute; font-size:12px; transition: all 0.2s; }
+@keyframes glow { 0% { box-shadow:0 0 10px gold;} 100% { box-shadow:0 0 20px gold;} }
+.forest { background-color:green; color:white; }
+.mountain { background-color:gray; color:white;}
+.river { background-color:deepskyblue; color:white; }
+.flash { animation: flashAnim 0.5s; }
+@keyframes flashAnim { 0%{background-color:yellow;}100%{background-color:inherit;} }
+#tooltip { position:fixed; background:rgba(0,0,0,0.8); color:white; padding:5px 8px; border-radius:5px; font-size:12px; display:none; pointer-events:none; z-index:20; }
+#minimap { position:fixed; top:5px; right:5px; width:200px; height:200px; border:1px solid #333; background:white; z-index:15; }
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#grid {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
+}
+
+.cell.barrack {
+  background-color: crimson;
+  color: white;
+  font-weight: bold;
+}
+
+.enemy {
+    background-color: darkred;
+    color: white;
+}
+.enemyBarrack {
+    background-color: red;
+    color: white;
+}
+.owned {
+    background-color: gold;
+}
+.barrack {
+    background-color: darkgreen;
+    color: white;
+}
+
+.altar {
+    background-color: darkviolet;
+    color: white;
+    font-weight: bold;
+}
+
+.enemy2 {
+    background-color: purple;
+    color: white;
+}
+.enemy2Barrack {
+    background-color: darkmagenta;
+    color: white;
+}
+
+.enemy3 {
+    background-color: lightgreen;
+    color: white;
+}
+
+.enemy4 {
+    background-color: black;
+    color: white;
+}
+.enemy4Barrack {
+    background-color: black;
+    color: white;
+}
+
+.enemy5 {
+    background-color: pink;
+    color: white;
+}
+.enemy5Barrack {
+    background-color: pink;
+    color: white;
+}
+.enemy5Altar {
+    background-color: pink;
+    color: white;
+}
+
+.enemy6 {
+    background-color: orange;
+    color: white;
+}
+.enemy6Barrack {
+    background-color: orange;
+    color: white;
+}
+
+#gridWrapper {
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    cursor: grab;
+    z-index: 1;
+}
+
+#topPanel {
+    position: fixed; 
+    top: 5px; 
+    left: 5px; 
+    background: rgba(255,255,255,0.9); 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    z-index: 100;
+}
+
+#timers {
+    position: fixed; 
+    top: 80px; 
+    left: 5px; 
+    background: rgba(255,255,255,0.9); 
+    padding: 5px 10px; 
+    border-radius: 5px; 
+    z-index: 100;
+}
+
+#pauseBtn {
+    position: fixed;
+    top: 150px;   /* 放在 timers 底下 */
+    left: 5px;
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: none;
+    background: orange;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 200; /* 比 timers 和 topPanel 更高 */
+}
