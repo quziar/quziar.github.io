@@ -42,6 +42,9 @@ REDIS_URL = "rediss://red-cvt7qth5pdvs739hg6o0:iD1SXjcwMKL5xyHgXBVa9FRBIbzFMytH@
 
 @app.on_event("startup")
 async def startup_event():
+    # Redis 初始化
+    app.state.redis = redis.StrictRedis.from_url(REDIS_URL)
+    
     # 啟動定期同步任務
     asyncio.create_task(sync_databases_periodically())
 
