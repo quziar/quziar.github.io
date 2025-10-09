@@ -3,11 +3,11 @@ function choose(option) {
     alert("您選擇了：" + option);
 
     if (option === "考試") {
-        window.location.href = '/static/exam.html';
+        window.location.replace(`/s/e`);
     } else if (option === "自主練習") {
-        window.location.href = '/static/practice.html';
+        window.location.replace(`/s/p`);
     } else {
-        window.location.href = '/static/home.html'; // 預設 fallback
+        window.location.replace(`/`);
     }
 }
 
@@ -322,29 +322,47 @@ function toggleDetails(index) {
 
 document.getElementById("class-link").addEventListener("click", function(event) {
     event.preventDefault(); // 阻止 # 預設跳轉
-    window.location.href = "/static/profiles.html";
+    window.location.replace(`/s/c`);
 });
 
-// ====================== login-link 點擊 ======================
-document.getElementById("login-link").addEventListener("click", async function(event) {
-    event.preventDefault(); // 阻止預設 # 跳轉
+// ====================== 登出 ======================
+// 清除ID
+async function logout() {
+    try {
+        const response = await fetch('/api/session/logout/', {
+            method: 'GET',
+        });
 
-    const currentUser = await getCurrentUser();
-
-    if (currentUser) {
-        // 已登入 → 顯示登出並跳到 home
-        const loginLink = document.getElementById("login-link");
-        loginLink.textContent = "登出";
-
-        // 這裡你可以同時呼叫登出 API，讓 session 清掉
-        // await fetch('/api/session/logout/', { method: 'POST', credentials: 'include' });
-
-        window.location.href = "/static/home.html";
-    } else {
-        // 未登入 → 去登入頁面
-        window.location.href = "/static/home.html";
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data.message); // 顯示登出訊息
+            return true; // 表示登出成功
+        } else {
+            console.error("登出失敗，伺服器回傳錯誤。");
+            return false;
+        }
+    } catch (error) {
+        console.error("登出過程中出錯：", error);
+        return false;
     }
-});
+}
+
+// 登出功能
+async function logoutFunction() {
+    const confirmLogout = window.confirm("確定要登出嗎？"); // 確認對話框
+    if (confirmLogout) {
+        const result = await logout(); // 等待登出完成
+        if (result) {
+            alert("已成功登出！");
+            window.location.replace(`/`);
+        } else {
+            alert("登出失敗，請稍後再試！");
+        }
+    }
+}
+
+// 綁定事件到按鈕
+document.getElementById("login-link").addEventListener("click", logoutFunction);
 
 let clickCount = 0;
 let timer;

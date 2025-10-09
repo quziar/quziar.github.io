@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>班級管理</title>
+  <link rel="stylesheet" href="/static/classroom.css">
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <button id="back-btn" class="btn back" title="返回上一頁">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24">
+          <path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        </svg>
+      </button>
+      <h1 id="className">班級名稱</h1>
+    </div>
+    <div class="class-actions">
+      <button id="deleteClassBtn" class="danger">刪除班級</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- 學生區 -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>學生</h2>
+        <div>
+          <button id="addStudentBtn">新增學生</button>
+        </div>
+      </div>
+      <ul id="studentList" class="list"></ul>
+    </section>
+
+    <!-- 考卷區 -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>考卷</h2>
+        <div>
+          <button id="addExamBtn">新增考卷</button>
+        </div>
+      </div>
+      <ul id="examList" class="list"></ul>
+    </section>
+  </main>
+
+  <script src="/static/classroom.js"></script>
+</body>
+</html>

@@ -131,7 +131,6 @@ function enemy4Produce() {
             if (cell.level === 5) enemy4Special += 1;
         }
     }
-    console.log("enemy4Resources:",enemy4Resources,"enemy4Special:",enemy4Special);
 }
 
 // ----------------- 升級土地 -----------------

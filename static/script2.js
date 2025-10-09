@@ -80,6 +80,27 @@ function showHackerAlert() {
     }, 5000);
 }
 
+(function() {
+    const wsProtocol = location.protocol === "https:" ? "wss" : "ws";
+    const ws = new WebSocket(`${wsProtocol}://${location.host}/ws/online`);
+
+    ws.onopen = () => console.log("✅ 已連線到 WebSocket 伺服器");
+
+    ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.online_users !== undefined) {
+        const countEl = document.getElementById("online-count");
+        countEl.textContent = data.online_users;
+        countEl.style.transform = "scale(1.3)";
+        setTimeout(() => (countEl.style.transform = "scale(1)"), 150);
+    }
+    };
+
+    ws.onclose = () => {
+    console.log("❌ WebSocket 已關閉，將在 3 秒後重連...");
+    setTimeout(() => location.reload(), 3000);
+    };
+})();
 
 
 
@@ -655,9 +676,9 @@ document.getElementById('checkSaveBtn').addEventListener('click', function() {
 
 //過渡用程式
 document.getElementById("abcd").addEventListener("click", async function() {
-    let newUsername = "b"
-    let newPassword = "123456"
-    let newidentities ="學生"
+    let newUsername = "t2"
+    let newPassword = "123"
+    let newidentities ="教授"
     
     try {
         // 向 FastAPI 發送註冊請求
@@ -711,7 +732,7 @@ async function logoutFunction() {
         const result = await logout(); // 等待登出完成
         if (result) {
             alert("已成功登出！");
-            window.location.href = "/static/home.html"; // 跳轉到首頁
+            window.location.replace(`/`);
         } else {
             alert("登出失敗，請稍後再試！");
         }

@@ -19,17 +19,28 @@ let currentUser = null;
 document.addEventListener("DOMContentLoaded", async function () {
   // 取得當前使用者
   currentUser = await getCurrentUser();
-  updateClassView();
 
   if (currentUser) {
     let logo = document.getElementById("logo");
     if (logo) logo.textContent = currentUser;
   }
-});
 
-//返回鍵
-document.getElementById("back-btn").addEventListener("click", () => {
-  window.location.replace(`/s`);
+  // 監聽班級面板顯示時更新內容
+  const panel = document.getElementById("panel-class");
+  if (panel) {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "class") {
+          if (!panel.classList.contains("hidden")) {
+            updateClassView();
+          }
+        }
+      });
+    });
+    observer.observe(panel, { attributes: true });
+  }
+
+  updateClassView();
 });
 
 // 切換「班級資訊」與「密碼管理」的分頁
@@ -51,6 +62,11 @@ function switchPanel(target) {
   document.getElementById(`panel-${target}`).classList.remove("hidden");
   document.getElementById(`tab-${target}`).classList.add("active");
 }
+
+//返回鍵
+document.getElementById("back-btn").addEventListener("click", () => {
+  window.location.replace(`/t`);
+});
 
 /* -------------------------------
    班級資訊區塊
@@ -90,7 +106,7 @@ async function updateClassView() {
           infoBtn.className = "class-info-btn";
           infoBtn.addEventListener("click", () => {
             const className = nameEl.textContent;
-            window.location.replace(``);
+            window.location.replace(`/t/c/${encodeURIComponent(className)}`);
           });
 
           wrapper.appendChild(nameEl);
@@ -110,6 +126,56 @@ async function updateClassView() {
     classView.textContent = "⚠️ 伺服器錯誤";
   }
 }
+
+// 切換至新增班級畫面
+document.getElementById("add-class-btn").addEventListener("click", () => {
+  document.querySelectorAll(".panel").forEach(p => p.classList.add("hidden"));
+
+  document.getElementById("panel-class-creat").classList.remove("hidden");
+
+  // 確保 tab 狀態正確
+  document.getElementById("tab-class").classList.add("active");
+  document.getElementById("tab-pass").classList.remove("active");
+});
+
+// 新增班級
+document.getElementById("create-class-btn").addEventListener("click", async () => {
+  const classInput = document.getElementById("new-class-name");
+  const newClass = classInput.value.trim();
+
+  if (!newClass) {
+    alert("請輸入班級名稱！");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/save_users/create_class/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: currentUser,
+        class_name: newClass
+      }),
+    });
+
+    if (response.ok) {
+      alert("班級創建成功！");
+      switchPanel("class");
+      updateClassView(); // ✅ 創建後刷新列表
+    } else {
+      const data = await response.json();
+      let msg = data.detail || response.statusText;
+      // 移除前綴
+      msg = msg.replace(/^伺服器錯誤: 400: /, "");
+      alert("創建班級失敗：" + msg);
+    }
+  } catch (err) {
+    console.error("創建班級錯誤：", err);
+    alert("創建班級發生錯誤，請檢查控制台");
+  }
+});
 
 /* -------------------------------
    密碼管理區塊
@@ -145,8 +211,7 @@ document.getElementById("change-pass").addEventListener("click", async () => {
     });
 
     if (!loginResp.ok) {
-      const errData = await loginResp.json();
-      showMessage("pass-msg","密碼錯誤 ❌", false);
+      showMessage("pass-msg", "密碼錯誤 ❌", false);
       return;
     }
 
@@ -182,8 +247,8 @@ function showMessage(id, text, success = true) {
   msgEl.classList.remove("hidden");
   msgEl.style.color = success ? "green" : "red";
 
-  // 3 秒後自動隱藏
+  // 5 秒後自動隱藏
   setTimeout(() => {
     msgEl.classList.add("hidden");
-  }, 3000);
+  }, 5000);
 }

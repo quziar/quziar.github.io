@@ -23,7 +23,6 @@ function enemy5Produce() {
             if (cell.level >= 5) enemy5Special += (cell.level-4);
         }
     }
-    console.log("enemy5Resources:",enemy5Resources,"enemy5Special:",enemy5Special);
 }
 
 // ----------------- 敵方5佔領 -----------------

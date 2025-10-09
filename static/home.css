@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-image: url('home.png');
+    background-image: url('home.PNG');
     background-size: cover;   /* 保持比例，完整顯示 */
     background-position: center;
     background-repeat: no-repeat;
@@ -56,4 +56,19 @@ form button {
 
 form button:hover {
     background-color: #45a049;
+}
+
+.forgot-pass {
+    text-align: left;
+    margin: 0px 0 10px 0;
+}
+
+.forgot-pass a {
+    font-size: 14px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.forgot-pass a:hover {
+    text-decoration: underline;
 }

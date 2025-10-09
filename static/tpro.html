@@ -7,9 +7,9 @@
   <link rel="stylesheet" href="/static/profiles.css">
 </head>
 <body>
-  <button id="back-btn" class="btn back">← 返回</button>
-
   <div class="wrap">
+    <button id="back-btn" class="btn back">← 返回上一頁</button>
+
     <aside class="sidebar" aria-label="側邊設定選單">
       <div class="brand">
         <div class="logo" id="logo">🧐</div>
@@ -28,17 +28,22 @@
     <main>
       <section class="panel" id="panel-class" role="region">
         <h2>班級資訊</h2>
-        <p class="lead">查看目前班級的基本資訊。</p>
+        <p class="lead">查看與編輯目前班級的基本資訊。</p>
+        <button id="add-class-btn">新增班級</button>
+        <div class="card">
+          <pre id="class-view" class="mono" style="white-space:pre-wrap;margin:0;color:var(--muted);">-- 尚無資料 --</pre>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="panel-class-creat" role="region">
+        <h2>創建班級</h2>
+        <p class="lead">請輸入創建班級的基本資訊。</p>
 
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-            <div>
-              <div style="font-weight:700">快速檢視</div>
-              <div class="muted">下方顯示當前儲存的班級資料</div>
-            </div>
-          </div>
+            <label for="new-class-name">班級名稱：</label>
+            <input type="text" id="new-class-name" placeholder="請輸入班級名稱" />
 
-          <pre id="class-view" class="mono" style="white-space:pre-wrap;margin:0;color:var(--muted);">-- 尚無資料 --</pre>
+            <button id="create-class-btn">創建班級</button>
         </div>
       </section>
 
@@ -71,6 +76,6 @@
       </section>
     </main>
   </div>
-  <script src="/static/profiles.js"></script>
+  <script src="/static/tpro.js"></script>
 </body>
 </html>

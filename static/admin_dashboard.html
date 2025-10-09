@@ -13,9 +13,7 @@
 <body>
 <!-- 小視窗 -->
 <div id="popup-window" style="display: none;">
-
     <div id="popup-content">
-
         <h3 id="popup-title">註冊 / 登入</h3>
         <div id="popup-body">
             <!-- 這裡會動態插入註冊或登入表單 -->
@@ -24,43 +22,50 @@
     </div>
 </div>
 
-    <h1>題庫管理員面板</h1>
-    <div class="goodbye">
-         <a href="#" id="login-link">登出</a>
+<h1>題庫管理員面板</h1>
 
-    </div>
-    <div class="button-container">
-        <button id="abcd">註冊</button>
-        <button id="importBtn">📄 匯入 Excel 題目</button>
-        <button id="viewAllBtn">🔍 查看所有題目</button>
-        <button id="viewUsersBtn">👤 查看所有使用者</button>
-        <button id="cleanDuplicatesBtn">🧹 強制整理題庫</button>
-        <button id="exportExcelBtn">📊 下載 Excel</button>
-        <button id="compareQuestionsBtn">🔎 比對相似題目</button>
-        <button id="checkSaveBtn">💾 存檔檢查</button>
-    </div>
+<div id="online-counter" class="online-counter">
+  <div class="glow-dot"></div>
+  <span class="label">在線人數</span>
+  <span class="count" id="online-count">0</span>
+</div>
 
-    <!-- 刪除題目區域 -->
-    <div class="delete-question-container">
-        <h3>特定題目處理</h3>
-        <label for="questionId">輸入題目ID：</label>
-        <input type="number" id="questionId" placeholder="請輸入數字ID" />
-        <button id="viewQuestionBtn">顯示題目</button>
-        <button id="deleteBtn">刪除題目</button>
-        <p id="deleteResponse"></p>
+<div class="goodbye">
+     <a href="#" id="login-link">登出</a>
+</div>
 
-        <br><label for="image">選擇圖片:</label>
-        <input type="file" id="image" name="image" accept="image/*" required><br><br>
-        <button id="upload-form">上傳圖片</button>
+<div class="button-container">
+    <button id="abcd">註冊</button>
+    <button id="importBtn">📄 匯入 Excel 題目</button>
+    <button id="viewAllBtn">🔍 查看所有題目</button>
+    <button id="viewUsersBtn">👤 查看所有使用者</button>
+    <button id="cleanDuplicatesBtn">🧹 強制整理題庫</button>
+    <button id="exportExcelBtn">📊 下載 Excel</button>
+    <button id="compareQuestionsBtn">🔎 比對相似題目</button>
+    <button id="checkSaveBtn">💾 存檔檢查</button>
+</div>
 
-        <div id="uploadResponse"></div>
-    </div>
+<!-- 刪除題目區域 -->
+<div class="delete-question-container">
+    <h3>特定題目處理</h3>
+    <label for="questionId">輸入題目ID：</label>
+    <input type="number" id="questionId" placeholder="請輸入數字ID" />
+    <button id="viewQuestionBtn">顯示題目</button>
+    <button id="deleteBtn">刪除題目</button>
+    <p id="deleteResponse"></p>
 
- <!-- 類別輸入框 -->
+    <br><label for="image">選擇圖片:</label>
+    <input type="file" id="image" name="image" accept="image/*" required><br><br>
+    <button id="upload-form">上傳圖片</button>
+
+    <div id="uploadResponse"></div>
+</div>
+
+<!-- 類別輸入框 -->
 <label for="categoryInput">輸入關鍵字：</label>
 <input type="text" id="categoryInput" placeholder="請輸入關鍵字">
-
 <button id="filterByCategoryBtn">搜尋題目</button>
+
 <div id="addResponse">
     <input type="text" id="subject" placeholder="請輸入科目">
     <input type="number" id="year" placeholder="請輸入年份">
@@ -77,31 +82,28 @@
     <br>
     <button id="submitQuestion">新增題目</button>
 </div>
+
 <!-- 顯示題目的區域 -->
-<div id="filteredQuestionList"></div>   
-    <div id="response"></div>
+<div id="filteredQuestionList"></div>
+<div id="response"></div>
+<div id="questionList"></div>
 
-    <div id="questionList"></div> <!-- 顯示題目或使用者的區域 -->
+<!-- 公私有選擇視窗 -->
+<div id="publicPrivateModal" style="display: none;">
+    <h3>請選擇題目為公有或私有：</h3>
+    <form>
+        <input type="radio" id="public" name="public_private" value="public" checked> 公有
+        <input type="radio" id="private" name="public_private" value="private"> 私有
+    </form>
+    <button id="confirmPublicPrivate">確認</button>
+    <button id="cancelModal">取消</button>
+</div>
 
-    <!-- 公私有選擇視窗 -->
-    <div id="publicPrivateModal" style="display: none;">
-        <h3>請選擇題目為公有或私有：</h3>
-        <form>
-            <input type="radio" id="public" name="public_private" value="public" checked> 公有
-            <input type="radio" id="private" name="public_private" value="private"> 私有
-        </form>
-        <button id="confirmPublicPrivate">確認</button>
-        <button id="cancelModal">取消</button>
-    </div>
+<!-- Excel 檔案選擇框 -->
+<input type="file" id="excelFile" style="display: none;" accept=".xlsx, .xls" />
 
-    <!-- Excel 檔案選擇框 -->
-    <input type="file" id="excelFile" style="display: none;" accept=".xlsx, .xls" />
-
-    <!-- 引入外部 JS -->
-    <script src="/static/script2.js"></script>
-
-
+<!-- 引入外部 JS -->
+<script src="/static/script2.js"></script>
 
 </body>
-
 </html>

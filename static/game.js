@@ -32,18 +32,6 @@ playerStart.owner = "player";
 playerStart.owned = true;
 playerStart.level = 1;
 
-const wwwww = ensureCell(101,101);
-wwwww.owned = true;
-wwwww.owner = 'enemy5';
-wwwww.isAltar = true;
-wwwww.altarLevel = 1;
-
-const sss = ensureCell(102,103);
-sss.owned = true;
-sss.owner = 'enemy5';
-sss.isAltar = true;
-sss.altarLevel = 3;
-
 // 回傳 Promise 的 playTimeFlow
 (function(){
   window.playTimeFlow = function playTimeFlow(opts = {}) {
@@ -286,12 +274,16 @@ async function bigbang(options = {}){
     if (typeof resources !== "undefined") resources = cfg.resources;
     if (typeof specialResources !== "undefined") specialResources = cfg.specialResources;
     if (typeof army !== "undefined") army = cfg.army;
+    if (typeof enemy5Resources !== "undefined") enemy5Resources = cfg.enemy5Resources;
+    if (typeof enemy5Special !== "undefined") enemy5Special = cfg.enemy5Special;
 
     const enemyNames = ["enemy", "enemy2", "enemy3", "enemy4", "enemy5", "enemy6"];
-    for (const name of enemyNames) {
-        if (typeof window[`${name}Resources`] !== "undefined") window[`${name}Resources`] = 10;
-        if (typeof window[`${name}Special`] !== "undefined") window[`${name}Special`] = 0;
-        if (typeof window[`${name}Army`] !== "undefined") window[`${name}Army`] = 0;
+
+    const enemies = ["enemy", "enemy2", "enemy3", "enemy4", "enemy6"];
+    for (const name of enemies) {
+        window[`${name}Resources`] = 10;
+        window[`${name}Special`] = 0;
+        window[`${name}Army`] = 0;
     }
 
     if (typeof actionMemory !== 'undefined') {
@@ -938,9 +930,9 @@ function randomNormal(mean = 0, stdDev = 1) {
 
 
 // ----------------- 敵方狀態 -----------------
-let enemyResources = 10;    // 敵方資源（內部使用，不顯示）
-let enemySpecial = 0;       // 敵方特殊物資
-let enemyArmy = 0;          // 敵方兵力
+window.enemyResources = 10;    // 敵方資源（內部使用，不顯示）
+window.enemySpecial = 0;       // 敵方特殊物資
+window.enemyArmy = 0;          // 敵方兵力
 
 // 在初始座標 100,100 放置敵方土地
 const enemyStart  = getRandomStartCell("enemy");
@@ -966,9 +958,9 @@ setInterval(() => {
 
 
 // ----------------- 敵方2狀態 -----------------
-let enemy2Resources = 10;    // 敵方2資源
-let enemy2Special = 0;       // 敵方2特殊物資
-let enemy2Army = 0;          // 敵方2兵力
+window.enemy2Resources = 10;    // 敵方2資源
+window.enemy2Special = 0;       // 敵方2特殊物資
+window.enemy2Army = 0;          // 敵方2兵力
 
 // 在初始座標 100,100 放置敵方2土地
 const enemy2Start = getRandomStartCell("enemy2");
@@ -987,9 +979,9 @@ setInterval(() => {
 
 
 // ----------------- 敵方3狀態 -----------------
-let enemy3Resources = 10;
-let enemy3Special = 0;
-let enemy3Army = 0;
+window.enemy3Resources = 10;
+window.enemy3Special = 0;
+window.enemy3Army = 0;
 
 const enemy3Start = getRandomStartCell("enemy3");
 
@@ -1006,9 +998,9 @@ setInterval(() => {
 
 
 // ----------------- 敵方4狀態 -----------------
-let enemy4Resources = 10;
-let enemy4Special = 0;
-let enemy4Army = 0;
+window.enemy4Resources = 10;
+window.enemy4Special = 0;
+window.enemy4Army = 0;
 
 const enemy4Start = getRandomStartCell("enemy4");
 
@@ -1026,8 +1018,9 @@ setInterval(() => {
 
 
 // ----------------- 敵方5狀態 -----------------
-let enemy5Resources = 10;
-let enemy5Special = 0;
+window.enemy5Resources = 10;
+window.enemy5Special = 0;
+
 const enemy5Start = getRandomStartCell("enemy5");
 
 // ----------------- 定時觸發 (AI5) -----------------
@@ -1044,8 +1037,9 @@ setInterval(() => {
 
 
 // ----------------- 敵方6狀態 -----------------
-let enemy6Resources = 10;
-let enemy6Army = 0;
+window.enemy6Resources = 10;
+window.enemy6Special = 0;
+window.enemy6Army = 0;
 
 const enemy6Start = getRandomStartCell("enemy6");
 

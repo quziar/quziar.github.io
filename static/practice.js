@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 //進入個人資料頁面
 async function settingFunction() {
-    window.location.replace("/static/profiles.html");
+    window.location.replace(`/s/c`);
 }
 
 function showQuestionList() {
@@ -1113,7 +1113,7 @@ async function logoutFunction() {
         const result = await logout(); // 等待登出完成
         if (result) {
             alert("已成功登出！");
-            window.location.href = "/static/home.html"; // 跳轉到首頁
+            window.location.replace(`/`);
         } else {
             alert("登出失敗，請稍後再試！");
         }

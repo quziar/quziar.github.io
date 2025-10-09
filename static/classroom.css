@@ -1,0 +1,263 @@
+/* 全域背景 */
+body {
+  font-family: "Microsoft JhengHei", sans-serif;
+  background-color: #fcfdf9; /* 更接近白色，但柔和 */
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+/* 頁首 header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem; /* 保留原本的 padding */
+  background-color: #a3c1ad; /* 柔和綠色背景 */
+  color: #fff; /* 文字顏色白色 */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* 輕微陰影 */
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  /* 移除原本的底線 border-bottom */
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* 返回按鈕和標題之間的距離 */
+}
+
+#className {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+/* 刪除班級按鈕 */
+.class-actions button {
+  background: #d46a6a; /* 柔和紅色 */
+  border: none;
+  padding: 0.5rem 1rem;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.class-actions button:hover {
+  background: #c15858;
+  transform: scale(1.05);
+}
+
+/* 主內容區 */
+main {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  flex-wrap: wrap;
+}
+
+/* 面板 (學生/考卷) */
+.panel {
+  flex: 1 1 300px;
+  background: #ffffff; /* 白色背景 */
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+}
+
+.panel:hover {
+  transform: translateY(-2px);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.panel-header h2 {
+  margin: 0;
+  color: #4b6e57; /* 深綠色文字 */
+  font-size: 1.2rem;
+}
+
+/* 一般按鈕 (新增學生/考卷) */
+button {
+  margin-left: 0.3rem;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #7da97a; /* 柔和綠色 */
+  color: white;
+  font-weight: 500;
+  transition: background 0.3s, transform 0.2s;
+}
+
+button:hover {
+  background: #6b8c66;
+  transform: scale(1.05);
+}
+
+/* 列表區 */
+.list {
+  margin-top: 0.8rem;
+  list-style: none;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* 學生/考卷項目 */
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.8rem;        /* 初始 padding 可稍窄 */
+  border-bottom: 1px solid #dcd8c4;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  background-color: #fafaf5;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: background 0.3s, transform 0.2s;
+
+  max-width: calc(100% - 4px);   /* 留 4px 空間給 translateX */
+  box-sizing: border-box;        /* 避免 padding + border 超出 */
+}
+
+
+.list-item:hover {
+  background-color: #f3f3e8; /* hover 顏色稍加深 */
+  transform: translateX(2px);
+}
+
+/* 移除按鈕 */
+.remove-btn {
+  background-color: #d98c76; /* 柔和紅色 */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.remove-btn:hover {
+  background-color: #c2725f;
+  transform: scale(1.2);
+}
+
+/* 對話框容器 */
+.add-student-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fcfdf9; /* 自然柔和背景 */
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 9999;
+  min-width: 300px;
+  font-family: "Microsoft JhengHei", sans-serif;
+}
+
+/* 標題 */
+.add-student-dialog h3 {
+  margin: 0 0 1rem 0;
+  color: #4b6e57;
+}
+
+/* 學生清單 */
+.add-student-dialog ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.add-student-dialog li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  background-color: #fafaf5;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  transition: background 0.2s;
+}
+
+.add-student-dialog li:hover {
+  background-color: #f3f3e8;
+}
+
+/* 按鈕區 */
+.add-student-dialog .btn-container {
+  text-align: right;
+  margin-top: 1rem;
+}
+
+.add-student-dialog button {
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.add-student-dialog .cancel-btn {
+  margin-right: 0.5rem;
+  background-color: #d46a6a;
+  color: white;
+}
+
+.add-student-dialog .cancel-btn:hover {
+  background-color: #c15858;
+}
+
+.add-student-dialog .confirm-btn {
+  background-color: #7da97a;
+  color: white;
+}
+
+.add-student-dialog .confirm-btn:hover {
+  background-color: #6b8c66;
+}
+
+.btn.back {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.btn.back:hover {
+  background-color: #f0f0f0; /* hover 背景淺灰 */
+}
+
+.btn.back svg {
+  fill: #333; /* 箭頭顏色 */
+  width: 24px;
+  height: 24px;
+}

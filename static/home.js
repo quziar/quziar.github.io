@@ -17,6 +17,8 @@ async function login(userId) {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById("username").focus();
+
     document.getElementById('username').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -58,15 +60,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 switch (data.identities) {
                     case "管理員":
                         await login(username);
-                        window.location.replace("/static/admin_dashboard.html");
+                        //window.location.replace("/static/admin_dashboard.html");
+                        window.location.replace(`/a`);
                         break;
                     case "教授":
                         await login(username);
-                        window.location.replace("/static/teacher.html");
+                        //window.location.replace("/static/teacher.html");
+                        window.location.replace(`/t`);
                         break;
                     case "學生":
                         await login(username);
-                        window.location.replace("/static/styl.html");
+                        //window.location.replace("/static/styl.html");
+                        window.location.replace(`/s`);
                         break;
                     default:
                         alert("身份不明，請聯繫系統管理員！");
@@ -81,4 +86,28 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("登入過程中出錯：", error);
         }
     });
+});
+
+const forgotPassLink = document.getElementById("forgotPassLink");
+
+const messages = [
+  "關我屁事?",
+  "都說了，關我屁事?",
+  "別按了",
+  "你按再多次我也不會幫你的",
+  "滾"
+];
+
+let clickCount = 0;
+
+forgotPassLink.addEventListener("click", (e) => {
+  e.preventDefault(); 
+
+  const msg = messages[clickCount % messages.length];
+
+  alert(msg);
+
+  if(clickCount<4){
+      clickCount++;
+  }
 });

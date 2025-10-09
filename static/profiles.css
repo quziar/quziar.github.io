@@ -32,3 +32,124 @@ input[type=text]:focus,input[type=password]:focus,select:focus{box-shadow:0 0 0 
 .spacer{flex:1}
 .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace}
 .hidden{display:none}
+
+#add-class-btn {
+  display: inline-block;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  float: right;  /* 靠右 */
+}
+#add-class-btn:active {
+  transform: translateY(1px);
+}
+
+#create-class-btn {
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background: var(--fg);
+  color: var(--bg);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
+  float: right;
+}
+
+#create-class-btn:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+#create-class-btn:active {
+  transform: translateY(1px);
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+label[for="new-class-name"] {
+  font-size: 16px;
+  color: var(--fg);
+  margin-bottom: 6px;
+  display: block;
+  font-weight: 500;
+}
+
+#new-class-name {
+  font-size: 16px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: transparent;
+  color: var(--fg);
+  outline: none;
+}
+
+#new-class-name::placeholder {
+  color: var(--muted);
+}
+
+#new-class-name:focus {
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.02);
+}
+
+.class-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 800px;       /* 固定寬度 */
+  height: 60px;      /* 固定高度 */
+  border: 1px solid var(--border, #ccc);
+  padding: 0 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  background: #fafafa;
+  box-sizing: border-box;
+  color: #000;        /* 框框內文字黑色 */
+}
+
+.class-name {
+  font-size: 16px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+  color: #000;        /* 班級名稱黑色 */
+}
+
+.class-info-btn {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #af00fa;   /* 深灰色 (暗色調) */
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.class-info-btn:hover {
+  background: #000;   /* 滑過變黑色 */
+}
+
+.btn.back {
+  position: absolute;
+  top: 10px;    /* 距離上方 */
+  left: 10px;   /* 距離左側 */
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 100;       /* 保證在最上層 */
+}
+
+.btn.back:hover {
+  background: #333;
+}
