@@ -6,8 +6,7 @@ from starlette.requests import Request
 from starlette.responses import Response
 
 class RedisSessionMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app, redis_url: str = "redis://red-cvt7qth5pdvs739hg6o0:6379", session_cookie: str = "session_id"):
-
+    def __init__(self, app, redis_url: str = "rediss://red-cvt7qth5pdvs739hg6o0:iD1SXjcwMKL5xyHgXBVa9FRBIbzFMytH@singapore-keyvalue.render.com:6379", session_cookie: str = "session_id"):
         super().__init__(app)
         self.redis = redis.from_url(redis_url)
         self.session_cookie = session_cookie
@@ -33,3 +32,5 @@ class RedisSessionMiddleware(BaseHTTPMiddleware):
 
         # 設定 Cookie
         response.set_cookie(self.session_cookie, session_id, httponly=True)
+
+        return response
