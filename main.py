@@ -18,7 +18,6 @@ from database.sync_db_to_github import sync_db_to_github
 from routes import (
     question_router,
     save_users_router,
-    admin_router,
     session_router,
     exam_router,
     fonts_router,
