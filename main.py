@@ -21,6 +21,7 @@ from routes import (
     session_router,
     exam_router,
     fonts_router,
+    SL_router,
 )
 
 # 初始化 FastAPI
