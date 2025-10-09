@@ -10,7 +10,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from scripts.redis_session import MemorySessionMiddleware
 from scripts.redis_session import RedisSessionMiddleware
 from scripts.online_people import router as online_router
 from database.sync_db_to_github import sync_db_to_github
