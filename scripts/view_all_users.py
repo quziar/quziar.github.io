@@ -7,7 +7,7 @@ def view_all_users():
         with get_user_db() as conn:
             cursor = conn.cursor()
             # 查詢 users 資料表，獲取所有使用者資料
-            cursor.execute('SELECT id, username, identities FROM users')  # 查詢 ID、用戶名與身份欄位
+            cursor.execute('SELECT id, username, identities,class FROM users')  # 查詢 ID、用戶名與身份欄位
             rows = cursor.fetchall()
 
             # 獲取欄位名稱
