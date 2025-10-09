@@ -108,7 +108,7 @@ class DatabaseConnection:
                     username TEXT UNIQUE NOT NULL,
                     password TEXT NOT NULL,
                     identities TEXT NOT NULL,
-                    class TEXT NOT NULL
+                    class TEXT NOT NULL DEFAULT '[]'
                 )
             ''')
             conn.commit()
